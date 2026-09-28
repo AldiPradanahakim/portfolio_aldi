@@ -1,0 +1,118 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="750" viewBox="0 0 1200 750" role="img" aria-label="AF GPS Tracker live tracking dashboard with route, geofence and vehicle panel">
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#151B23" stroke-width="1"/>
+    </pattern>
+    <clipPath id="map"><rect x="300" y="56" width="900" height="694"/></clipPath>
+  </defs>
+  <rect width="1200" height="750" fill="#0A0C10"/>
+
+  <!-- top bar -->
+  <rect x="0" y="0" width="1200" height="56" fill="#11151B"/>
+  <line x1="0" y1="56" x2="1200" y2="56" stroke="#232A34" stroke-width="1"/>
+  <circle cx="30" cy="28" r="9" fill="none" stroke="#38BDF8" stroke-width="1.5"/>
+  <circle cx="30" cy="28" r="3" fill="#38BDF8"/>
+  <text x="50" y="34" fill="#E6EDF3" font-size="15" font-weight="600" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">AF GPS Tracker</text>
+  <text x="200" y="34" fill="#38BDF8" font-size="13" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Live Map</text>
+  <text x="296" y="34" fill="#7D8896" font-size="13" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Geofence</text>
+  <text x="392" y="34" fill="#7D8896" font-size="13" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">History</text>
+  <text x="466" y="34" fill="#7D8896" font-size="13" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Reports</text>
+  <rect x="1040" y="16" width="60" height="24" rx="12" fill="#38BDF8" opacity="0.14"/>
+  <circle cx="1054" cy="28" r="4" fill="#38BDF8"/>
+  <text x="1064" y="33" fill="#38BDF8" font-size="11" font-weight="600" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">LIVE</text>
+  <circle cx="1140" cy="28" r="13" fill="#1A2129"/>
+  <text x="1135" y="33" fill="#7D8896" font-size="11" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">AP</text>
+
+  <!-- left panel -->
+  <rect x="0" y="56" width="300" height="694" fill="#11151B"/>
+  <line x1="300" y1="56" x2="300" y2="750" stroke="#232A34" stroke-width="1"/>
+  <text x="24" y="92" fill="#7D8896" font-size="11" letter-spacing="1.2" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">VEHICLES</text>
+  <rect x="24" y="104" width="252" height="34" rx="8" fill="#0A0C10" stroke="#232A34"/>
+  <circle cx="42" cy="121" r="5" fill="none" stroke="#7D8896" stroke-width="1.4"/>
+  <line x1="46" y1="125" x2="50" y2="129" stroke="#7D8896" stroke-width="1.4"/>
+  <text x="60" y="126" fill="#5C6673" font-size="12" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Search plate or unit</text>
+
+  <rect x="24" y="154" width="252" height="96" rx="10" fill="#161B22" stroke="#38BDF8"/>
+  <circle cx="46" cy="178" r="4" fill="#38BDF8"/>
+  <text x="60" y="183" fill="#E6EDF3" font-size="13" font-weight="600" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Truck 01</text>
+  <text x="60" y="200" fill="#7D8896" font-size="11" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">B 9021 KX</text>
+  <text x="24" y="222" fill="#7D8896" font-size="10" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Speed</text>
+  <text x="24" y="238" fill="#E6EDF3" font-size="12" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">42 km/h</text>
+  <text x="112" y="222" fill="#7D8896" font-size="10" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Battery</text>
+  <text x="112" y="238" fill="#E6EDF3" font-size="12" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">86 %</text>
+  <text x="204" y="222" fill="#7D8896" font-size="10" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Sat</text>
+  <text x="204" y="238" fill="#E6EDF3" font-size="12" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">9</text>
+
+  <rect x="24" y="262" width="252" height="96" rx="10" fill="#141920" stroke="#232A34"/>
+  <circle cx="46" cy="286" r="4" fill="#8B949E"/>
+  <text x="60" y="291" fill="#E6EDF3" font-size="13" font-weight="600" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Van 02</text>
+  <text x="60" y="308" fill="#7D8896" font-size="11" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">B 4417 TR</text>
+  <text x="24" y="330" fill="#7D8896" font-size="10" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Speed</text>
+  <text x="24" y="346" fill="#E6EDF3" font-size="12" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">0 km/h</text>
+  <text x="112" y="330" fill="#7D8896" font-size="10" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Battery</text>
+  <text x="112" y="346" fill="#E6EDF3" font-size="12" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">64 %</text>
+  <text x="204" y="330" fill="#7D8896" font-size="10" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Sat</text>
+  <text x="204" y="346" fill="#E6EDF3" font-size="12" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">7</text>
+
+  <line x1="24" y1="388" x2="276" y2="388" stroke="#232A34" stroke-width="1"/>
+  <text x="24" y="424" fill="#7D8896" font-size="11" letter-spacing="1.2" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">TODAY</text>
+  <text x="24" y="452" fill="#7D8896" font-size="11" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Distance</text>
+  <text x="276" y="452" fill="#E6EDF3" font-size="12" text-anchor="end" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">128 km</text>
+  <text x="24" y="480" fill="#7D8896" font-size="11" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Trips</text>
+  <text x="276" y="480" fill="#E6EDF3" font-size="12" text-anchor="end" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">6</text>
+  <text x="24" y="508" fill="#7D8896" font-size="11" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Stops</text>
+  <text x="276" y="508" fill="#E6EDF3" font-size="12" text-anchor="end" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">4</text>
+  <text x="24" y="536" fill="#7D8896" font-size="11" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Alerts</text>
+  <text x="276" y="536" fill="#38BDF8" font-size="12" text-anchor="end" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">2</text>
+  <rect x="24" y="562" width="252" height="34" rx="8" fill="#0A0C10" stroke="#232A34"/>
+  <text x="150" y="584" fill="#7D8896" font-size="12" text-anchor="middle" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Export history PDF</text>
+
+  <!-- map -->
+  <g clip-path="url(#map)">
+    <rect x="300" y="56" width="900" height="694" fill="#0C1016"/>
+    <rect x="300" y="56" width="900" height="694" fill="url(#grid)"/>
+    <path d="M300 640 C 460 600, 520 520, 660 500 S 900 420, 1200 380" fill="none" stroke="#1B232C" stroke-width="14"/>
+    <path d="M420 750 C 470 660, 560 620, 700 600 S 980 560, 1200 520" fill="none" stroke="#1B232C" stroke-width="10"/>
+    <path d="M620 56 C 640 200, 760 300, 820 460 S 880 640, 900 750" fill="none" stroke="#1B232C" stroke-width="10"/>
+    <path d="M300 300 C 460 290, 620 250, 760 180 S 1020 120, 1200 150" fill="none" stroke="#161D25" stroke-width="6"/>
+
+    <circle cx="660" cy="500" r="150" fill="#38BDF8" opacity="0.05"/>
+    <circle cx="660" cy="500" r="150" fill="none" stroke="#38BDF8" stroke-width="1.5" stroke-dasharray="8 7"/>
+    <text x="660" y="326" fill="#38BDF8" font-size="11" text-anchor="middle" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Depot Area - radius 2 km</text>
+
+    <polyline points="392,646 470,600 540,556 610,528 680,486 750,430 830,372 910,318 1000,268 1060,232" fill="none" stroke="#38BDF8" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+    <polyline points="392,646 470,600 540,556 610,528 680,486 750,430 830,372 910,318 1000,268 1060,232" fill="none" stroke="#38BDF8" stroke-width="9" opacity="0.12" stroke-linejoin="round"/>
+
+    <circle cx="392" cy="646" r="6" fill="#0C1016" stroke="#7D8896" stroke-width="2"/>
+    <text x="392" y="674" fill="#7D8896" font-size="11" text-anchor="middle" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">07:12</text>
+
+    <circle cx="830" cy="372" r="6" fill="#0C1016" stroke="#8B949E" stroke-width="2"/>
+    <text x="830" y="400" fill="#7D8896" font-size="11" text-anchor="middle" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Van 02</text>
+
+    <circle cx="1060" cy="232" r="18" fill="#38BDF8" opacity="0.16"/>
+    <circle cx="1060" cy="232" r="10" fill="#38BDF8"/>
+    <circle cx="1060" cy="232" r="3.5" fill="#0C1016"/>
+    <rect x="1000" y="188" width="120" height="26" rx="6" fill="#11151B" stroke="#38BDF8"/>
+    <text x="1060" y="206" fill="#E6EDF3" font-size="11" text-anchor="middle" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Truck 01 - 42 km/h</text>
+
+    <rect x="320" y="78" width="196" height="82" rx="10" fill="#11151B" opacity="0.94" stroke="#232A34"/>
+    <text x="336" y="100" fill="#7D8896" font-size="10" letter-spacing="1.2" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">UNIT</text>
+    <text x="336" y="120" fill="#E6EDF3" font-size="12" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Truck 01</text>
+    <text x="336" y="140" fill="#7D8896" font-size="10" letter-spacing="1.2" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">LAST FIX</text>
+    <text x="336" y="156" fill="#E6EDF3" font-size="12" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">12 s ago</text>
+
+    <rect x="1132" y="88" width="36" height="36" rx="8" fill="#11151B" stroke="#232A34"/>
+    <line x1="1150" y1="100" x2="1150" y2="112" stroke="#7D8896" stroke-width="1.6"/>
+    <line x1="1144" y1="106" x2="1156" y2="106" stroke="#7D8896" stroke-width="1.6"/>
+    <rect x="1132" y="132" width="36" height="36" rx="8" fill="#11151B" stroke="#232A34"/>
+    <line x1="1144" y1="150" x2="1156" y2="150" stroke="#7D8896" stroke-width="1.6"/>
+
+    <rect x="800" y="612" width="376" height="76" rx="12" fill="#11151B" stroke="#38BDF8"/>
+    <rect x="800" y="612" width="4" height="76" rx="2" fill="#38BDF8"/>
+    <text x="824" y="640" fill="#38BDF8" font-size="11" letter-spacing="1.2" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">GEOFENCE EXIT</text>
+    <text x="824" y="662" fill="#E6EDF3" font-size="13" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">Truck 01 left Depot Area</text>
+    <text x="824" y="680" fill="#7D8896" font-size="11" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">2 minutes ago</text>
+    <circle cx="1152" cy="650" r="10" fill="#0A0C10" stroke="#232A34"/>
+    <text x="1149" y="654" fill="#7D8896" font-size="10" font-family="Segoe UI, Roboto, Helvetica, Arial, sans-serif">x</text>
+  </g>
+</svg>

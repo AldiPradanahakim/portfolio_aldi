@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Tidak ada halaman privat di situs ini: seluruh halaman portofolio publik.
+# Sitemap belum disediakan karena situs ini belum punya domain tetap.
