@@ -6,6 +6,17 @@ import { rateLimit } from './middleware/rateLimit.js';
 const router = Router();
 
 /**
+ * Liveness. Dipasang di dua tempat: `/api/health` (lewat router, inilah yang
+ * ada di Vercel karena hanya `/api/*` yang diteruskan ke function) dan
+ * `/health` di app.ts (jalur pendek untuk pemakaian lokal). Handler-nya satu.
+ */
+export function health(req: Request, res: Response): void {
+  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+}
+
+router.get('/health', health);
+
+/**
  * POST /api/contact
  *
  * Kontrak yang dipakai frontend: sukses 200 {"success":true};

@@ -14,5 +14,3 @@ export const NAV_SECTIONS: NavSection[] = [
   { id: 'journey', label: { en: 'Journey', id: 'Perjalanan' } },
   { id: 'faq', label: { en: 'FAQ', id: 'FAQ' } },
 ];
-
-export const NAV_SECTION_IDS = NAV_SECTIONS.map((section) => section.id);

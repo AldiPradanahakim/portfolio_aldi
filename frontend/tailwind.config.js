@@ -4,26 +4,37 @@ export default {
   theme: {
     extend: {
       colors: {
-        // near-black neutrals with a cool cast: ink-950 page, ink-900 cards, ink-800 hairlines
+        // Every colour resolves to a CSS variable declared in src/index.css. The variables are
+        // the single theme mechanism: `:root` holds the dark ramp, `:root.light` (set by the
+        // pre-paint script in index.html and by ThemeProvider) re-declares it. No `dark:`
+        // variants anywhere, and the old ink/chalk/accent names keep working unchanged.
         ink: {
-          950: '#08090C',
-          900: '#0C0E13',
-          850: '#111419',
-          800: '#181C24',
-          700: '#242A35',
-          600: '#39414F',
+          950: 'rgb(var(--bg) / <alpha-value>)', // page background
+          900: 'rgb(var(--surface) / <alpha-value>)', // cards, fields
+          850: 'rgb(var(--surface-raised) / <alpha-value>)', // chips, wells
+          800: 'rgb(var(--border) / <alpha-value>)', // hairlines
+          700: 'rgb(var(--border-strong) / <alpha-value>)',
+          600: 'rgb(var(--border-hover) / <alpha-value>)',
         },
-        // on ink-950: chalk 17:1, muted 7.8:1, faint 5:1 — all AA for body text
         chalk: {
-          DEFAULT: '#ECEEF2',
-          muted: '#9AA3B2',
-          faint: '#79818F',
+          DEFAULT: 'rgb(var(--text) / <alpha-value>)',
+          muted: 'rgb(var(--text-muted) / <alpha-value>)',
+          faint: 'rgb(var(--text-faint) / <alpha-value>)',
         },
-        // the one accent: 7.9:1 on ink-950, and ink-950 on accent is 7.9:1 for solid buttons
         accent: {
-          DEFAULT: '#7AA2F7',
-          soft: '#A9C1FF',
-          deep: '#2A3B63',
+          DEFAULT: 'rgb(var(--accent) / <alpha-value>)',
+          hover: 'rgb(var(--accent-hover) / <alpha-value>)',
+          deep: 'rgb(var(--accent-deep) / <alpha-value>)',
+        },
+        danger: {
+          DEFAULT: 'rgb(var(--danger) / <alpha-value>)',
+          border: 'rgb(var(--danger-border) / <alpha-value>)',
+        },
+        // Project covers are dark UI mockups; they stay on a dark surface in both themes.
+        media: {
+          DEFAULT: 'rgb(var(--media) / <alpha-value>)',
+          ring: 'rgb(var(--media-ring) / <alpha-value>)',
+          text: 'rgb(var(--media-text) / <alpha-value>)',
         },
       },
       fontFamily: {
@@ -58,6 +69,9 @@ export default {
         small: ['0.875rem', { lineHeight: '1.6' }],
         label: ['0.75rem', { lineHeight: '1.4', letterSpacing: '0.1em' }],
       },
+      // The motion vocabulary, defined once: one curve, three durations.
+      transitionTimingFunction: { DEFAULT: 'cubic-bezier(0.22, 1, 0.36, 1)' },
+      transitionDuration: { DEFAULT: '220ms', fast: '150ms', slow: '600ms' },
       maxWidth: { shell: '1120px' },
       borderRadius: { '3xl': '22px' },
     },

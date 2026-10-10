@@ -11,16 +11,16 @@ export const JOURNEY: Milestone[] = [
     period: '2022 — 2026',
     kind: 'education',
     title: {
-      id: 'Kuliah Teknik Informatika',
-      en: 'Informatics Engineering degree',
+      id: 'Sarjana Teknik (S.T.), Teknik Informatika',
+      en: 'Bachelor of Engineering (S.T.), Informatics Engineering',
     },
     org: {
-      id: 'Program studi Teknik Informatika',
-      en: 'Informatics Engineering programme',
+      id: 'Program studi Teknik Informatika — lulus 2026',
+      en: 'Informatics Engineering programme — graduated 2026',
     },
     detail: {
-      id: 'Menempuh pendidikan Teknik Informatika dengan fokus pada rekayasa perangkat lunak dan pengembangan web. Proyek nyata berjalan berdampingan dengan perkuliahan: hampir semua aplikasi di halaman ini lahir dari tugas kuliah, capstone, atau tugas akhir, bukan dari latihan yang berhenti di kelas.',
-      en: 'Studied Informatics Engineering with a focus on software engineering and web development. Real project work ran alongside coursework: almost every application on this page came out of a course assignment, a capstone, or a final thesis rather than a classroom exercise that stopped at the classroom.',
+      id: 'Menyelesaikan pendidikan Teknik Informatika dengan fokus pada rekayasa perangkat lunak dan pengembangan web, dan lulus dengan gelar Sarjana Teknik (S.T.). Proyek nyata berjalan berdampingan dengan perkuliahan: hampir semua aplikasi di halaman ini lahir dari tugas kuliah, capstone, atau tugas akhir, bukan dari latihan yang berhenti di kelas.',
+      en: 'Completed an Informatics Engineering degree focused on software engineering and web development, graduating with the title Sarjana Teknik (S.T., Bachelor of Engineering). Real project work ran alongside coursework: almost every application on this page came out of a course assignment, a capstone, or a final thesis rather than a classroom exercise that stopped at the classroom.',
     },
   },
   {

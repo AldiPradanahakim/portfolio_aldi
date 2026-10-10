@@ -3,8 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#08090C" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#08090C" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#FAF9F7" media="(prefers-color-scheme: light)" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>Aldi Pradan Hakim — Full-Stack Web Developer</title>
     <meta
@@ -23,6 +24,27 @@
       name="twitter:description"
       content="Web applications, point-of-sale systems, realtime device tracking, REST APIs and web GIS — built end to end."
     />
+    <script>
+      /* Applies the stored/system theme before first paint, so there is never a flash of the
+         wrong theme. Wrapped so blocked storage or matchMedia cannot throw. */
+      (function () {
+        try {
+          var stored = localStorage.getItem('aldi-theme');
+          var light =
+            stored === 'light' ||
+            (stored !== 'dark' && window.matchMedia('(prefers-color-scheme: light)').matches);
+          document.documentElement.classList.toggle('light', light);
+        } catch (error) {
+          /* storage blocked: the dark default in index.css stands */
+        }
+        /* Holds the hero back until the intro curtain in LoadingScreen lifts, and releases it
+           unconditionally after 2.5s so a failure there can never leave the hero hidden. */
+        document.documentElement.dataset.intro = 'pending';
+        setTimeout(function () {
+          document.documentElement.dataset.intro = 'done';
+        }, 2500);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

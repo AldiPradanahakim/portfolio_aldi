@@ -1,27 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { AnimatePresence, MotionConfig, motion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useFocusTrap } from '../hooks/useFocusTrap';
-
-/**
- * framer-motion's own useReducedMotion reads the media query once at mount and never
- * resubscribes, so a visitor who turns Reduce Motion on mid-session keeps the animation
- * until a reload. Subscribe explicitly instead.
- */
-function usePrefersReducedMotion() {
-  const [reduced, setReduced] = useState(
-    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-  );
-
-  useEffect(() => {
-    const query = window.matchMedia('(prefers-reduced-motion: reduce)');
-    const onChange = () => setReduced(query.matches);
-    query.addEventListener('change', onChange);
-    return () => query.removeEventListener('change', onChange);
-  }, []);
-
-  return reduced;
-}
+import { usePrefersReducedMotion } from '../hooks/usePrefersReducedMotion';
 
 interface LightboxImage {
   src: string;
@@ -93,7 +74,7 @@ export function Lightbox({ images, index, onClose, onIndexChange, labels }: Ligh
                   type="button"
                   onClick={onClose}
                   aria-label={labels.close}
-                  className="rounded-full border border-ink-700 p-2 text-chalk-muted transition-colors duration-150 hover:text-chalk"
+                  className="press rounded-full border border-ink-700 p-2 text-chalk-muted hover:text-chalk"
                 >
                   <X className="h-4 w-4" aria-hidden="true" />
                 </button>
@@ -105,7 +86,7 @@ export function Lightbox({ images, index, onClose, onIndexChange, labels }: Ligh
                 width={1200}
                 height={750}
                 decoding="async"
-                className="w-full rounded-2xl border border-ink-800 bg-ink-900"
+                className="w-full rounded-2xl border border-media-ring bg-media"
               />
 
               {images.length > 1 && (
@@ -113,7 +94,7 @@ export function Lightbox({ images, index, onClose, onIndexChange, labels }: Ligh
                   <button
                     type="button"
                     onClick={() => onIndexChange((index! - 1 + images.length) % images.length)}
-                    className="inline-flex items-center gap-2 rounded-full border border-ink-700 px-4 py-2 text-small text-chalk-muted transition-colors duration-150 hover:text-chalk"
+                    className="press inline-flex items-center gap-2 rounded-full border border-ink-700 px-4 py-2 text-small text-chalk-muted hover:border-ink-600 hover:text-chalk"
                   >
                     <ChevronLeft className="h-4 w-4" aria-hidden="true" />
                     {labels.previous}
@@ -121,7 +102,7 @@ export function Lightbox({ images, index, onClose, onIndexChange, labels }: Ligh
                   <button
                     type="button"
                     onClick={() => onIndexChange((index! + 1) % images.length)}
-                    className="inline-flex items-center gap-2 rounded-full border border-ink-700 px-4 py-2 text-small text-chalk-muted transition-colors duration-150 hover:text-chalk"
+                    className="press inline-flex items-center gap-2 rounded-full border border-ink-700 px-4 py-2 text-small text-chalk-muted hover:border-ink-600 hover:text-chalk"
                   >
                     {labels.next}
                     <ChevronRight className="h-4 w-4" aria-hidden="true" />

@@ -2,13 +2,13 @@ import type { InputHTMLAttributes, TextareaHTMLAttributes } from 'react';
 import { cx } from '../lib/cn';
 
 const field =
-  'w-full rounded-xl border bg-ink-900 px-4 py-3 text-body text-chalk placeholder:text-chalk-faint transition-colors duration-150';
+  'w-full rounded-xl border bg-ink-900 px-4 py-3 text-body text-chalk placeholder:text-chalk-faint transition-colors duration-fast';
 
 const normal = 'border-ink-800 hover:border-ink-700 focus:border-accent';
-const invalid = 'border-red-400';
+const invalid = 'border-danger-border';
 
 const labelClass = 'text-small font-medium text-chalk';
-const errorClass = 'text-small text-red-300';
+const errorClass = 'text-small text-danger';
 
 interface SharedProps {
   id: string;

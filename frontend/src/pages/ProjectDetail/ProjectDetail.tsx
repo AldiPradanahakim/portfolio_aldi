@@ -83,32 +83,38 @@ export default function ProjectDetail() {
   const previous = PROJECTS[index - 1];
   const next = PROJECTS[index + 1];
   const extras = project.gallery.filter((src) => src !== project.cover);
-  const gallery = [project.cover, ...extras];
+  const gallery = [...(project.cover ? [project.cover] : []), ...extras];
   const coverAlt = `${project.name} — ${t(project.tagline)}`;
+  // Without a cover the gallery starts at the first extra, so indices shift by one.
+  const coverOffset = project.cover ? 1 : 0;
+  const extraAlt = (n: number) =>
+    `${project.name} — ${t(T.gallery)} ${n} ${t(T.of)} ${extras.length}`;
 
   return (
     <article className="pt-28 sm:pt-36">
       <div className="shell">
         <Link
           to="/#work"
-          className="inline-flex items-center gap-2 text-small text-chalk-muted transition-colors duration-150 hover:text-chalk"
+          className="inline-flex items-center gap-2 text-small text-chalk-muted transition-colors duration-fast hover:text-chalk"
         >
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           {t(T.back)}
         </Link>
 
-        <header className="mt-8">
-          <p className="flex flex-wrap items-center gap-3 font-mono text-label uppercase text-chalk-faint">
-            {category && <span>{t(category)}</span>}
-            <span aria-hidden="true">/</span>
-            <span>{project.year}</span>
-          </p>
-          <h1 className="mt-4 text-balance text-display font-semibold text-chalk">
-            {project.name}
-          </h1>
-          <p className="mt-5 max-w-3xl text-h3 text-chalk-muted">{t(project.tagline)}</p>
-          <p className="mt-6 max-w-3xl text-body text-chalk-muted">{t(project.summary)}</p>
-        </header>
+        <Reveal className="mt-8">
+          <header>
+            <p className="flex flex-wrap items-center gap-3 font-mono text-label uppercase text-chalk-faint">
+              {category && <span>{t(category)}</span>}
+              <span aria-hidden="true">/</span>
+              <span>{project.year}</span>
+            </p>
+            <h1 className="mt-4 text-balance text-display font-semibold text-chalk">
+              {project.name}
+            </h1>
+            <p className="mt-5 max-w-3xl text-h3 text-chalk-muted">{t(project.tagline)}</p>
+            <p className="mt-6 max-w-3xl text-body text-chalk-muted">{t(project.summary)}</p>
+          </header>
+        </Reveal>
 
         <dl className="mt-12 grid gap-6 border-y border-ink-800 py-6 sm:grid-cols-3">
           <div>
@@ -152,14 +158,18 @@ export default function ProjectDetail() {
           </div>
         )}
 
-        <img
-          src={project.cover}
-          alt={coverAlt}
-          width={1200}
-          height={750}
-          decoding="async"
-          className="mt-12 w-full rounded-2xl border border-ink-800 bg-ink-900"
-        />
+        {project.cover && (
+          <Reveal className="mt-12">
+            <img
+              src={project.cover}
+              alt={coverAlt}
+              width={1200}
+              height={750}
+              decoding="async"
+              className="w-full rounded-2xl border border-media-ring bg-media"
+            />
+          </Reveal>
+        )}
       </div>
 
       <div className="shell">
@@ -219,21 +229,23 @@ export default function ProjectDetail() {
             <ul className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {extras.map((src, extraIndex) => (
                 <li key={src}>
-                  <button
-                    type="button"
-                    onClick={() => setLightboxIndex(extraIndex + 1)}
-                    className="card card-hover block w-full overflow-hidden"
-                  >
-                    <img
-                      src={src}
-                      alt={`${project.name} — ${t(T.gallery)} ${extraIndex + 1} ${t(T.of)} ${extras.length}`}
-                      width={1200}
-                      height={750}
-                      loading="lazy"
-                      decoding="async"
-                      className="w-full"
-                    />
-                  </button>
+                  <Reveal delay={(extraIndex % 3) * 80}>
+                    <button
+                      type="button"
+                      onClick={() => setLightboxIndex(extraIndex + coverOffset)}
+                      className="card-hover block w-full overflow-hidden rounded-2xl border border-ink-800 bg-media"
+                    >
+                      <img
+                        src={src}
+                        alt={extraAlt(extraIndex + 1)}
+                        width={1200}
+                        height={750}
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full"
+                      />
+                    </button>
+                  </Reveal>
                 </li>
               ))}
             </ul>
@@ -263,7 +275,7 @@ export default function ProjectDetail() {
                 <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
                 {t(T.previous)}
               </span>
-              <span className="text-h3 text-chalk-muted transition-colors duration-150 group-hover:text-chalk">
+              <span className="text-h3 text-chalk-muted transition-colors duration-fast group-hover:text-chalk">
                 {previous.name}
               </span>
             </Link>
@@ -279,7 +291,7 @@ export default function ProjectDetail() {
                 {t(T.next)}
                 <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
               </span>
-              <span className="text-h3 text-chalk-muted transition-colors duration-150 group-hover:text-chalk">
+              <span className="text-h3 text-chalk-muted transition-colors duration-fast group-hover:text-chalk">
                 {next.name}
               </span>
             </Link>
@@ -288,7 +300,10 @@ export default function ProjectDetail() {
       </div>
 
       <Lightbox
-        images={gallery.map((src, galleryIndex) => ({ src, alt: galleryIndex === 0 ? coverAlt : `${project.name} — ${t(T.gallery)} ${galleryIndex} ${t(T.of)} ${extras.length}` }))}
+        images={gallery.map((src, galleryIndex) => ({
+          src,
+          alt: coverOffset === 1 && galleryIndex === 0 ? coverAlt : extraAlt(galleryIndex - coverOffset + 1),
+        }))}
         index={lightboxIndex}
         onClose={() => setLightboxIndex(null)}
         onIndexChange={setLightboxIndex}

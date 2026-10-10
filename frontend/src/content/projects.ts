@@ -135,9 +135,9 @@ export const PROJECTS: Project[] = [
       'Supervisor',
       'ESP / Arduino',
     ],
-    cover: '/images/projects/af-gps-tracker-01.svg',
+    cover: '/images/projects/af-gps-tracker.webp',
     gallery: [
-      '/images/projects/af-gps-tracker-01.svg',
+      '/images/projects/af-gps-tracker.webp',
       '/images/projects/af-gps-tracker-02.svg',
       '/images/projects/af-gps-tracker-03.svg',
     ],
@@ -268,8 +268,8 @@ export const PROJECTS: Project[] = [
       'Dexie (IndexedDB)',
       'vite-plugin-pwa',
     ],
-    cover: '/images/projects/kasir-pos-01.svg',
-    gallery: ['/images/projects/kasir-pos-01.svg'],
+    cover: '/images/projects/kasir-pos.webp',
+    gallery: ['/images/projects/kasir-pos.webp'],
     links: {},
   },
 
@@ -281,16 +281,16 @@ export const PROJECTS: Project[] = [
     featured: false,
     status: 'shipped',
     role: {
-      id: 'Perancang database sekaligus membantu pengerjaan backend',
-      en: 'Database designer, also contributed to the backend',
+      id: 'Perancang skema database dan pengembang backend',
+      en: 'Database schema designer and backend developer',
     },
     tagline: {
       id: 'Marketplace jasa yang menghubungkan freelancer dengan klien, lengkap dengan pembayaran dan chat realtime.',
       en: 'A services marketplace connecting freelancers with clients, complete with payments and realtime chat.',
     },
     summary: {
-      id: 'Platform marketplace jasa dengan delapan modul backend berarsitektur Domain-Driven Design: pengguna, layanan, pesanan, payment gateway, ulasan, chat, dashboard admin, dan rekomendasi. Antarmuka React 18 disusun dengan pola Atomic Design. Dikerjakan sebagai proyek capstone tim pada semester tujuh, mencakup alur dari pemesanan sampai pembayaran dan ulasan. Bagian saya di proyek tim ini adalah perancangan skema database-nya — 25 tabel yang menampung akun, layanan, pesanan, escrow, ulasan, chat, dan pencairan dana — sekaligus membantu pengerjaan backend; kedelapan modul itu dibagi ke seluruh anggota tim, bukan dikerjakan sendirian.',
-      en: 'A services marketplace with eight backend modules built on Domain-Driven Design: users, services, orders, payment gateway, reviews, chat, admin dashboard, and recommendations. The React 18 interface follows the Atomic Design pattern. Built as a team capstone project in the seventh semester, covering the flow from booking through payment and review. My part in this team project was designing the database schema — 25 tables covering accounts, services, orders, escrow, reviews, chat, and payouts — and helping with the backend; those eight modules were split across the whole team rather than built solo.',
+      id: 'Platform marketplace jasa dengan delapan modul backend berarsitektur Domain-Driven Design: pengguna, layanan, pesanan, payment gateway, ulasan, chat, dashboard admin, dan rekomendasi. Antarmuka React 18 disusun dengan pola Atomic Design. Dikerjakan sebagai proyek capstone tim pada semester tujuh, mencakup alur dari pemesanan sampai pembayaran dan ulasan. Bagian saya di proyek tim ini ada dua: merancang skema database-nya — 25 tabel yang menampung akun, layanan, pesanan, escrow, ulasan, chat, dan pencairan dana — dan mengerjakan backend di atasnya; kedelapan modul itu dibagi ke seluruh anggota tim, bukan dikerjakan sendirian.',
+      en: 'A services marketplace with eight backend modules built on Domain-Driven Design: users, services, orders, payment gateway, reviews, chat, admin dashboard, and recommendations. The React 18 interface follows the Atomic Design pattern. Built as a team capstone project in the seventh semester, covering the flow from booking through payment and review. My part in this team project came in two pieces: designing the database schema — 25 tables covering accounts, services, orders, escrow, reviews, chat, and payouts — and building the backend on top of it; those eight modules were split across the whole team rather than built solo.',
     },
     problem: {
       id: 'Freelancer lokal biasanya mencari klien lewat pesan pribadi dan media sosial. Tidak ada tempat menampilkan jasa secara terstruktur, tidak ada alur pemesanan yang jelas, dan tidak ada cara menahan pembayaran sampai pekerjaan selesai — sehingga risiko ditanggung satu pihak saja, padahal seharusnya bisa dibagi.',
@@ -387,8 +387,9 @@ export const PROJECTS: Project[] = [
       'React Query',
       'Zustand',
     ],
-    cover: '/images/projects/skillconnect-01.svg',
-    gallery: ['/images/projects/skillconnect-01.svg'],
+    // ponytail: no screenshot of this one, so the card and detail page render without media.
+    cover: null,
+    gallery: [],
     links: {},
   },
 

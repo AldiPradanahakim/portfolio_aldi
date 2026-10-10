@@ -4,10 +4,10 @@ export type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 const base =
-  'inline-flex items-center justify-center gap-2 rounded-full font-medium transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50';
+  'inline-flex items-center justify-center gap-2 rounded-full font-medium transition-[color,background-color,border-color,transform] duration-fast active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50';
 
 const variants: Record<ButtonVariant, string> = {
-  primary: 'bg-accent text-ink-950 hover:bg-accent-soft',
+  primary: 'bg-accent text-ink-950 hover:bg-accent-hover',
   secondary: 'border border-ink-700 text-chalk hover:border-ink-600 hover:bg-ink-900',
   ghost: 'text-chalk-muted hover:text-chalk',
 };

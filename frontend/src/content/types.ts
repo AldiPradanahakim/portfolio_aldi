@@ -9,7 +9,8 @@ export interface Project {
   slug: string; name: string; category: CategoryId; year: string;
   role: L; tagline: L; summary: L; problem: L; solution: L;
   features: Feature[]; metrics: Metric[]; stack: string[];
-  cover: string; gallery: string[]; links: { demo?: string; repo?: string };
+  /** null when there is no screenshot to show; the UI then renders a text-only card. */
+  cover: string | null; gallery: string[]; links: { demo?: string; repo?: string };
   status: 'shipped' | 'in-development'; featured: boolean;
 }
 

@@ -1,7 +1,9 @@
 import { lazy, Suspense, useEffect, useRef } from 'react';
 import { BrowserRouter, Route, Routes, useLocation, useNavigationType } from 'react-router-dom';
 import { LanguageProvider } from './shared/context/LanguageProvider';
+import { ThemeProvider } from './shared/context/ThemeProvider';
 import { useLang } from './shared/context/language';
+import { LoadingScreen } from './shared/components/LoadingScreen';
 import { currentScrollY, recallScroll, rememberScroll } from './shared/lib/scroll';
 import Home from './pages/Home/Home';
 import NotFound from './pages/NotFound/NotFound';
@@ -24,6 +26,7 @@ function ScrollManager() {
   const { key, pathname, hash } = useLocation();
   const navigationType = useNavigationType();
   const previousKey = useRef(key);
+  const onHome = pathname === '/';
 
   useEffect(() => {
     history.scrollRestoration = 'manual';
@@ -35,7 +38,9 @@ function ScrollManager() {
       previousKey.current = key;
     }
 
-    if (hash) {
+    // On the deck a hash selects a panel; scrolling to an element that is not mounted yet (or
+    // that sits inside the panel's own scroll box) would fight the panel switch.
+    if (hash && !onHome) {
       const target = document.getElementById(hash.slice(1));
       if (target) {
         target.scrollIntoView({ block: 'start' });
@@ -51,7 +56,7 @@ function ScrollManager() {
     }
 
     window.scrollTo({ top: 0, behavior: 'instant' });
-  }, [key, pathname, hash, navigationType]);
+  }, [key, pathname, hash, navigationType, onHome]);
 
   return null;
 }
@@ -59,6 +64,7 @@ function ScrollManager() {
 function Shell() {
   const { pathname } = useLocation();
   const { t } = useLang();
+  const onHome = pathname === '/';
 
   return (
     <>
@@ -73,7 +79,18 @@ function Shell() {
 
       <Nav />
 
-      <main id="main" tabIndex={-1}>
+      {/* On the deck the page is pinned to the viewport height: nothing outside a panel scrolls,
+          so the header never slides out of view while a panel is being read. The top padding is
+          the header's own height (h-16 / sm:72px) — the header is fixed, so it takes no space. */}
+      <main
+        id="main"
+        tabIndex={-1}
+        className={
+          onHome
+            ? 'h-[calc(100dvh-4rem)] overflow-hidden pt-16 sm:h-[calc(100dvh-4.5rem)] sm:pt-[72px]'
+            : undefined
+        }
+      >
         <Suspense
           fallback={
             <div className="shell flex min-h-[70vh] items-center justify-center py-32">
@@ -81,7 +98,7 @@ function Shell() {
             </div>
           }
         >
-          <div key={pathname} className="animate-fade-in">
+          <div key={pathname} className={onHome ? 'h-full' : 'animate-fade-in'}>
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/project/:slug" element={<ProjectDetail />} />
@@ -91,7 +108,9 @@ function Shell() {
         </Suspense>
       </main>
 
-      <Footer />
+      {/* The footer repeats the same destinations as the nav, so it would only add a second way
+          to do the same thing on the deck. Kept on the pages that are genuinely scrollable. */}
+      {!onHome && <Footer />}
     </>
   );
 }
@@ -99,9 +118,12 @@ function Shell() {
 export default function App() {
   return (
     <LanguageProvider>
-      <BrowserRouter>
-        <Shell />
-      </BrowserRouter>
+      <ThemeProvider>
+        <LoadingScreen />
+        <BrowserRouter>
+          <Shell />
+        </BrowserRouter>
+      </ThemeProvider>
     </LanguageProvider>
   );
 }

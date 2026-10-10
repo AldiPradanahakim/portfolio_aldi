@@ -61,6 +61,17 @@ export const SKILL_GROUPS: SkillGroup[] = [
     ],
   },
   {
+    id: 'jaringan',
+    title: { id: 'Jaringan', en: 'Networking' },
+    items: [
+      { id: 'TCP/IP', en: 'TCP/IP' },
+      { id: 'Routing & switching', en: 'Routing & switching' },
+      { id: 'VLAN', en: 'VLAN' },
+      { id: 'Penelusuran masalah jaringan', en: 'Network troubleshooting' },
+      { id: 'Cisco Packet Tracer', en: 'Cisco Packet Tracer' },
+    ],
+  },
+  {
     id: 'layanan',
     title: { id: 'Layanan pihak ketiga', en: 'Third-party services' },
     items: [

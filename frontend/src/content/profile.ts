@@ -16,8 +16,8 @@ export const PROFILE: Profile = {
 
   bio: [
     {
-      id: 'Saya menempuh studi Teknik Informatika dan mengerjakan aplikasi web dari sisi belakang sampai sisi depan. Pekerjaan yang paling sering saya ambil bentuknya bukan halaman statis, tapi sistem yang punya alur: ada data masuk, ada proses di belakang, ada riwayat yang harus bisa ditelusuri, dan ada laporan yang harus bisa diunduh. Karena itu saya terbiasa menulis sendiri bagian yang biasanya dipisah-pisah: skema database dan migrasinya, API, otentikasi, sampai antarmuka penggunanya.',
-      en: 'I studied Informatics Engineering and work on web applications from the back end through to the front end. The work I take on most often is not static pages but systems with a flow: data comes in, something processes it in the background, there is a history that must stay traceable, and there is a report that must be downloadable. That habit means I write the parts that are usually split across people myself: the database schema and its migrations, the API, the authentication, and the user interface.',
+      id: 'Saya menyelesaikan studi Teknik Informatika dan menyandang gelar Sarjana Teknik (S.T.), dan sejak itu mengerjakan aplikasi web dari sisi belakang sampai sisi depan. Pekerjaan yang paling sering saya ambil bentuknya bukan halaman statis, tapi sistem yang punya alur: ada data masuk, ada proses di belakang, ada riwayat yang harus bisa ditelusuri, dan ada laporan yang harus bisa diunduh. Karena itu saya terbiasa menulis sendiri bagian yang biasanya dipisah-pisah: skema database dan migrasinya, API, otentikasi, sampai antarmuka penggunanya.',
+      en: 'I completed my Informatics Engineering degree and hold the title Sarjana Teknik (S.T., Bachelor of Engineering), and have been building web applications from the back end through to the front end ever since. The work I take on most often is not static pages but systems with a flow: data comes in, something processes it in the background, there is a history that must stay traceable, and there is a report that must be downloadable. That habit means I write the parts that are usually split across people myself: the database schema and its migrations, the API, the authentication, and the user interface.',
     },
     {
       id: 'Proyek terbesar saya, AF GPS Tracker, adalah sistem pelacakan kendaraan GPS untuk tugas akhir. Perangkat GPS lapangan mengirim lokasi lewat MQTT, server memverifikasi tanda tangan HMAC setiap perangkat sebelum datanya dipercaya, lalu lokasinya dievaluasi terhadap geofence radius, wilayah administratif, dan polygon custom. Dari sana muncul riwayat perjalanan, deteksi berhenti, peringatan kecepatan, notifikasi realtime, dan ekspor PDF. Saya mengerjakan bagian firmware, ingest, backend, sampai antarmuka petanya.',
@@ -36,9 +36,7 @@ export const PROFILE: Profile = {
 
   email: 'aldi.pradan.hakim26@gmail.com',
 
-  // ponytail: no real photo of Aldi exists in this repo; the old aldi.jpeg was an
-  // AI-generated stock face, so the UI falls back to the "AP" monogram.
-  photo: null,
+  photo: '/images/aldi.webp',
 
   availability: {
     id: 'Terbuka untuk proyek freelance baru',

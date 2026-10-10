@@ -188,8 +188,8 @@ export function Contact() {
           ) : (
             <form onSubmit={onSubmit} noValidate className="flex flex-col gap-6">
               {status === 'error' && (
-                <div role="alert" className="rounded-xl border border-red-400/60 bg-ink-900 p-4">
-                  <p className="flex items-center gap-2 text-small font-medium text-red-300">
+                <div role="alert" className="rounded-xl border border-danger-border/60 bg-ink-900 p-4">
+                  <p className="flex items-center gap-2 text-small font-medium text-danger">
                     <AlertCircle className="h-4 w-4" aria-hidden="true" />
                     {t(T.errorTitle)}
                   </p>
@@ -275,7 +275,7 @@ export function Contact() {
             <div className="mt-4 flex flex-wrap items-center gap-3">
               <a
                 href={`mailto:${PROFILE.email}`}
-                className="text-body text-chalk underline decoration-ink-700 underline-offset-4 transition-colors duration-150 hover:decoration-accent"
+                className="text-body text-chalk underline decoration-ink-700 underline-offset-4 transition-colors duration-fast hover:decoration-accent"
               >
                 {PROFILE.email}
               </a>
@@ -318,7 +318,7 @@ export function Contact() {
                   <a
                     href={social.url}
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-small text-chalk-muted transition-colors duration-150 hover:text-chalk"
+                    className="inline-flex items-center gap-2 text-small text-chalk-muted transition-colors duration-fast hover:text-chalk"
                   >
                     <Icon className="h-4 w-4 text-chalk-faint" aria-hidden="true" />
                     {social.label}

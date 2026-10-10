@@ -2,16 +2,14 @@ import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { PROFILE, type Lang } from '../../content';
+import { ThemeToggle } from '../../shared/components/ThemeToggle';
 import { useLang } from '../../shared/context/language';
-import { NAV_SECTION_IDS, NAV_SECTIONS } from '../../shared/constants/sections';
-import { useActiveSection } from '../../shared/hooks/useActiveSection';
+import { NAV_SECTIONS } from '../../shared/constants/sections';
 import { useFocusTrap } from '../../shared/hooks/useFocusTrap';
 import { useScrolled } from '../../shared/hooks/useScrolled';
 import { cx } from '../../shared/lib/cn';
 import { socialIcon } from '../../shared/lib/icons';
 import { buttonStyles } from '../../shared/ui/buttonStyles';
-
-const NO_SECTIONS: string[] = [];
 
 const T = {
   primaryNav: { en: 'Primary', id: 'Utama' },
@@ -38,7 +36,7 @@ function LanguageToggle({ className }: { className?: string }) {
           onClick={() => setLang(option)}
           aria-pressed={lang === option}
           className={cx(
-            'rounded-full px-2.5 py-1 font-mono text-[11px] uppercase transition-colors duration-150',
+            'press rounded-full px-2.5 py-1 font-mono text-[11px] uppercase',
             lang === option ? 'bg-ink-800 text-chalk' : 'text-chalk-muted hover:text-chalk',
           )}
         >
@@ -51,11 +49,14 @@ function LanguageToggle({ className }: { className?: string }) {
 
 export function Nav() {
   const { t } = useLang();
-  const { pathname } = useLocation();
-  const scrolled = useScrolled(24);
+  const { pathname, hash } = useLocation();
   const [open, setOpen] = useState(false);
   const onHome = pathname === '/';
-  const active = useActiveSection(onHome ? NAV_SECTION_IDS : NO_SECTIONS);
+  // On the deck the document never scrolls — the panel does — so the scroll-driven background
+  // would never appear while text slides under the header. There it is opaque from the start.
+  const opaque = useScrolled(24) || onHome;
+  // The deck renders exactly one panel, so the hash *is* the active section — no observer needed.
+  const active = onHome ? hash.slice(1) : '';
   const drawerRef = useFocusTrap<HTMLDivElement>(open, () => setOpen(false));
 
   useEffect(() => {
@@ -74,8 +75,8 @@ export function Nav() {
   return (
     <header
       className={cx(
-        'fixed inset-x-0 top-0 z-50 border-b transition-colors duration-200',
-        scrolled || open ? 'border-ink-800 bg-ink-950/95' : 'border-transparent',
+        'fixed inset-x-0 top-0 z-50 border-b transition-colors',
+        opaque || open ? 'border-ink-800 bg-ink-950/95' : 'border-transparent',
       )}
     >
       <div className="shell flex h-16 items-center justify-between gap-6 sm:h-[72px]">
@@ -101,17 +102,18 @@ export function Nav() {
                   to={`/#${link.id}`}
                   aria-current={active === link.id ? 'true' : undefined}
                   className={cx(
-                    'relative block rounded-full px-3 py-2 text-small transition-colors duration-150',
+                    'relative block rounded-full px-3 py-2 text-small transition-colors duration-fast',
                     active === link.id ? 'text-chalk' : 'text-chalk-muted hover:text-chalk',
                   )}
                 >
                   {t(link.label)}
-                  {active === link.id && (
-                    <span
-                      aria-hidden="true"
-                      className="absolute inset-x-3 bottom-0.5 h-px bg-accent"
-                    />
-                  )}
+                  <span
+                    aria-hidden="true"
+                    className={cx(
+                      'absolute inset-x-3 bottom-0.5 h-px origin-center bg-accent transition-[opacity,transform]',
+                      active === link.id ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0',
+                    )}
+                  />
                 </Link>
               </li>
             ))}
@@ -119,6 +121,7 @@ export function Nav() {
         </nav>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <LanguageToggle className="hidden sm:flex" />
           <Link to="/#contact" className={cx(buttonStyles('primary', 'sm'), 'hidden md:inline-flex')}>
             {t(T.hire)}
@@ -129,7 +132,7 @@ export function Nav() {
             aria-expanded={open}
             aria-controls="nav-drawer"
             aria-label={open ? t(T.closeMenu) : t(T.openMenu)}
-            className="rounded-full border border-ink-800 p-2 text-chalk-muted transition-colors duration-150 hover:text-chalk lg:hidden"
+            className="press rounded-full border border-ink-800 p-2 text-chalk-muted hover:border-ink-700 hover:text-chalk lg:hidden"
           >
             {open ? (
               <X className="h-4 w-4" aria-hidden="true" />
@@ -145,7 +148,7 @@ export function Nav() {
           <div
             aria-hidden="true"
             onClick={() => setOpen(false)}
-            className="fixed inset-x-0 bottom-0 top-16 bg-ink-950/80 sm:top-[72px]"
+            className="animate-fade-in fixed inset-x-0 bottom-0 top-16 bg-ink-950/80 sm:top-[72px]"
           />
           <div
             id="nav-drawer"
@@ -161,7 +164,7 @@ export function Nav() {
                   <Link
                     to={`/#${link.id}`}
                     onClick={() => setOpen(false)}
-                    className="block rounded-xl px-3 py-3 text-h3 text-chalk-muted transition-colors duration-150 hover:bg-ink-900 hover:text-chalk"
+                    className="block rounded-xl px-3 py-3 text-h3 text-chalk-muted transition-colors duration-fast hover:bg-ink-900 hover:text-chalk"
                   >
                     {t(link.label)}
                   </Link>
@@ -177,6 +180,7 @@ export function Nav() {
               >
                 {t(T.hire)}
               </Link>
+              {/* the theme toggle stays in the header row, which remains visible above the drawer */}
               <LanguageToggle className="self-start" />
               <ul className="flex flex-col gap-3">
                 {PROFILE.socials.map((social) => {
@@ -185,7 +189,7 @@ export function Nav() {
                     <li key={social.url}>
                       <a
                         href={social.url}
-                        className="inline-flex items-center gap-2 text-small text-chalk-muted transition-colors duration-150 hover:text-chalk"
+                        className="inline-flex items-center gap-2 text-small text-chalk-muted transition-colors duration-fast hover:text-chalk"
                       >
                         <Icon className="h-4 w-4" aria-hidden="true" />
                         {social.icon === 'mail' ? PROFILE.email : social.label}

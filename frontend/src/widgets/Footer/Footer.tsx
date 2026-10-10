@@ -30,7 +30,7 @@ export function Footer() {
                 <li key={section.id}>
                   <Link
                     to={`/#${section.id}`}
-                    className="text-small text-chalk-muted transition-colors duration-150 hover:text-chalk"
+                    className="text-small text-chalk-muted transition-colors duration-fast hover:text-chalk"
                   >
                     {t(section.label)}
                   </Link>
@@ -48,7 +48,7 @@ export function Footer() {
                   href={social.url}
                   rel="noopener noreferrer"
                   aria-label={social.label}
-                  className="rounded-full border border-ink-800 p-2 text-chalk-muted transition-colors duration-150 hover:text-chalk"
+                  className="rounded-full border border-ink-800 p-2 text-chalk-muted transition-colors duration-fast hover:text-chalk"
                 >
                   <Icon className="h-4 w-4" aria-hidden="true" />
                 </a>
@@ -58,7 +58,7 @@ export function Footer() {
               type="button"
               onClick={() => window.scrollTo({ top: 0 })}
               aria-label={t(T.backToTop)}
-              className="rounded-full border border-ink-800 p-2 text-chalk-muted transition-colors duration-150 hover:text-chalk"
+              className="rounded-full border border-ink-800 p-2 text-chalk-muted transition-colors duration-fast hover:text-chalk"
             >
               <ArrowUp className="h-4 w-4" aria-hidden="true" />
             </button>

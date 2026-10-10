@@ -25,19 +25,24 @@ export function ProjectCard({ project, featured = false }: ProjectCardProps) {
         to={`/project/${project.slug}`}
         className="card card-hover group flex h-full flex-col overflow-hidden"
       >
-        <div className="relative aspect-[16/10] overflow-hidden border-b border-ink-800 bg-ink-850">
-          <img
-            src={project.cover}
-            alt={`${project.name} — ${t(project.tagline)}`}
-            width={1200}
-            height={750}
-            loading="lazy"
-            decoding="async"
-            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
-          />
+        <div className="relative aspect-[16/10] overflow-hidden border-b border-ink-800 bg-media">
+          {project.cover ? (
+            <img
+              src={project.cover}
+              alt={`${project.name} — ${t(project.tagline)}`}
+              width={1200}
+              height={750}
+              loading="lazy"
+              decoding="async"
+              className="h-full w-full object-cover transition-transform group-hover:scale-[1.02]"
+            />
+          ) : (
+            // No screenshot: a static weave, so the card keeps its shape without an image.
+            <div aria-hidden="true" className="media-fallback" />
+          )}
           <ArrowUpRight
             aria-hidden="true"
-            className="absolute right-4 top-4 h-4 w-4 text-chalk opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+            className="absolute right-4 top-4 h-4 w-4 text-media-text opacity-0 transition-opacity group-hover:opacity-100"
           />
         </div>
 

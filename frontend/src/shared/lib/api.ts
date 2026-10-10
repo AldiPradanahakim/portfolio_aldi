@@ -1,4 +1,8 @@
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
+// Lokal: backend terpisah di port 3001. Produksi: satu origin dengan situsnya
+// (Vercel Function di /api/*), jadi tidak ada CORS dan tidak ada URL yang perlu
+// ditanam saat build. VITE_API_URL tetap menang kalau backendnya dipisah.
+const API_URL =
+  import.meta.env.VITE_API_URL || (import.meta.env.DEV ? 'http://localhost:3001/api' : '/api');
 
 export interface ContactPayload {
   name: string;

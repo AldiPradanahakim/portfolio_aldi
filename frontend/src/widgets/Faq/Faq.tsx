@@ -37,13 +37,13 @@ export function Faq() {
                     aria-expanded={open}
                     aria-controls={`faq-panel-${index}`}
                     onClick={() => setOpenIndex(open ? null : index)}
-                    className="flex w-full items-center justify-between gap-6 py-5 text-left"
+                    className="press flex w-full items-center justify-between gap-6 py-5 text-left"
                   >
                     <span className="text-h3 font-medium text-chalk">{t(item.q)}</span>
                     <Plus
                       aria-hidden="true"
                       className={cx(
-                        'h-4 w-4 shrink-0 text-accent transition-transform duration-200',
+                        'h-4 w-4 shrink-0 text-accent transition-transform',
                         open && 'rotate-45',
                       )}
                     />
@@ -53,8 +53,8 @@ export function Faq() {
                   id={`faq-panel-${index}`}
                   role="region"
                   aria-labelledby={`faq-button-${index}`}
-                  hidden={!open}
-                  className="pb-6"
+                  data-open={open}
+                  className="faq-panel"
                 >
                   <p className="max-w-3xl text-body text-chalk-muted">{t(item.a)}</p>
                 </div>

@@ -14,6 +14,9 @@ build_output.txt
 # cadangan git bundle — isinya seluruh riwayat, jangan pernah di-commit
 *.bundle
 
+# tautan project Vercel (id project/org) — dibuat otomatis, tidak perlu di-commit
+.vercel/
+
 # secrets — jangan pernah di-commit
 .env
 .env.*

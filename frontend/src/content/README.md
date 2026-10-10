@@ -41,10 +41,10 @@ ada nama perusahaan, tidak ada harga, dan tidak ada URL yang tidak jelas asalnya
 
 ## Catatan khusus
 
-- `PROFILE.photo` sengaja bernilai `null` — foto lamanya (`aldi.jpeg`) adalah
-  wajah stok hasil AI yang bukan Aldi, jadi sudah dihapus. Selama nilainya
-  `null`, antarmuka menampilkan monogram "AP". Kalau nanti ada foto asli,
-  taruh di `frontend/public/` lalu isi, misalnya, `'/foto-aldi.jpg'`.
+- `PROFILE.photo` menunjuk ke `frontend/public/images/aldi.webp`. Ganti berkasnya
+  dengan nama yang sama, atau ubah nilainya kalau namanya berbeda. Kalau
+  berkasnya hilang, antarmuka otomatis kembali menampilkan monogram "AP"
+  (lihat `Hero.tsx`), jadi halaman tidak pernah menampilkan gambar rusak.
 - `PROFILE.socials` untuk sekarang hanya berisi email. Tambahkan GitHub,
   LinkedIn, atau Instagram di situ kalau akunnya sudah ada — jangan diisi
   tautan karangan. Ada contohnya berupa komentar di dalam `profile.ts`.
@@ -58,11 +58,15 @@ ada nama perusahaan, tidak ada harga, dan tidak ada URL yang tidak jelas asalnya
   — itu wajar, sama seperti daftar `stack` pada proyek. Yang berupa frasa, bukan
   nama produk, wajib ditulis dua bahasa.
 - `cover` dan `gallery` menunjuk ke berkas di `frontend/public/images/projects/`.
-  Berkas SVG-nya dibuat dengan ukuran 1200 × 750.
+  Cover berupa tangkapan layar (`.webp`, rasio 16:10). Sisanya bisa SVG
+  buatan sendiri berukuran 1200 × 750.
+- `cover` boleh bernilai `null` kalau proyeknya tidak punya tangkapan layar.
+  Kartu dan halaman detailnya lalu tampil tanpa gambar — bukan gambar rusak —
+  dan `gallery` sebaiknya dikosongkan juga.
 
 ## Menambah proyek baru
 
 1. Salin satu objek di `projects.ts`, ubah `slug`-nya (harus unik).
-2. Buat berkas cover di `frontend/public/images/projects/<slug>-01.svg`.
+2. Buat berkas cover di `frontend/public/images/projects/<slug>.webp`.
 3. Kalau kategorinya belum ada di `CATEGORIES`, tambahkan sekalian —
    pilihannya terbatas pada `CategoryId` di `types.ts`.

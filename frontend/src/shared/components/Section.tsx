@@ -13,7 +13,7 @@ interface SectionProps {
 
 export function Section({ id, eyebrow, title, lead, children, className }: SectionProps) {
   return (
-    <section id={id} aria-labelledby={`${id}-title`} className={cx('py-20 sm:py-28', className)}>
+    <section id={id} aria-labelledby={`${id}-title`} className={cx('py-8 sm:py-10', className)}>
       <div className="shell">
         <Reveal>
           <div className="max-w-2xl">
@@ -26,7 +26,7 @@ export function Section({ id, eyebrow, title, lead, children, className }: Secti
             {lead && <p className="mt-4 text-body text-chalk-muted">{lead}</p>}
           </div>
         </Reveal>
-        <div className="mt-12 sm:mt-14">{children}</div>
+        <div className="mt-8 sm:mt-10">{children}</div>
       </div>
     </section>
   );

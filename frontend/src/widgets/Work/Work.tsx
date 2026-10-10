@@ -48,7 +48,7 @@ export function Work() {
             aria-pressed={filter === option.id}
             onClick={() => setFilter(option.id)}
             className={cx(
-              'rounded-full border px-4 py-2 text-small transition-colors duration-150',
+              'press rounded-full border px-4 py-2 text-small',
               filter === option.id
                 ? 'border-accent bg-accent/10 text-chalk'
                 : 'border-ink-800 text-chalk-muted hover:border-ink-700 hover:text-chalk',
@@ -66,19 +66,23 @@ export function Work() {
       </p>
 
       {featured.length > 0 && (
-        <Reveal className="mt-8 grid gap-6 lg:grid-cols-2">
-          {featured.map((project) => (
-            <ProjectCard key={project.slug} project={project} featured />
+        <div className="mt-8 grid gap-6 lg:grid-cols-2">
+          {featured.map((project, index) => (
+            <Reveal key={project.slug} delay={index * 80} className="h-full">
+              <ProjectCard project={project} featured />
+            </Reveal>
           ))}
-        </Reveal>
+        </div>
       )}
 
       {rest.length > 0 ? (
-        <Reveal className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {rest.map((project) => (
-            <ProjectCard key={project.slug} project={project} />
+        <div className="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {rest.map((project, index) => (
+            <Reveal key={project.slug} delay={(index % 3) * 80} className="h-full">
+              <ProjectCard project={project} />
+            </Reveal>
           ))}
-        </Reveal>
+        </div>
       ) : (
         featured.length === 0 && (
           <p className="mt-8 text-body text-chalk-muted">
