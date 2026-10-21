@@ -13,7 +13,12 @@ interface SectionProps {
 
 export function Section({ id, eyebrow, title, lead, children, className }: SectionProps) {
   return (
-    <section id={id} aria-labelledby={`${id}-title`} className={cx('py-8 sm:py-10', className)}>
+    <section
+      id={id}
+      aria-labelledby={`${id}-title`}
+      data-mesh={id}
+      className={cx('panel-mesh py-8 sm:py-10', className)}
+    >
       <div className="shell">
         <Reveal>
           <div className="max-w-2xl">

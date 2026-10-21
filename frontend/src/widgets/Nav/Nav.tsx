@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import { PROFILE, type Lang } from '../../content';
@@ -52,12 +52,42 @@ export function Nav() {
   const { pathname, hash } = useLocation();
   const [open, setOpen] = useState(false);
   const onHome = pathname === '/';
-  // On the deck the document never scrolls — the panel does — so the scroll-driven background
-  // would never appear while text slides under the header. There it is opaque from the start.
-  const opaque = useScrolled(24) || onHome;
+  // The deck scrolls inside its panel, so the capture listener in useScrolled sees it too; at
+  // rest the header is a clear glass, and it gains a hairline + shadow once content slides under.
+  const scrolled = useScrolled(24);
   // The deck renders exactly one panel, so the hash *is* the active section — no observer needed.
   const active = onHome ? hash.slice(1) : '';
   const drawerRef = useFocusTrap<HTMLDivElement>(open, () => setOpen(false));
+
+  const listRef = useRef<HTMLUListElement | null>(null);
+  const indicatorRef = useRef<HTMLSpanElement | null>(null);
+
+  // The indicator slides (and scales) to the active link; its width is written as a CSS var so
+  // only `transform` ever transitions — never layout properties.
+  useLayoutEffect(() => {
+    const list = listRef.current;
+    const indicator = indicatorRef.current;
+    if (!list || !indicator) return;
+
+    const measure = () => {
+      const link = list.querySelector<HTMLElement>(`[data-nav-item="${active}"]`);
+      if (!link) {
+        indicator.style.setProperty('--nav-w', '0');
+        indicator.classList.remove('is-active');
+        return;
+      }
+      const x = link.offsetLeft + 12;
+      const w = link.offsetWidth - 24;
+      indicator.style.setProperty('--nav-x', `${x}px`);
+      indicator.style.setProperty('--nav-w', `${Math.max(w, 0)}px`);
+      indicator.classList.add('is-active');
+    };
+
+    measure();
+    window.addEventListener('resize', measure);
+    document.fonts?.ready.then(measure);
+    return () => window.removeEventListener('resize', measure);
+  }, [active, pathname]);
 
   useEffect(() => {
     setOpen(false);
@@ -75,8 +105,10 @@ export function Nav() {
   return (
     <header
       className={cx(
-        'fixed inset-x-0 top-0 z-50 border-b transition-colors',
-        opaque || open ? 'border-ink-800 bg-ink-950/95' : 'border-transparent',
+        'fixed inset-x-0 top-0 z-50 border-b backdrop-blur-md transition-[background-color,border-color,box-shadow] duration',
+        scrolled || open
+          ? 'border-ink-800/80 bg-ink-950/85 shadow-[0_18px_40px_-28px_rgb(0_0_0/0.9)]'
+          : 'border-transparent bg-ink-950/45',
       )}
     >
       <div className="shell flex h-16 items-center justify-between gap-6 sm:h-[72px]">
@@ -95,11 +127,13 @@ export function Nav() {
         </Link>
 
         <nav aria-label={t(T.primaryNav)} className="hidden lg:block">
-          <ul className="flex items-center gap-1">
+          <ul ref={listRef} className="relative flex items-center gap-1">
+            <span ref={indicatorRef} aria-hidden="true" className="nav-indicator" />
             {NAV_SECTIONS.map((link) => (
               <li key={link.id}>
                 <Link
                   to={`/#${link.id}`}
+                  data-nav-item={link.id}
                   aria-current={active === link.id ? 'true' : undefined}
                   className={cx(
                     'relative block rounded-full px-3 py-2 text-small transition-colors duration-fast',
@@ -107,13 +141,6 @@ export function Nav() {
                   )}
                 >
                   {t(link.label)}
-                  <span
-                    aria-hidden="true"
-                    className={cx(
-                      'absolute inset-x-3 bottom-0.5 h-px origin-center bg-accent transition-[opacity,transform]',
-                      active === link.id ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0',
-                    )}
-                  />
                 </Link>
               </li>
             ))}
@@ -159,12 +186,17 @@ export function Nav() {
             className="animate-drawer-in fixed bottom-0 right-0 top-16 w-full max-w-sm overflow-y-auto border-l border-ink-800 bg-ink-950 p-6 sm:top-[72px]"
           >
             <ul className="flex flex-col gap-1">
-              {NAV_SECTIONS.map((link) => (
+              {NAV_SECTIONS.map((link, index) => (
                 <li key={link.id}>
                   <Link
                     to={`/#${link.id}`}
                     onClick={() => setOpen(false)}
-                    className="block rounded-xl px-3 py-3 text-h3 text-chalk-muted transition-colors duration-fast hover:bg-ink-900 hover:text-chalk"
+                    aria-current={active === link.id ? 'true' : undefined}
+                    style={{ animationDelay: `${index * 45 + 80}ms` }}
+                    className={cx(
+                      'drawer-item block rounded-xl px-3 py-3 text-h3 transition-colors duration-fast hover:bg-ink-900',
+                      active === link.id ? 'text-chalk' : 'text-chalk-muted hover:text-chalk',
+                    )}
                   >
                     {t(link.label)}
                   </Link>

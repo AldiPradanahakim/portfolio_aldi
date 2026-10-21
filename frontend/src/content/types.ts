@@ -18,11 +18,9 @@ export interface Profile {
   name: string; initials: string; role: L; tagline: L; bio: L[];
   location: L; email: string; photo: string | null;
   availability: L; responseTime: L;
-  socials: { label: string; url: string; icon: 'mail' | 'github' | 'linkedin' | 'instagram' }[];
+  socials: { label: string; url: string; icon: 'mail' | 'github' | 'linkedin' | 'instagram' | 'whatsapp' }[];
 }
 
 export interface Service { id: string; title: L; description: L; deliverables: L[]; icon: string }
 export interface SkillGroup { id: string; title: L; items: L[] }
 export interface Milestone { period: string; title: L; org: L; detail: L; kind: 'education' | 'project' | 'work' }
-export interface Step { n: string; title: L; detail: L }
-export interface Faq { q: L; a: L }

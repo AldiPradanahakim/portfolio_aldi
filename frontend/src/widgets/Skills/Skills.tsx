@@ -23,10 +23,18 @@ export function Skills() {
       <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
         {SKILL_GROUPS.map((group, index) => (
           <Reveal key={group.id} delay={(index % 3) * 80}>
-            <h3 className="text-h3 font-semibold text-chalk">{t(group.title)}</h3>
+            <div className="flex items-center gap-4">
+              <h3 className="font-mono text-label uppercase tracking-widest text-chalk-faint">
+                {t(group.title)}
+              </h3>
+              <span aria-hidden="true" className="h-px flex-1 bg-ink-800" />
+            </div>
             <ul className="mt-4 flex flex-wrap gap-2">
               {group.items.map((item) => (
-                <li key={item.en} className="chip">
+                <li
+                  key={item.en}
+                  className="rounded-full border border-ink-800 bg-ink-850 px-3 py-1.5 font-mono text-[11px] leading-none text-chalk-muted transition-[color,border-color,transform,box-shadow] duration-fast hover:-translate-y-px hover:border-accent/60 hover:text-chalk hover:shadow-[0_0_20px_-6px_rgb(var(--accent)/0.6)]"
+                >
                   {t(item)}
                 </li>
               ))}

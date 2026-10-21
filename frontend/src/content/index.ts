@@ -4,5 +4,3 @@ export * from './projects';
 export * from './services';
 export * from './skills';
 export * from './journey';
-export * from './process';
-export * from './faq';

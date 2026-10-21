@@ -3,22 +3,25 @@ import { ArrowRight, Clock, MapPin } from 'lucide-react';
 import { PROFILE } from '../../content';
 import { Monogram } from '../../shared/components/Monogram';
 import { useLang } from '../../shared/context/language';
+import { usePrefersReducedMotion } from '../../shared/hooks/usePrefersReducedMotion';
+import { usePointerStage } from '../../shared/hooks/useSpotlight';
 import { buttonStyles } from '../../shared/ui/buttonStyles';
 
 const T = {
   seeWork: { en: 'See my work', id: 'Lihat proyek saya' },
   hireMe: { en: 'Hire me', id: 'Hubungi saya' },
+  next: { en: 'Next — About', id: 'Berikutnya — Tentang' },
 };
 
 /** The plate wall is square and covers the square portrait slot exactly. */
 const BRICK_COLS = 5;
 const BRICK_ROWS = 5;
-/** Waits for the curtain to start lifting (600 ms) before the first plate goes. */
-const BRICK_START_MS = 150;
-const BRICK_STAGGER_MS = 24;
-/** Longest diagonal delay (8 × 24 ms, bottom-right corner) + the plate animation, on top of the
- *  start — after this the layer is unmounted, so the portrait keeps no animation nodes at rest. */
-const BRICK_TOTAL_MS = BRICK_START_MS + BRICK_STAGGER_MS * (BRICK_COLS + BRICK_ROWS - 2) + 460;
+/** The plates start as the curtain is clearing, so the dissolve is visible but tight. */
+const BRICK_START_MS = 220;
+const BRICK_STAGGER_MS = 18;
+/** Longest diagonal delay (8 × 18 ms, bottom-right corner) + the plate animation — after this the
+ *  layer is unmounted, so the portrait keeps no animation nodes at rest. */
+const BRICK_TOTAL_MS = BRICK_START_MS + BRICK_STAGGER_MS * (BRICK_COLS + BRICK_ROWS - 2) + 380;
 
 const BRICKS = Array.from({ length: BRICK_COLS * BRICK_ROWS }, (_, index) => {
   const row = Math.floor(index / BRICK_COLS);
@@ -36,12 +39,21 @@ let bricksShown = false;
 
 export function Hero() {
   const { t } = useLang();
+  const reduced = usePrefersReducedMotion();
   // A missing or broken file falls back to the monogram instead of a broken image.
   const [photoFailed, setPhotoFailed] = useState(false);
   const photo = PROFILE.photo && !photoFailed ? PROFILE.photo : null;
-  const [bricks, setBricks] = useState(!bricksShown);
+  const [bricks, setBricks] = useState(
+    () => !bricksShown && !window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+  );
+  const sectionRef = usePointerStage<HTMLElement>(!reduced, 7);
 
   useEffect(() => {
+    if (reduced) {
+      bricksShown = true;
+      setBricks(false);
+      return;
+    }
     if (!bricks) return;
     let frame = 0;
     let timer = 0;
@@ -64,13 +76,16 @@ export function Hero() {
       cancelAnimationFrame(frame);
       window.clearTimeout(timer);
     };
-  }, [bricks]);
+  }, [bricks, reduced]);
 
   /** Stagger inside the hero's single entrance; the delay is the whole ordering. */
-  const rise = (step: number) => ({ animationDelay: `${step * 70}ms` });
+  const rise = (step: number) => ({ animationDelay: `${180 + step * 70}ms` });
+
+  const words = PROFILE.name.split(' ');
 
   return (
     <section
+      ref={sectionRef}
       id="hero"
       aria-labelledby="hero-title"
       className="relative overflow-hidden py-10 sm:py-14"
@@ -80,6 +95,7 @@ export function Hero() {
         aria-hidden="true"
         className="hero-glow pointer-events-none absolute inset-x-0 top-0 h-[560px]"
       />
+      <div aria-hidden="true" className="hero-spotlight" />
 
       <div className="shell relative">
         <div className="grid items-center gap-14 lg:grid-cols-[minmax(0,1.55fr)_minmax(0,1fr)]">
@@ -94,18 +110,27 @@ export function Hero() {
 
             <h1
               id="hero-title"
-              className="hero-rise mt-6 text-display font-semibold text-chalk"
-              style={rise(1)}
+              className="mt-7 font-display text-hero font-semibold text-chalk"
             >
-              {PROFILE.name}
+              {words.map((word, index) => (
+                <span key={word}>
+                  <span
+                    className="hero-word"
+                    style={{ animationDelay: `${240 + index * 90}ms` }}
+                  >
+                    {word}
+                  </span>
+                  {index < words.length - 1 ? ' ' : null}
+                </span>
+              ))}
             </h1>
 
-            <p
-              className="hero-rise mt-4 font-mono text-label uppercase text-accent"
-              style={rise(2)}
-            >
-              {t(PROFILE.role)}
-            </p>
+            <div className="hero-rise mt-5 flex items-center gap-3" style={rise(2)}>
+              <span aria-hidden="true" className="h-px w-8 bg-accent/60" />
+              <p className="font-mono text-label uppercase tracking-[0.3em] text-accent">
+                {t(PROFILE.role)}
+              </p>
+            </div>
 
             <p className="hero-rise mt-6 max-w-xl text-body text-chalk-muted" style={rise(3)}>
               {t(PROFILE.tagline)}
@@ -136,45 +161,71 @@ export function Hero() {
             </ul>
           </div>
 
-          <div className="portrait-frame mx-auto w-full max-w-[260px] lg:max-w-none">
-            {/* behind the photo: two counter-rotating arcs of light */}
+          <div className="portrait-frame mx-auto w-full max-w-[280px] lg:max-w-none">
+            {/* behind the photo: three counter-rotating arcs of light */}
             <div aria-hidden="true" className="portrait-aurora" />
             <div aria-hidden="true" className="portrait-aurora portrait-aurora-2" />
+            <div aria-hidden="true" className="portrait-aurora portrait-aurora-3" />
             <div aria-hidden="true" className="portrait-glow pointer-events-none absolute -inset-6" />
 
-            <div className="portrait-float">
-              {photo ? (
-                <img
-                  src={photo}
-                  alt={PROFILE.name}
-                  width={760}
-                  height={950}
-                  loading="eager"
-                  decoding="async"
-                  onError={() => setPhotoFailed(true)}
-                  /* The file is already a head-and-shoulders cut-out on transparency, scaled to
-                     twice the width of this column, so `object-cover` never has to crop it. No
-                     frame or background: the subject has to sit on the panel, not in a box. */
-                  className="portrait-in relative aspect-[4/5] w-full object-cover"
-                />
-              ) : (
-                <Monogram initials={PROFILE.initials} className="portrait-in relative w-full" />
-              )}
+            <div className="portrait-parallax">
+              <div className="portrait-float">
+                {photo ? (
+                  <img
+                    src={photo}
+                    alt={PROFILE.name}
+                    width={760}
+                    height={950}
+                    loading="eager"
+                    decoding="async"
+                    onError={() => setPhotoFailed(true)}
+                    /* The file is already a head-and-shoulders cut-out on transparency, scaled to
+                       twice the width of this column, so `object-cover` never has to crop it. No
+                       frame or background: the subject has to sit on the panel, not in a box. */
+                    className="portrait-in relative aspect-[4/5] w-full object-cover"
+                  />
+                ) : (
+                  <Monogram initials={PROFILE.initials} className="portrait-in relative w-full" />
+                )}
 
-              {/* builds the portrait in brick by brick, over whatever the slot is showing */}
-              {bricks && (
-                <span aria-hidden="true" className="brick-grid">
-                  {BRICKS.map((brick) => (
-                    <span
-                      key={brick.index}
-                      className="brick"
-                      style={{ animationDelay: `${brick.delay}ms` }}
-                    />
-                  ))}
-                </span>
-              )}
+                {/* builds the portrait in brick by brick, over whatever the slot is showing */}
+                {bricks && (
+                  <span aria-hidden="true" className="brick-grid">
+                    {BRICKS.map((brick) => (
+                      <span
+                        key={brick.index}
+                        className="brick"
+                        style={{ animationDelay: `${brick.delay}ms` }}
+                      />
+                    ))}
+                  </span>
+                )}
+              </div>
             </div>
+
+            <span
+              aria-hidden="true"
+              className="absolute -bottom-3 left-3 font-mono text-[10px] uppercase tracking-[0.3em] text-chalk-faint"
+            >
+              Portrait / 01
+            </span>
           </div>
+        </div>
+
+        <div className="hero-rise mt-14 flex items-center justify-between border-t border-ink-800/60 pt-5">
+          <a
+            href="#about"
+            className="group inline-flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.24em] text-chalk-faint transition-colors duration-fast hover:text-chalk"
+          >
+            {t(T.next)}
+            <ArrowRight
+              aria-hidden="true"
+              className="h-3.5 w-3.5 transition-transform duration-fast group-hover:translate-x-1"
+            />
+          </a>
+          <span aria-hidden="true" className="font-mono text-[10px] uppercase tracking-[0.3em] text-chalk-faint">
+            01 / 07
+          </span>
         </div>
       </div>
     </section>

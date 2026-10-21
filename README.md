@@ -1,17 +1,21 @@
 # Portofolio Aldi Pradan Hakim
 
 Situs portofolio pribadi: profil, daftar proyek, layanan, riwayat, dan formulir kontak.
-Frontend React + Vite + Tailwind, backend Express kecil yang hanya dipakai untuk
+Frontend React + Vite + Tailwind, backend Go kecil yang hanya dipakai untuk
 mengirim email dari formulir kontak.
 
 **Isi halaman tidak bergantung pada apa pun di luar repositori ini.** Seluruh
 teks dan data website berasal dari berkas TypeScript lokal di
 `frontend/src/content/` — tidak ada database dan tidak ada API konten pihak
-ketiga. Satu-satunya layanan luar yang dipakai adalah Gmail SMTP lewat
-Nodemailer, dan itu hanya untuk formulir kontak: kalau kredensialnya kosong,
+ketiga. Satu-satunya layanan luar yang dipakai adalah Gmail SMTP lewat stdlib
+Go (`net/smtp`), dan itu hanya untuk formulir kontak: kalau kredensialnya kosong,
 seluruh halaman tetap tampil normal, hanya pengiriman pesannya yang tidak jalan.
 
 ## Cara menjalankan
+
+Prasyarat: **Node.js** (untuk frontend) dan **Go 1.22 atau lebih baru** (untuk
+backend). Kalau belum ada, install dari https://nodejs.org dan
+https://go.dev/dl/ terlebih dahulu.
 
 **Paling gampang — dobel klik `Jalankan.bat`.**
 
@@ -19,9 +23,12 @@ seluruh halaman tetap tampil normal, hanya pengiriman pesannya yang tidak jalan.
 2. Beberapa detik kemudian jendela aplikasi terbuka sendiri (tanpa address bar).
 3. Untuk mematikan semuanya: klik jendela hitamnya, tekan **Ctrl+C**.
 
-Kalau `Jalankan.bat` bilang Node.js tidak ditemukan, install dulu dari
-https://nodejs.org lalu dobel klik lagi. Dependensi (`npm install`) dipasang
-otomatis saat pertama kali dijalankan.
+Kalau `Jalankan.bat` bilang Node.js atau Go tidak ditemukan, install dari
+alamat di atas lalu dobel klik lagi. Dependensi frontend (`npm install`)
+dipasang otomatis saat pertama kali dijalankan.
+
+Agar formulir kontak berfungsi, salin `.env.example` menjadi `.env` di root
+lalu isi nilainya (lihat bagian [Formulir kontak](#formulir-kontak)).
 
 **Lewat terminal:**
 
@@ -29,13 +36,13 @@ otomatis saat pertama kali dijalankan.
 npm run dev
 ```
 
-Sama saja: backend dan frontend jalan bersamaan, jendela aplikasi terbuka otomatis.
+Sama saja: backend Go dan frontend jalan bersamaan, jendela aplikasi terbuka otomatis.
 
 ## Alamat & port
 
 | Bagian | Alamat |
 |---|---|
-| Backend | http://localhost:3001 |
+| Backend (Go) | http://localhost:3001 |
 | Frontend | http://localhost:5180 — otomatis pindah ke 5181 lalu 5182 kalau portnya terpakai |
 
 Port 5173 tidak dipakai project ini karena sudah dipakai project lain di komputer ini.
@@ -51,8 +58,6 @@ Semua teks ada di **`frontend/src/content/`**, satu berkas per bagian:
 | Layanan yang ditawarkan | `content/services.ts` |
 | Keahlian | `content/skills.ts` |
 | Riwayat kuliah & proyek | `content/journey.ts` |
-| Tahapan kerja sama dengan klien | `content/process.ts` |
-| Pertanyaan yang sering diajukan | `content/faq.ts` |
 
 Semua teks wajib diisi dua bahasa (`id` dan `en`). Penjelasan lengkapnya ada di
 `frontend/src/content/README.md`.
@@ -72,14 +77,16 @@ putihnya akan tampak sebagai kotak terang di tema gelap.
 Halaman utama **tidak bisa di-scroll**. Yang tampil selalu satu panel penuh
 setinggi layar, dan menu di header menggantinya di tempat: klik **Proyek**,
 isinya berganti jadi panel proyek dengan animasi slide, bukan meluncur ke
-bawah. Panel yang isinya lebih panjang dari layar (Proyek, Layanan, Proses,
-Perjalanan, FAQ) punya scroll sendiri di dalamnya, sementara header tetap di
+bawah. Panel yang isinya lebih panjang dari layar (Proyek, Layanan,
+Perjalanan) punya scroll sendiri di dalamnya, sementara header tetap di
 atas.
 
 - Alamatnya memakai hash, jadi setiap panel bisa dibuka langsung:
   `/#work`, `/#contact`, dan seterusnya.
 - Daftar panelnya ada di `frontend/src/pages/Home/Home.tsx` (`PANELS`). Menu
-  header mengikuti daftar yang sama di `shared/constants/sections.ts`.
+  header hanya sebagian dari daftar itu: `shared/constants/sections.ts` memuat
+  `NAV_SECTIONS`, dan setiap id-nya harus berupa id panel. Panel pembuka dibuka
+  lewat logo atau hash, panel kontak lewat tombol di header dan di panel lain.
 - Tombol **See my work** dan **Hire me** di panel pembuka juga berpindah panel,
   bukan menggulir.
 - Halaman detail proyek (`/project/<slug>`) tetap halaman biasa yang bisa
@@ -108,14 +115,20 @@ diketahui kalau mau mengubahnya:
   foto, dan dua busur aurora di belakang foto.
 - Reduce Motion mematikan seluruh gerakan, termasuk yang berulang — bukan
   sekadar mempercepatnya.
+- **Posisi scroll diingat per entri riwayat.** `shared/lib/scroll.ts` menyimpan
+  posisi `window.scrollY` per key riwayat, dan `App.tsx` memulihkannya saat
+  tombol back/forward (POP). Di halaman utama `window` tidak pernah menggulir —
+  hanya panelnya yang menggulir — jadi pemulihan ini hanya berlaku di halaman
+  biasa seperti detail proyek.
 
 ## Formulir kontak
 
-Frontend mengirim `POST /api/contact` ke backend, backend mengirimkannya ke
+Frontend mengirim `POST /api/contact` ke backend Go, backend mengirimkannya ke
 `EMAIL_RECIPIENT` lewat Gmail. Backend hanya punya dua endpoint: `POST /api/contact`
-dan `GET /api/health` (tersedia juga sebagai `GET /health` saat dijalankan lokal).
+dan `GET /api/health` (tersedia juga sebagai `GET /health`, baik di lokal maupun
+di Vercel lewat rewrite di `vercel.json`).
 
-Agar formulir berfungsi, isi **`backend/.env`**:
+Agar formulir berfungsi, isi **`.env`** di root:
 
 ```
 PORT=3001
@@ -135,15 +148,20 @@ Penyebab paling sering: App Password-nya sudah tidak berlaku. Google membalas
 `535-5.7.8 Username and Password not accepted`, dan backend sengaja hanya
 mengirim kode `SERVER_ERROR` ke pengunjung — detailnya ada di log server saja.
 
-Cara memastikan tanpa mengirim email apa pun, dari folder `backend/`:
+Cara memastikan tanpa mengirim email apa pun: kirim formulir dengan honeypot
+terisi (misal `{"honeypot":"bot"}`) ke `/api/contact` — harus dibalas
+`{"success":true}` **tanpa** mengirim email. Untuk memeriksa kredensial yang
+sebenarnya, kirim formulir sungguhan lalu lihat log server; kalau muncul
+`535`, App Password-nya bermasalah.
 
 ```
-node -e "require('dotenv').config();const n=require('nodemailer');n.createTransport({service:'gmail',auth:{user:process.env.EMAIL_USER,pass:process.env.EMAIL_PASSWORD}}).verify().then(()=>console.log('OK')).catch(e=>console.log('GAGAL: '+e.message.split('\n')[0]))"
+curl -s -X POST -H "Content-Type: application/json" \
+  -d '{"honeypot":"bot"}' http://localhost:3001/api/contact
 ```
 
-Kalau hasilnya GAGAL, buat App Password baru di
+Kalau kiriman sungguhan gagal, buat App Password baru di
 https://myaccount.google.com/apppasswords (yang lama hapus), lalu perbarui
-**dua** tempat: `backend/.env` untuk lokal dan Environment Variable
+**dua** tempat: `.env` di root untuk lokal dan Environment Variable
 `EMAIL_PASSWORD` di Vercel untuk produksi. Lihat catatan rotasi di bagian
 [Rahasia](#rahasia--jangan-pernah-di-commit) — App Password pernah bocor lewat
 riwayat commit, jadi nilai lama memang harus dianggap mati.
@@ -160,12 +178,11 @@ jadi apa pun yang masuk ke sebuah commit bisa dibaca siapa saja.
 > GitHub bisa menyimpan objek lama itu untuk sementara, dan siapa pun yang
 > sempat menyalinnya tetap punya salinan.
 
-Ada tiga lokasi `.env` yang harus dijaga, dan ketiganya **tidak boleh** ikut Git:
+Ada dua lokasi `.env` yang harus dijaga, dan keduanya **tidak boleh** ikut Git:
 
 | Berkas | Isinya |
 |---|---|
-| `.env` (di root) | sudah dihapus dari working tree; jangan dibuat lagi tanpa masuk `.gitignore` |
-| `backend/.env` | `PORT`, `EMAIL_USER`, `EMAIL_PASSWORD`, `EMAIL_RECIPIENT` |
+| `.env` (di root) | `PORT`, `EMAIL_USER`, `EMAIL_PASSWORD`, `EMAIL_RECIPIENT` |
 | `frontend/.env` | opsional, hanya `VITE_API_URL` — lihat catatan di bawah |
 
 `frontend/.env` sengaja **tidak** ada. Di lokal frontend sudah menunjuk ke
@@ -173,17 +190,23 @@ Ada tiga lokasi `.env` yang harus dijaga, dan ketiganya **tidak boleh** ikut Git
 situsnya), jadi tidak ada yang perlu diisi. Buat berkasnya hanya kalau
 backendnya benar-benar dipisah ke domain lain.
 
-`.gitignore` sudah menutup ketiganya (`.env` berlaku untuk semua folder). Yang
-boleh di-commit hanya `backend/.env.example`, dan isinya placeholder.
+`.gitignore` sudah menutup keduanya (`.env` berlaku untuk semua folder). Yang
+boleh di-commit hanya `.env.example`, dan isinya placeholder.
 
 ### Sebelum push
 
 ```
+go vet ./...
+go build ./...
+go test ./...
+node --check dev.mjs
 npm run secrets:check
 ```
 
-Skripnya membaca `git ls-files` (hanya berkas yang ter-track, jadi cepat) dan
-mencari: berkas `.env*` yang ikut ter-track selain `*.example`, baris
+`go vet`, `go build`, dan `go test` memeriksa kode Go; `node --check` memastikan
+`dev.mjs` sintaksnya benar. `npm run secrets:check` membaca `git ls-files`
+(hanya berkas yang ter-track, jadi cepat) dan mencari: berkas `.env*` yang ikut
+ter-track selain `*.example`, baris
 `EMAIL_PASSWORD=` / `SUPABASE_ANON_KEY=` yang benar-benar terisi, `PRIVATE KEY`,
 bentuk token yang lazim (`sb_publishable_`, `sb_secret_`, `ghp_`, `AKIA`,
 `sk-`), dan pola App Password Gmail (alamat email diikuti empat kelompok
@@ -214,16 +237,25 @@ menyembunyikan kebocoran, bukan menutupnya.
 ## Struktur
 
 ```
-api/              Vercel Function: meneruskan /api/* ke backend
-  [...path].js        satu berkas, hanya me-require backend/dist/app.js
-backend/          Express + TypeScript
-  src/app.ts          aplikasi Express (tanpa listen) — dipakai lokal & Vercel
-  src/index.ts        entry lokal: listen di PORT
-  src/config/env.ts   baca & validasi variabel lingkungan
-  src/domain/         entitas, aturan validasi, katalog kode error
-  src/infrastructure/ pengiriman email
-  src/interfaces/     route HTTP dan middleware
+api/              Vercel Function: satu berkas Go per endpoint
+  health.go           GET /api/health
+  contact.go          POST /api/contact
+cmd/server/       entry lokal: listen di PORT
+  main.go
+pkg/portfolio/  logika backend bersama (dipakai lokal & Vercel)
+  app.go              router, handler health/contact, body & error
+  config.go           baca & validasi variabel lingkungan (.env)
+  contact.go          aturan validasi, katalog kode error
+  mailer.go           pengiriman email Gmail SMTP
+  middleware.go       header keamanan, CORS, pembatas laju
+  contact_test.go     uji validasi & pembatas laju
+go.mod            module Go (stdlib saja, tanpa dependensi)
+.env.example      contoh variabel lingkungan — salin menjadi .env
 vercel.json       konfigurasi deploy (build, output, rewrite SPA)
+scripts/          pemeriksa rahasia (`npm run secrets:check`)
+  check-secrets.mjs   memindai berkas yang di-track Git
+package.json      skrip root: `dev`, `secrets:check`
+Jalankan.bat      pintasan Windows untuk `node dev.mjs`
 frontend/         React + Vite + Tailwind
   src/main.tsx        entry React: memasang App ke #root
   src/App.tsx         provider bahasa, router, dan daftar rute
@@ -232,10 +264,12 @@ frontend/         React + Vite + Tailwind
   src/content/        seluruh isi website (lihat tabel di atas)
   src/pages/          halaman: Home, ProjectDetail, NotFound
   src/widgets/        bagian halaman: Hero, About, Work, Services, Skills,
-                      Journey, Process, Faq, Contact, TrustStrip, Footer, Nav
+                      Journey, Contact, TrustStrip, Footer, Nav
   src/entities/       komponen data: ProjectCard
   src/shared/         ui, components, hooks, context, constants, lib
   public/             favicon dan gambar proyek
+  index.html          skrip pra-paint `data-intro`
+  vite.config.ts      konfigurasi Vite (manual chunks, optimizeDeps)
 dev.mjs           menjalankan backend + frontend sekaligus
 ```
 
@@ -279,8 +313,8 @@ location /assets/ {
 ## Deploy ke Vercel
 
 Situs ini sudah ter-deploy di Vercel. Satu project menampung frontend statis
-**dan** backend Express-nya sekaligus, jadi formulir kontak tetap berfungsi
-tanpa server terpisah.
+**dan** backend Go-nya sekaligus, jadi formulir kontak tetap berfungsi tanpa
+server terpisah.
 
 | | |
 |---|---|
@@ -294,8 +328,9 @@ tanpa server terpisah.
 vercel --prod
 ```
 
-Vercel akan memasang dependensi, membangun kedua folder, dan menyajikan
-`frontend/dist`. Tidak ada langkah manual lain.
+Vercel akan memasang dependensi frontend, membangunnya, dan menyajikan
+`frontend/dist`. Function Go di `api/` ikut dibangun otomatis dari `go.mod`
+yang ada di root. Tidak ada langkah manual lain.
 
 Untuk menarik setelan project ke mesin lokal (membuat `.vercel/`, yang sudah
 masuk `.gitignore`):
@@ -331,10 +366,9 @@ build/runtime deployment, bukan dibaca ulang dari deployment lama.
 
 - **Frontend** dibangun Vite lalu disajikan sebagai berkas statis dari
   `frontend/dist`.
-- **Backend** dijalankan `tsc` di `backend/`, hasilnya `backend/dist/`. Satu
-  Vercel Function di `api/[...path].js` hanya me-`require` hasil itu dan
-  menyerahkannya sebagai handler `(req, res)`. Rutenya tetap `/api/contact` dan
-  `/api/health` karena Vercel meneruskan path aslinya.
+- **Backend** adalah function Go di `api/` (`health.go` dan `contact.go`) yang
+  menyerahkan setiap request ke paket `pkg/portfolio`. Rutenya tetap
+  `/api/contact` dan `/api/health` karena Vercel meneruskan path aslinya.
 - **Rewrite SPA** di `vercel.json` mengarahkan path tanpa ekstensi berkas ke
   `/index.html`, dan sengaja **tidak** menyentuh `/api/*` maupun path yang
   berakhiran ekstensi (`.js`, `.css`, `.webp`, …) supaya aset yang hilang
@@ -353,7 +387,7 @@ build/runtime deployment, bukan dibaca ulang dari deployment lama.
   instance*, bukan per situs — angkanya bisa lebih longgar dari yang tertulis
   di kode. Untuk batas yang benar-benar ketat, pindahkan hitungannya ke
   penyimpanan bersama (mis. Redis) atau pasang Vercel Firewall.
-- **`backend/.env` tidak ikut ter-deploy.** Di Vercel, nilainya datang dari
+- **`.env` di root tidak ikut ter-deploy.** Di Vercel, nilainya datang dari
   Environment Variables; berkas itu ada hanya untuk pemakaian lokal.
 - **Setiap deploy baru berarti proses baru**, jadi peta rate limit selalu mulai
   kosong.

@@ -4,7 +4,7 @@ import { LanguageProvider } from './shared/context/LanguageProvider';
 import { ThemeProvider } from './shared/context/ThemeProvider';
 import { useLang } from './shared/context/language';
 import { LoadingScreen } from './shared/components/LoadingScreen';
-import { currentScrollY, recallScroll, rememberScroll } from './shared/lib/scroll';
+import { recallScroll, rememberScroll } from './shared/lib/scroll';
 import Home from './pages/Home/Home';
 import NotFound from './pages/NotFound/NotFound';
 import { Footer } from './widgets/Footer/Footer';
@@ -34,7 +34,7 @@ function ScrollManager() {
 
   useEffect(() => {
     if (previousKey.current !== key) {
-      rememberScroll(previousKey.current, currentScrollY());
+      rememberScroll(previousKey.current, window.scrollY);
       previousKey.current = key;
     }
 

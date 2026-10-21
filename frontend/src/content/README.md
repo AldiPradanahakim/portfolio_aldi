@@ -1,9 +1,10 @@
 # Isi Website — `frontend/src/content/`
 
 Seluruh teks dan data website ada di folder ini sebagai file TypeScript biasa.
-Tidak ada database, tidak ada API, tidak ada layanan backend: mengubah tulisan
-di sini langsung mengubah isi halaman setelah disimpan (Vite memuat ulang
-otomatis).
+Tidak ada database dan tidak ada API konten pihak ketiga: mengubah tulisan di
+sini langsung mengubah isi halaman setelah disimpan (Vite memuat ulang
+otomatis). Satu-satunya bagian yang menghubungi backend adalah formulir kontak,
+yang mengirim pesan ke API Go di folder `api/`.
 
 ## Mau mengubah apa? Edit file ini
 
@@ -14,8 +15,6 @@ otomatis).
 | Layanan yang ditawarkan | `services.ts` |
 | Daftar keahlian per kelompok | `skills.ts` |
 | Riwayat kuliah & proyek (timeline) | `journey.ts` |
-| Tahapan kerja sama dengan klien | `process.ts` |
-| Pertanyaan yang sering diajukan | `faq.ts` |
 | Bentuk datanya (kolom apa saja yang wajib) | `types.ts` |
 
 `index.ts` hanya mengumpulkan semuanya supaya bisa diimpor sekali:
@@ -45,9 +44,11 @@ ada nama perusahaan, tidak ada harga, dan tidak ada URL yang tidak jelas asalnya
   dengan nama yang sama, atau ubah nilainya kalau namanya berbeda. Kalau
   berkasnya hilang, antarmuka otomatis kembali menampilkan monogram "AP"
   (lihat `Hero.tsx`), jadi halaman tidak pernah menampilkan gambar rusak.
-- `PROFILE.socials` untuk sekarang hanya berisi email. Tambahkan GitHub,
-  LinkedIn, atau Instagram di situ kalau akunnya sudah ada — jangan diisi
-  tautan karangan. Ada contohnya berupa komentar di dalam `profile.ts`.
+- `PROFILE.socials` berisi empat tautan: WhatsApp (`wa.me`), LinkedIn,
+  Instagram, dan email. Nomor WhatsApp ditulis dalam format internasional tanpa
+  tanda plus dan tanpa nol di depan (`62…`) supaya tautan `wa.me` valid.
+  Kalau ada akun baru (misalnya GitHub), tambahkan di situ — jangan diisi
+  tautan karangan.
 - `links` pada proyek dikosongkan karena tidak ada satu pun proyek yang punya
   URL publik. Isi hanya kalau demo atau repositorinya benar-benar bisa dibuka
   orang lain.

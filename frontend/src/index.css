@@ -8,74 +8,85 @@
   :root {
     color-scheme: dark;
 
-    --bg: 8 9 12;
-    --surface: 12 14 19;
-    --surface-raised: 17 20 25;
-    --border: 24 28 36;
-    --border-strong: 36 42 53;
-    --border-hover: 57 65 79;
-    --text: 236 238 242;
-    --text-muted: 154 163 178;
-    --text-faint: 121 129 143;
-    --accent: 122 162 247;
-    --accent-hover: 169 193 255;
-    --accent-deep: 42 59 99;
+    /* near-black with a cool cast; the ramp stays monotonic so every surface step is legible */
+    --bg: 7 8 11;
+    --surface: 11 13 18;
+    --surface-raised: 16 19 25;
+    --border: 28 33 42;
+    --border-strong: 43 50 63;
+    --border-hover: 66 76 94;
+    --text: 237 240 245;
+    --text-muted: 168 177 191;
+    --text-faint: 132 142 158;
+    --accent: 138 170 255;
+    --accent-hover: 182 201 255;
+    --accent-deep: 38 55 96;
     --danger: 252 165 165;
     --danger-border: 248 113 113;
 
     /* media frames stay dark in both themes so the dark UI mockups read as screens */
-    --media: 12 14 19;
-    --media-ring: 36 42 53;
-    --media-text: 236 238 242;
+    --media: 11 13 18;
+    --media-ring: 43 50 63;
+    --media-text: 237 240 245;
 
-    --grid-line: 236 238 242;
-    --grid-line-alpha: 0.045;
-    --glow-1: 0.16;
-    --glow-2: 0.07;
-    --portrait-glow: 0.18;
-    --aurora: 0.5;
+    --grid-line: 237 240 245;
+    --grid-line-alpha: 0.04;
+    --glow-1: 0.14;
+    --glow-2: 0.06;
+    --portrait-glow: 0.2;
+    --aurora: 0.55;
     /* the brick plates on the portrait's entrance: accent-adjacent, but deep enough to read as
        moulded plastic rather than as a surface tint */
-    --brick-hi: 138 176 255;
-    --brick-lo: 30 45 86;
-    --brick-shadow: 3 4 8;
+    --brick-hi: 150 182 255;
+    --brick-lo: 26 40 78;
+    --brick-shadow: 2 3 6;
 
-    /* one curve, three durations */
+    /* per-panel mesh wash and the fixed grain: both decorative, both static */
+    --mesh-a: 0.09;
+    --mesh-b: 0.05;
+    --grain: 0.028;
+
+    /* one curve, three durations (plus the panel's own, which is deliberately longer) */
     --ease: cubic-bezier(0.22, 1, 0.36, 1);
     --dur-fast: 150ms;
     --dur: 220ms;
     --dur-slow: 600ms;
+    --dur-panel: 380ms;
   }
 
-  /* Measured contrast (WCAG 2.1): text/bg 16.84, muted/bg 7.35, faint/bg 5.16, accent/bg 6.37,
-     faint/surface-raised 5.19, contrast-on-accent 6.37. Every pair >= 4.5:1. */
+  /* Measured WCAG 2.1 ratios for the light ramp are recorded in the report; the darkest text
+     pair (faint on raised) still clears 4.5:1. */
   :root.light {
     color-scheme: light;
 
-    --bg: 250 249 247;
+    --bg: 248 247 244;
     --surface: 255 255 255;
-    --surface-raised: 243 241 237;
-    --border: 232 228 221;
-    --border-strong: 213 207 198;
-    --border-hover: 185 178 166;
-    --text: 26 24 21;
-    --text-muted: 87 82 75;
-    --text-faint: 106 100 91;
-    --accent: 29 78 216;
-    --accent-hover: 30 64 175;
+    --surface-raised: 242 240 235;
+    --border: 228 224 217;
+    --border-strong: 208 202 193;
+    --border-hover: 178 170 158;
+    --text: 22 24 28;
+    --text-muted: 82 78 71;
+    --text-faint: 105 99 91;
+    --accent: 30 64 175;
+    --accent-hover: 24 52 145;
     --accent-deep: 191 211 255;
-    --danger: 180 35 24;
-    --danger-border: 192 38 28;
+    --danger: 170 30 20;
+    --danger-border: 185 28 28;
 
-    --grid-line: 26 24 21;
+    --grid-line: 22 24 28;
     --grid-line-alpha: 0.05;
-    --glow-1: 0.1;
-    --glow-2: 0.05;
+    --glow-1: 0.08;
+    --glow-2: 0.04;
     --portrait-glow: 0.14;
     --aurora: 0.32;
     --brick-hi: 76 124 240;
     --brick-lo: 21 54 154;
     --brick-shadow: 12 24 56;
+
+    --mesh-a: 0.06;
+    --mesh-b: 0.035;
+    --grain: 0.018;
   }
 
   html {
@@ -86,6 +97,18 @@
   body {
     @apply bg-ink-950 font-sans text-chalk antialiased;
     min-height: 100vh;
+  }
+
+  /* Fixed film grain. One static SVG tile, no repaint, and it never takes a pointer event. */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    opacity: var(--grain);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
   }
 
   [id] {
@@ -164,7 +187,7 @@
 
   .reveal {
     opacity: 0;
-    transform: translate3d(0, 14px, 0);
+    transform: translate3d(0, 18px, 0);
     transition: opacity var(--dur-slow) var(--ease), transform var(--dur-slow) var(--ease);
   }
   .reveal[data-revealed='true'] {
@@ -172,16 +195,103 @@
     transform: translate3d(0, 0, 0);
   }
 
+  /* ---------- atmosphere ---------- */
+
+  /* One cheap wash per panel: two radial gradients on a pseudo-element, no extra DOM. The
+     section only needs `isolation` so the negative layer stays above the panel's background. */
+  .panel-mesh {
+    position: relative;
+    isolation: isolate;
+  }
+  .panel-mesh::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(55% 45% at 8% 0%, rgb(var(--accent) / var(--mesh-a)), transparent 72%),
+      radial-gradient(48% 42% at 92% 14%, rgb(var(--accent) / var(--mesh-b)), transparent 70%);
+  }
+  .panel-mesh[data-mesh='work']::before {
+    background:
+      radial-gradient(52% 42% at 92% 0%, rgb(var(--accent) / var(--mesh-a)), transparent 72%),
+      radial-gradient(44% 38% at 6% 28%, rgb(var(--accent) / var(--mesh-b)), transparent 70%);
+  }
+  .panel-mesh[data-mesh='contact']::before {
+    background:
+      radial-gradient(60% 55% at 50% 100%, rgb(var(--accent) / var(--mesh-a)), transparent 72%),
+      radial-gradient(40% 36% at 12% 0%, rgb(var(--accent) / var(--mesh-b)), transparent 70%);
+  }
+
   /* ---------- hero entrance ---------- */
 
   /* The choreography is gated on the intro curtain through one attribute on `<html>`: while the
      curtain is up the hero is held hidden, and the single flip to `done` starts every animation
      together. Each element's own delay does the staggering, so nothing needs to know a timing. */
-  html[data-intro='pending'] .hero-rise {
+  html[data-intro='pending'] .hero-rise,
+  html[data-intro='pending'] .hero-word {
     opacity: 0;
   }
   html[data-intro='done'] .hero-rise {
     animation: rise-in var(--dur-slow) var(--ease) both;
+  }
+  html[data-intro='done'] .hero-word {
+    animation: word-in 760ms var(--ease) both;
+  }
+  .hero-word {
+    display: inline-block;
+  }
+
+  /* Cursor-follow spotlight: the section's custom properties are written by usePointerStage on
+     an rAF tick; the blob itself only ever moves on `transform`. */
+  .hero-spotlight {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .hero-spotlight::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 720px;
+    height: 720px;
+    border-radius: 9999px;
+    background: radial-gradient(
+      circle,
+      rgb(var(--accent) / 0.13) 0%,
+      rgb(var(--accent) / 0.05) 38%,
+      transparent 68%
+    );
+    transform: translate3d(
+      calc(var(--spot-x, 50vw) - 360px),
+      calc(var(--spot-y, 40vh) - 360px),
+      0
+    );
+    opacity: var(--spot-on, 0);
+    transition: opacity 500ms var(--ease);
+  }
+
+  /* static gradient wash behind the hero */
+  .hero-glow {
+    background: radial-gradient(60% 55% at 50% 0%, rgb(var(--accent) / var(--glow-1)), transparent 70%),
+      radial-gradient(40% 40% at 85% 15%, rgb(var(--accent) / var(--glow-2)), transparent 70%);
+  }
+
+  /* the only continuously animated background layer: one composited, transform-only layer */
+  .hero-grid {
+    background-image: linear-gradient(
+        to right,
+        rgb(var(--grid-line) / var(--grid-line-alpha)) 1px,
+        transparent 1px
+      ),
+      linear-gradient(to bottom, rgb(var(--grid-line) / var(--grid-line-alpha)) 1px, transparent 1px);
+    background-size: 72px 72px;
+    -webkit-mask-image: radial-gradient(75% 60% at 50% 0%, #000 20%, transparent 80%);
+    mask-image: radial-gradient(75% 60% at 50% 0%, #000 20%, transparent 80%);
+    animation: hero-drift 48s linear infinite;
   }
 
   /* ---------- portrait ---------- */
@@ -218,6 +328,12 @@
     animation-direction: reverse;
     opacity: 0.6;
   }
+  .portrait-aurora-3 {
+    inset: -30%;
+    opacity: 0.35;
+    animation-duration: 52s;
+    animation-direction: reverse;
+  }
 
   /* the hero portrait's accent halo, now breathing rather than static */
   .portrait-glow {
@@ -239,6 +355,13 @@
   .portrait-float {
     position: relative;
     animation: portrait-float 7.5s var(--ease) infinite alternate;
+  }
+
+  /* pointer parallax: usePointerStage writes --par-x/--par-y on the hero section; this wrapper
+     carries the transform so it never fights the float animation on its child */
+  .portrait-parallax {
+    transform: translate3d(var(--par-x, 0px), var(--par-y, 0px), 0);
+    transition: transform 400ms var(--ease);
   }
 
   /* "Built brick by brick": a wall of studded plates laid over the portrait that dissolves to
@@ -272,37 +395,15 @@
       0 2px 4px rgb(var(--brick-shadow) / 0.35);
   }
   html[data-intro='done'] .brick {
-    animation: brick-out 460ms var(--ease) both;
+    animation: brick-out 380ms var(--ease) both;
   }
 
-  /* the language/theme toggle glyph swaps in place */
-  .icon-swap {
-    animation: icon-swap var(--dur) var(--ease) both;
-  }
-
-  /* static gradient wash behind the hero */
-  .hero-glow {
-    background: radial-gradient(60% 55% at 50% 0%, rgb(var(--accent) / var(--glow-1)), transparent 70%),
-      radial-gradient(40% 40% at 85% 15%, rgb(var(--accent) / var(--glow-2)), transparent 70%);
-  }
-
-  /* the only continuously animated background layer: one composited, transform-only layer */
-  .hero-grid {
-    background-image: linear-gradient(
-        to right,
-        rgb(var(--grid-line) / var(--grid-line-alpha)) 1px,
-        transparent 1px
-      ),
-      linear-gradient(to bottom, rgb(var(--grid-line) / var(--grid-line-alpha)) 1px, transparent 1px);
-    background-size: 72px 72px;
-    -webkit-mask-image: radial-gradient(75% 60% at 50% 0%, #000 20%, transparent 80%);
-    mask-image: radial-gradient(75% 60% at 50% 0%, #000 20%, transparent 80%);
-    animation: hero-drift 48s linear infinite;
-    will-change: transform;
-  }
+  /* ---------- marquee ---------- */
 
   .marquee {
     overflow: hidden;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
   }
   .marquee-track {
     display: flex;
@@ -314,31 +415,79 @@
     animation-play-state: paused;
   }
 
-  /* FAQ panel: the answer fades and slides in on opacity + transform. The box itself collapses
-     instantly (height 0 + overflow hidden) because height is a layout property and may not be
-     animated; `visibility` keeps a collapsed answer out of the a11y tree and the tab order. */
-  .faq-panel {
-    height: 0;
-    overflow: hidden;
-    padding-bottom: 0;
-    visibility: hidden;
-    opacity: 0;
-    transform: translate3d(0, -6px, 0);
-    transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+  /* oversized footer wordmark: decorative, duplicated for a seamless -50% loop */
+  .marquee-wordmark {
+    font-family: ui-serif, 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Palatino,
+      Georgia, serif;
+    font-size: clamp(3.5rem, 11vw, 9rem);
+    line-height: 0.8;
+    letter-spacing: -0.04em;
+    text-transform: uppercase;
+    color: rgb(var(--text) / 0.1);
   }
-  .faq-panel[data-open='true'] {
-    height: auto;
-    padding-bottom: 1.5rem;
-    visibility: visible;
+
+  /* the hero's scroll/next hint: a vertical line that nudges downward (transform only) */
+  .hint-line {
+    display: inline-block;
+    height: 22px;
+    width: 1px;
+    background: rgb(var(--accent));
+    animation: hint-nudge 2s var(--ease) infinite;
+  }
+
+  /* link underline that sweeps in from the right; the anchor is its own hit area */
+  .link-sweep {
+    position: relative;
+  }
+  .link-sweep::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -2px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right;
+    transition: transform var(--dur) var(--ease);
+  }
+  .link-sweep:hover::after,
+  .link-sweep:focus-visible::after {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+
+  /* ---------- nav ---------- */
+
+  /* the active-item indicator is 1px wide and only ever scales/translates — never `width` */
+  .nav-indicator {
+    position: absolute;
+    left: 0;
+    bottom: -1px;
+    height: 2px;
+    width: 1px;
+    border-radius: 2px;
+    background: rgb(var(--accent));
+    opacity: 0;
+    transform-origin: left;
+    transform: translate3d(var(--nav-x, 0px), 0, 0) scaleX(var(--nav-w, 0));
+    transition: transform 420ms var(--ease), opacity 220ms var(--ease);
+    pointer-events: none;
+  }
+  .nav-indicator.is-active {
     opacity: 1;
-    transform: none;
+  }
+
+  /* staggered drawer items (delay comes from inline animationDelay) */
+  .drawer-item {
+    animation: drawer-item-in 420ms var(--ease) both;
   }
 
   /* ---------- intro curtain ---------- */
 
   /* Full-screen curtain shown once per page load. It sits above the header and lifts away on a
-     composited transform; nothing under it is interacted with while it is up, and it is removed
-     from the DOM (not just hidden) once the lift is done. */
+     composited transform with a slight scale; nothing under it is interacted with while it is
+     up, and it is removed from the DOM (not just hidden) once the lift is done. */
   .intro {
     position: fixed;
     inset: 0;
@@ -346,57 +495,87 @@
     display: grid;
     place-items: center;
     background: rgb(var(--bg));
-    transition: transform var(--dur-slow) var(--ease), opacity var(--dur) var(--ease);
+    transition: transform 700ms var(--ease), opacity 320ms var(--ease);
+  }
+  .intro::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(52% 50% at 50% 38%, rgb(var(--accent) / 0.12), transparent 72%);
   }
   .intro[data-done='true'] {
-    transform: translate3d(0, -101%, 0);
+    transform: translate3d(0, -101%, 0) scale(1.03);
     opacity: 0;
     pointer-events: none;
   }
   .intro-inner {
+    position: relative;
     display: grid;
     justify-items: center;
-    gap: 20px;
+    gap: 22px;
     animation: rise-in var(--dur-slow) var(--ease) both;
   }
   .intro-mark {
     @apply grid place-items-center font-mono;
-    height: 56px;
-    width: 56px;
-    border-radius: 18px;
+    height: 52px;
+    width: 52px;
+    border-radius: 16px;
     border: 1px solid rgb(var(--border));
     background: rgb(var(--surface));
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     letter-spacing: 0.18em;
     color: rgb(var(--accent));
   }
   .intro-name {
     @apply font-mono uppercase;
     font-size: 0.75rem;
-    letter-spacing: 0.3em;
+    letter-spacing: 0.42em;
+    padding-left: 0.42em;
     color: rgb(var(--text-muted));
+    animation: intro-name-in 900ms var(--ease) both;
+  }
+  .intro-count {
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+    font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'SFMono-Regular', Menlo,
+      Consolas, monospace;
+    font-size: clamp(3rem, 8vw, 5rem);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: rgb(var(--text));
+  }
+  .intro-digit {
+    display: inline-block;
+    height: 1em;
+    width: 0.62em;
+    overflow: hidden;
+  }
+  .intro-digit-reel {
+    display: flex;
+    flex-direction: column;
+  }
+  .intro-digit-reel > span {
+    height: 1em;
+    line-height: 1;
+    text-align: center;
   }
   .intro-track {
     display: block;
-    height: 2px;
-    width: 168px;
+    height: 1px;
+    width: min(260px, 60vw);
     overflow: hidden;
-    border-radius: 2px;
+    border-radius: 1px;
     background: rgb(var(--border));
   }
   .intro-fill {
     display: block;
     height: 100%;
     background: rgb(var(--accent));
+    box-shadow: 0 0 14px rgb(var(--accent) / 0.6);
     transform: scaleX(0);
     transform-origin: left;
-    /* tracks the counter below, so it steps at the same cadence */
-    transition: transform 110ms linear;
-  }
-  .intro-count {
-    @apply font-mono tabular-nums;
-    font-size: 0.6875rem;
-    color: rgb(var(--text-faint));
   }
 
   .animate-fade-in {
@@ -409,7 +588,7 @@
   /* A deck panel is remounted on every switch (React `key`), so the animation always replays.
      `.deck-panel-reverse` only swaps the direction, keeping the transform compositor-only. */
   .deck-panel {
-    animation: deck-in-right var(--dur-slow) var(--ease) both;
+    animation: deck-in-right var(--dur-panel) var(--ease) both;
   }
   .deck-panel-reverse {
     animation-name: deck-in-left;
@@ -452,7 +631,7 @@
 @keyframes deck-in-right {
   from {
     opacity: 0;
-    transform: translate3d(44px, 0, 0) scale(0.985);
+    transform: translate3d(2.5%, 0, 0) scale(0.98);
   }
   to {
     opacity: 1;
@@ -463,7 +642,7 @@
 @keyframes deck-in-left {
   from {
     opacity: 0;
-    transform: translate3d(-44px, 0, 0) scale(0.985);
+    transform: translate3d(-2.5%, 0, 0) scale(0.98);
   }
   to {
     opacity: 1;
@@ -482,6 +661,17 @@
   }
 }
 
+@keyframes drawer-item-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 14px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 @keyframes portrait-in {
   from {
     opacity: 0;
@@ -490,17 +680,6 @@
   to {
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
-@keyframes icon-swap {
-  from {
-    opacity: 0;
-    transform: scale(0.75) rotate(-30deg);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) rotate(0deg);
   }
 }
 
@@ -513,6 +692,29 @@
   to {
     opacity: 1;
     transform: translate3d(0, 0, 0);
+  }
+}
+
+/* headline words: a tight rise + sharpen on a small composited text span */
+@keyframes word-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 0.32em, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes intro-name-in {
+  from {
+    opacity: 0;
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    opacity: 1;
+    clip-path: inset(0 0 0 0);
   }
 }
 
@@ -564,6 +766,7 @@
   *::before,
   *::after {
     animation-duration: 0.001ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
     transition-delay: 0ms !important;
@@ -577,12 +780,30 @@
   .marquee-track,
   .portrait-float,
   .portrait-aurora,
-  .portrait-glow {
+  .portrait-glow,
+  .hero-grid {
     animation: none !important;
     transform: none !important;
   }
   .brick {
     opacity: 0 !important;
     animation: none !important;
+  }
+  /* the hero is released instantly when the intro is skipped, so nothing may stay blurred */
+  html[data-intro='pending'] .hero-rise,
+  html[data-intro='pending'] .hero-word {
+    opacity: 1;
+  }
+  .hero-rise,
+  .hero-word {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .hero-spotlight::before {
+    opacity: 0 !important;
+  }
+  .portrait-parallax {
+    transform: none !important;
   }
 }

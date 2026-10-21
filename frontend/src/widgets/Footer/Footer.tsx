@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom';
-import { ArrowUp } from 'lucide-react';
 import { PROFILE } from '../../content';
 import { NAV_SECTIONS } from '../../shared/constants/sections';
 import { useLang } from '../../shared/context/language';
+import { BackToTop } from '../../shared/components/BackToTop';
 import { socialIcon } from '../../shared/lib/icons';
 
 const T = {
@@ -30,7 +30,7 @@ export function Footer() {
                 <li key={section.id}>
                   <Link
                     to={`/#${section.id}`}
-                    className="text-small text-chalk-muted transition-colors duration-fast hover:text-chalk"
+                    className="link-sweep text-small text-chalk-muted transition-colors duration-fast hover:text-chalk"
                   >
                     {t(section.label)}
                   </Link>
@@ -39,7 +39,7 @@ export function Footer() {
             </ul>
           </nav>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3">
             {PROFILE.socials.map((social) => {
               const Icon = socialIcon(social.icon);
               return (
@@ -48,25 +48,33 @@ export function Footer() {
                   href={social.url}
                   rel="noopener noreferrer"
                   aria-label={social.label}
-                  className="rounded-full border border-ink-800 p-2 text-chalk-muted transition-colors duration-fast hover:text-chalk"
+                  className="rounded-full border border-ink-800 p-2 text-chalk-muted transition-colors duration-fast hover:border-ink-700 hover:text-chalk"
                 >
                   <Icon className="h-4 w-4" aria-hidden="true" />
                 </a>
               );
             })}
-            <button
-              type="button"
-              onClick={() => window.scrollTo({ top: 0 })}
-              aria-label={t(T.backToTop)}
-              className="rounded-full border border-ink-800 p-2 text-chalk-muted transition-colors duration-fast hover:text-chalk"
-            >
-              <ArrowUp className="h-4 w-4" aria-hidden="true" />
-            </button>
+            <BackToTop label={t(T.backToTop)} />
           </div>
         </div>
+      </div>
 
+      <div className="marquee mt-10" aria-hidden="true">
+        <div className="marquee-track items-center">
+          {[0, 1].map((copy) => (
+            <span key={copy} className="marquee-wordmark shrink-0 pr-16">
+              {PROFILE.name}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      <div className="shell mt-10 flex flex-col gap-3 border-t border-ink-800/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-small text-chalk-faint">
           © {new Date().getFullYear()} {PROFILE.name}
+        </p>
+        <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-chalk-faint">
+          Indonesia · Remote
         </p>
       </div>
     </footer>

@@ -10,7 +10,8 @@ const T = {
 
 /**
  * The accessible name states the action; aria-pressed exposes whether the dark theme is the
- * one currently on screen.
+ * one currently on screen. Both glyphs stay mounted and cross-fade in place, so the toggle
+ * never changes size or shifts its neighbours.
  */
 export function ThemeToggle({ className }: { className?: string }) {
   const { theme, toggle } = useTheme();
@@ -24,15 +25,24 @@ export function ThemeToggle({ className }: { className?: string }) {
       aria-pressed={dark}
       aria-label={t(dark ? T.toLight : T.toDark)}
       className={cx(
-        'press rounded-full border border-ink-800 p-2 text-chalk-muted hover:border-ink-700 hover:text-chalk',
+        'press relative grid h-9 w-9 place-items-center rounded-full border border-ink-800 text-chalk-muted hover:border-ink-700 hover:text-chalk',
         className,
       )}
     >
-      {dark ? (
-        <Sun className="icon-swap h-4 w-4" aria-hidden="true" />
-      ) : (
-        <Moon className="icon-swap h-4 w-4" aria-hidden="true" />
-      )}
+      <Sun
+        aria-hidden="true"
+        className={cx(
+          'absolute h-4 w-4 transition-[opacity,transform] duration',
+          dark ? 'rotate-0 scale-100 opacity-100' : '-rotate-45 scale-75 opacity-0',
+        )}
+      />
+      <Moon
+        aria-hidden="true"
+        className={cx(
+          'absolute h-4 w-4 transition-[opacity,transform] duration',
+          dark ? 'rotate-45 scale-75 opacity-0' : 'rotate-0 scale-100 opacity-100',
+        )}
+      />
     </button>
   );
 }

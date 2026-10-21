@@ -6,11 +6,17 @@ export function Monogram({ initials, className }: { initials: string; className?
     <div
       aria-hidden="true"
       className={cx(
-        'grid aspect-square place-items-center rounded-3xl border border-ink-800 bg-ink-900',
+        'relative grid aspect-square place-items-center overflow-hidden rounded-3xl border border-ink-800 bg-ink-900',
         className,
       )}
     >
-      <span className="font-mono text-4xl tracking-[0.18em] text-accent">{initials}</span>
+      <span
+        aria-hidden="true"
+        className="absolute inset-0 opacity-60 [background-image:repeating-linear-gradient(-45deg,rgb(var(--border)/0.55)_0_1px,transparent_1px_14px)]"
+      />
+      <span className="relative font-display text-[clamp(2.5rem,9vw,4.5rem)] tracking-[0.12em] text-accent">
+        {initials}
+      </span>
     </div>
   );
 }

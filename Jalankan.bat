@@ -12,6 +12,17 @@ if errorlevel 1 (
   exit /b 1
 )
 
+where go >nul 2>nul
+if errorlevel 1 (
+  echo.
+  echo Go tidak ditemukan di komputer ini.
+  echo Install dulu Go 1.22 atau lebih baru dari https://go.dev/dl/
+  echo Setelah selesai, tutup jendela ini lalu dobel klik Jalankan.bat lagi.
+  echo.
+  pause
+  exit /b 1
+)
+
 node dev.mjs
 
 echo.

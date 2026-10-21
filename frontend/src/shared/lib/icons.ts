@@ -9,6 +9,7 @@ import {
   Instagram,
   Linkedin,
   Mail,
+  MessageCircle,
   Smartphone,
   Sparkles,
   Wrench,
@@ -32,6 +33,7 @@ const SOCIAL_ICONS: Record<string, LucideIcon> = {
   github: Github,
   linkedin: Linkedin,
   instagram: Instagram,
+  whatsapp: MessageCircle,
 };
 
 export const serviceIcon = (name: string): LucideIcon => SERVICE_ICONS[name] ?? Sparkles;

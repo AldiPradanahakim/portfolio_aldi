@@ -5,19 +5,27 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = path.dirname(fileURLToPath(import.meta.url));
-const dirs = ['backend', 'frontend'];
 
-for (const dir of dirs) {
+for (const dir of ['frontend']) {
   if (existsSync(path.join(root, dir, 'node_modules'))) continue;
   console.log(`[dev] installing ${dir} dependencies...`);
   const install = spawnSync('npm', ['install'], { cwd: path.join(root, dir), stdio: 'inherit', shell: true });
   if (install.status !== 0) process.exit(install.status ?? 1);
 }
 
-// The banner must not lie: the backend reads PORT from backend/.env, so read
+// Backend kini Go: pastikan toolchain-nya ada sebelum menyisakan pekerjaan.
+const goCheck = spawnSync('go', ['version'], { stdio: 'ignore', shell: true });
+if (goCheck.error || goCheck.status !== 0) {
+  console.log('\n[dev] Go tidak ditemukan di komputer ini.');
+  console.log('[dev] Install dulu Go 1.22 atau lebih baru dari https://go.dev/dl/');
+  console.log('[dev] Setelah selesai, tutup jendela ini lalu jalankan Jalankan.bat lagi.\n');
+  process.exit(1);
+}
+
+// The banner must not lie: the backend reads PORT from .env, so read
 // the same file here instead of assuming the default.
 const backendPort = (() => {
-  const envFile = path.join(root, 'backend', '.env');
+  const envFile = path.join(root, '.env');
 
   if (!existsSync(envFile)) return 3001;
 
@@ -25,7 +33,6 @@ const backendPort = (() => {
 
   return match ? Number(match[1]) : 3001;
 })();
-
 
 // 5173 is taken by another project on this machine, so we own a dedicated range
 const freePort = (candidates) =>
@@ -49,10 +56,9 @@ console.log('[dev] Jendela aplikasi terbuka otomatis, tunggu sebentar.');
 console.log('[dev] Tekan Ctrl+C di jendela ini untuk mematikan semuanya.\n');
 
 // both start in parallel; vite waits for nothing, backend retries nothing
-const children = dirs.map((dir) => {
-  const args = dir === 'frontend' ? ['run', 'dev', '--', '--port', String(port), '--strictPort'] : ['run', 'dev'];
-  return spawn('npm', args, { cwd: path.join(root, dir), stdio: 'inherit', shell: true });
-});
+const backend = spawn('go', ['run', './cmd/server'], { cwd: root, stdio: 'inherit', shell: true });
+const frontend = spawn('npm', ['run', 'dev', '--', '--port', String(port), '--strictPort'], { cwd: path.join(root, 'frontend'), stdio: 'inherit', shell: true });
+const children = [backend, frontend];
 
 let appWindow;
 
@@ -67,7 +73,7 @@ const stop = () => {
   }
 };
 
-const waitFor = async (url, timeoutMs = 30000) => {
+const waitFor = async (url, timeoutMs = 120000) => {
   const deadline = Date.now() + timeoutMs;
   while (Date.now() < deadline) {
     try {
@@ -97,7 +103,9 @@ const openAppWindow = (url) => {
 if (await waitFor(frontendUrl)) {
   openAppWindow(frontendUrl);
 } else {
-  console.log('\n[dev] Server tidak merespons setelah 30 detik.');
+  console.log('\n[dev] Server tidak merespons.');
+  console.log(`[dev] backend  ${backend.exitCode === null ? 'masih berjalan' : `berhenti (exit ${backend.exitCode})`}`);
+  console.log(`[dev] frontend ${frontend.exitCode === null ? 'masih berjalan' : `berhenti (exit ${frontend.exitCode})`}`);
   console.log('[dev] Tutup jendela ini, lalu jalankan Jalankan.bat lagi.\n');
   stop();
   process.exit(1);

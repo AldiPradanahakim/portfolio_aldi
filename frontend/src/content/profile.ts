@@ -49,10 +49,13 @@ export const PROFILE: Profile = {
   },
 
   socials: [
-    // ponytail: add your own profile links here when you have them, e.g.
-    // { label: 'GitHub', url: 'https://github.com/<username>', icon: 'github' },
-    // { label: 'LinkedIn', url: 'https://www.linkedin.com/in/<username>', icon: 'linkedin' },
-    // { label: 'Instagram', url: 'https://instagram.com/<username>', icon: 'instagram' },
+    { label: 'WhatsApp', url: 'https://wa.me/6281573384106', icon: 'whatsapp' },
+    {
+      label: 'LinkedIn',
+      url: 'https://www.linkedin.com/in/aldi-pradana-hakim-029b98422',
+      icon: 'linkedin',
+    },
+    { label: 'Instagram', url: 'https://instagram.com/aldprdnhkm8', icon: 'instagram' },
     {
       label: 'Email',
       url: 'mailto:aldi.pradan.hakim26@gmail.com',

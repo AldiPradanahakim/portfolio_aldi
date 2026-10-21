@@ -38,6 +38,15 @@ export default {
         },
       },
       fontFamily: {
+        display: [
+          'ui-serif',
+          'Iowan Old Style',
+          'Palatino Linotype',
+          'Book Antiqua',
+          'Palatino',
+          'Georgia',
+          'serif',
+        ],
         sans: [
           'ui-sans-serif',
           'system-ui',
@@ -61,6 +70,7 @@ export default {
       },
       // one size per role: display/h2 headings, h3 card titles, lead/body/small prose, label eyebrows
       fontSize: {
+        hero: ['clamp(3rem, 7vw, 5.25rem)', { lineHeight: '0.92', letterSpacing: '-0.045em' }],
         display: ['clamp(2.5rem, 5.5vw, 4rem)', { lineHeight: '1.05', letterSpacing: '-0.03em' }],
         h2: ['clamp(1.5rem, 2.6vw, 2rem)', { lineHeight: '1.2', letterSpacing: '-0.02em' }],
         h3: ['1.0625rem', { lineHeight: '1.45', letterSpacing: '-0.01em' }],

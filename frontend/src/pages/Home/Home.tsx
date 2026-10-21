@@ -6,10 +6,8 @@ import { useLang } from '../../shared/context/language';
 import { useDocumentTitle } from '../../shared/hooks/useDocumentTitle';
 import { About } from '../../widgets/About/About';
 import { Contact } from '../../widgets/Contact/Contact';
-import { Faq } from '../../widgets/Faq/Faq';
 import { Hero } from '../../widgets/Hero/Hero';
 import { Journey } from '../../widgets/Journey/Journey';
-import { Process } from '../../widgets/Process/Process';
 import { Services } from '../../widgets/Services/Services';
 import { Skills } from '../../widgets/Skills/Skills';
 import { TrustStrip } from '../../widgets/TrustStrip/TrustStrip';
@@ -34,10 +32,8 @@ const PANELS: Panel[] = [
   { id: 'about', Component: About },
   { id: 'work', Component: Work },
   { id: 'services', Component: Services },
-  { id: 'process', Component: Process },
   { id: 'skills', Component: Skills },
   { id: 'journey', Component: Journey },
-  { id: 'faq', Component: Faq },
   { id: 'contact', Component: Contact },
 ];
 
@@ -64,6 +60,7 @@ export default function Home() {
     <div className="h-full overflow-hidden">
       <div
         key={active.id}
+        data-scroll-root
         className={[
           'deck-panel h-full overflow-y-auto overscroll-contain',
           reverse ? 'deck-panel-reverse' : '',
