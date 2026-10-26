@@ -748,7 +748,7 @@
      equal tracks the words ended at the page's centre line — half the figure — and "PRADANA" was
      read as "PRADAN". */
   .hero-scene {
-    --fig: min(31vw, 470px);
+    --fig: min(34vw, 510px);
     position: relative;
     flex: 1;
     display: grid;
@@ -773,7 +773,7 @@
     line-height: 0.82;
     letter-spacing: -0.035em;
     color: rgb(var(--text));
-    text-shadow: 0 0 0.1em rgb(var(--text) / 0.3);
+    text-shadow: 0 0 0.06em rgb(var(--bg) / 0.5);
     white-space: nowrap;
   }
   .hero-word { display: block; white-space: nowrap; }
@@ -782,13 +782,30 @@
      editorial design, and it still reads as "designed" rather than "default". */
   .hero-surname {
     font-family: 'Instrument Serif', Iowan Old Style, Palatino Linotype, Georgia, serif;
+    text-shadow: none;
     font-style: italic;
     font-weight: 400;
     font-size: clamp(2.75rem, min(9vw, 13.5svh), 9rem);
     line-height: 0.9;
     letter-spacing: -0.02em;
     color: rgb(var(--text));
-    text-shadow: 0 0 0.1em rgb(var(--text) / 0.3);
+    text-shadow: 0 0 0.06em rgb(var(--bg) / 0.5);
+  }
+
+  /* The fourth line of the lockup. It has to read as part of the name but not as another given
+     name, so it drops to the label scale, loses the caps and takes the accent — the same voice as
+     the eyebrows, one step up. */
+  .hero-subtitle {
+    @apply font-mono uppercase;
+    /* Sits at ~0.22 of Hakim's cap height: enough air to separate, tight enough to read as one
+       lockup instead of a caption that got left behind. */
+    margin-top: clamp(0.5rem, 1.4vh, 1rem);
+    font-size: clamp(0.72rem, 1.2vw, 1rem);
+    letter-spacing: 0.4em;
+    /* one step darker than the eyebrow labels, so it re-subordinates to Hakim instead of
+       sitting at the same hierarchy level as "full-stack web developer" */
+    color: rgb(var(--text));
+    opacity: 0.7;
   }
 
   /* The figure: absolutely placed and centred with insets + auto margins, never a translate —
@@ -818,7 +835,11 @@
   /* and the rim light the artwork does not have: black-on-black needs one lit edge, and a light
      drop-shadow on the mask outline is exactly that — it traces the silhouette, not the canvas. */
   :root:not(.light) .hero-figure img {
-    filter: drop-shadow(0 0 2px rgb(var(--text) / 0.55)) drop-shadow(0 0 14px rgb(var(--text) / 0.12));
+    /* the source is a bright studio render: against near-black the white jersey becomes the
+       brightest object on the page and outranks the name. Pull it down before it earns a rim. */
+    filter: brightness(0.76) contrast(1.06)
+      drop-shadow(0 0 2px rgb(var(--text) / 0.6))
+      drop-shadow(0 0 16px rgb(var(--text) / 0.14));
   }
   .hero-figure img {
     position: relative;
@@ -831,8 +852,10 @@
        the dark theme the suit would otherwise dissolve into the canvas wherever it clears the
        letters. Same trick, both themes, one line. */
     filter: drop-shadow(0 0 2.5px rgb(var(--bg))) drop-shadow(0 0 2.5px rgb(var(--bg)));
-    -webkit-mask-image: linear-gradient(to bottom, #000 82%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 82%, transparent 100%);
+    /* Long fade, not a shelf: a 40px ramp ends on a visible horizontal band where the crossed
+       arms stop, which reads as a crop. The bottom third dissolves. */
+    -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent 98%);
+    mask-image: linear-gradient(to bottom, #000 62%, transparent 98%);
   }
 
   /* Metadata, not badges: no pills, no shadows, no icon boxes. */
@@ -938,8 +961,9 @@
   @media (min-width: 901px) and (max-width: 1180px) {
     .hero-mega { font-size: clamp(2.75rem, min(8.6vw, 13svh), 7rem); }
     .hero-surname { font-size: clamp(2.75rem, min(9vw, 14svh), 7.5rem); }
-    .hero-figure { width: min(54vw, 520px); }
-    .hero-figure img { height: clamp(340px, 66svh, 620px); }
+    /* the figure sits in the middle track, which is already narrower here — cap the height so
+       it shrinks with the space instead of overrunning its neighbours */
+    .hero-figure img { width: auto; height: auto; max-height: 64svh; max-width: var(--fig); }
   }
 
   /* Below 900px the figure cannot stand between two columns: it becomes its own band above the
@@ -977,6 +1001,7 @@
     .hero-col--right { grid-column: 1; justify-self: stretch; text-align: left; }
     .hero-mega { font-size: clamp(2.75rem, 13vw, 6rem); }
     .hero-surname { font-size: clamp(2.75rem, 13vw, 6rem); }
+    .hero-subtitle { margin-top: 0.35rem; }
     .hero-caption--end { justify-content: flex-start; }
   }
 

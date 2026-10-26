@@ -9,6 +9,7 @@ import { Marquee } from '../../motion/Marquee';
 const T = {
   seeWork: { en: 'See the work', id: 'Lihat karya' },
   socials: { en: 'Social profiles', id: 'Media sosial' },
+  portfolio: { en: 'Portfolio', id: 'Portofolio' },
 };
 
 /**
@@ -56,7 +57,7 @@ export function Hero() {
         <div className="hero-col hero-col--left">
           <motion.div style={{ x: leftX, opacity: typeFade }}>
             <h1 id="hero-title" className="hero-mega">
-              <span className="sr-only">{profile.name}</span>
+              <span className="sr-only">{profile.name} — {t(T.portfolio)}</span>
               {given.map((word) => (
                 <span key={word} aria-hidden="true" className="hero-word">
                   {word}
@@ -80,6 +81,11 @@ export function Hero() {
           <motion.div style={{ x: rightX, opacity: typeFade }}>
             <p aria-hidden="true" className="hero-surname">
               {surname}
+            </p>
+            {/* The third line of the lockup: the name ends with what this page is. Smaller and
+                quieter so it extends the name without competing with it. */}
+            <p aria-hidden="true" className="hero-subtitle">
+              {t(T.portfolio)}
             </p>
           </motion.div>
         </div>
