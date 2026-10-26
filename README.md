@@ -67,13 +67,15 @@ Gambar proyek ada di `frontend/public/images/projects/` — cover berupa tangkap
 layar `.webp` (rasio 16:10), sisanya SVG 1200 × 750. SkillConnect sengaja tidak
 punya cover (`cover: null`) sehingga kartunya tampil tanpa gambar.
 
-Foto profil ada di `frontend/public/images/aldi-celebrate.webp`. Isinya bukan
-foto, melainkan karakter ilustrasi hasil face-swap dari wajah di `aldi.webp`,
-dalam pose selebrasi (tangan terlipat di dada), potret dada-ke-atas dengan latar
-transparan (924 × 1542). Kalau gambarnya diganti, ganti dengan potret berlatar
-transparan juga — kalau tidak, latar putihnya akan tampak sebagai kotak terang di
-tema gelap. Cadangan lain di folder yang sama: `aldi.webp` (foto studio asli) dan
-`aldi-character.webp` (karakter versi potret tenang).
+Foto profil ada di `frontend/public/images/aldi-pixar.webp`. Isinya bukan foto,
+melainkan karakter 3D gaya animasi (Pixar-like) hasil face-swap dari foto studio
+di `aldi.webp`, potret dada-ke-atas dengan latar transparan (1333 × 1990).
+Kalau gambarnya diganti, ganti dengan potret berlatar transparan juga — kalau
+tidak, latar putihnya akan tampak sebagai kotak terang di tema gelap.
+
+Berkas lain di folder yang sama, disimpan sebagai cadangan:
+`aldi.webp` (foto studio asli), `aldi-character.webp` (karakter versi potret
+tenang), `aldi-celebrate.webp` (karakter pose selebrasi).
 
 ## Cara halaman utama bekerja
 

@@ -10,12 +10,13 @@ const T = {
   seeWork: { en: 'See the work', id: 'Lihat karya' },
   socials: { en: 'Social profiles', id: 'Media sosial' },
   portfolio: { en: 'Portfolio', id: 'Portofolio' },
+  greeting: { en: 'hi, i\u2019m', id: 'hai, saya' },
 };
 
 /**
- * Hero: one gesture per screen — the name at poster scale with the figure standing in front of
- * it, occluding the letterforms. Two type voices only: heavy grotesque for ALDI PRADANA, one
- * italic serif for Hakim. Everything else is 11px metadata, which is what makes the scale read.
+ * Hero: the full name set as one long line across the page, with the portrait standing behind it.
+ * The name is the only thing at display scale — one line, no split, no second type voice — so the
+ * eye reads "Aldi Pradana Hakim" in a single sweep instead of climbing between two blocks.
  */
 export function Hero() {
   const { t } = useLang();
@@ -28,17 +29,11 @@ export function Hero() {
     offset: ['start start', 'end start'],
   });
 
-  // The two type groups drift apart and dissolve while the figure stays and recedes: the layers
-  // separate in depth instead of sliding away as one flat card.
-  const leftX = useTransform(scrollYProgress, [0, 1], ['0%', '-12%']);
-  const rightX = useTransform(scrollYProgress, [0, 1], ['0%', '12%']);
+  // The name lifts and fades while the figure recedes: the two layers separate in depth.
+  const nameY = useTransform(scrollYProgress, [0, 1], ['0%', '-14%']);
   const typeFade = useTransform(scrollYProgress, [0, 0.72], [1, 0]);
   const shotScale = useTransform(scrollYProgress, [0, 1], [1, 1.04]);
   const shotFade = useTransform(scrollYProgress, [0, 0.95], [1, 0.55]);
-
-  const words = profile.name.trim().split(/\s+/);
-  const given = words.slice(0, -1); // ALDI PRADANA
-  const surname = words[words.length - 1]; // Hakim
 
   // no version numbers: those are dependency trivia that reads junior, and they rot
   const stack = Array.from(
@@ -53,52 +48,39 @@ export function Hero() {
     <section ref={sectionRef} id="hero" aria-labelledby="hero-title" className="hero-stage">
       <div aria-hidden="true" className="hero-bloom" />
 
-      <div className="hero-scene">
-        <div className="hero-col hero-col--left">
-          <motion.div style={{ x: leftX, opacity: typeFade }}>
-            <h1 id="hero-title" className="hero-mega">
-              <span className="sr-only">{profile.name} — {t(T.portfolio)}</span>
-              {given.map((word) => (
-                <span key={word} aria-hidden="true" className="hero-word">
-                  {word}
-                </span>
-              ))}
-            </h1>
-          </motion.div>
-        </div>
+      <motion.div
+        aria-hidden="true"
+        style={{ scale: shotScale, opacity: shotFade }}
+        className="hero-figure"
+      >
+        {profile.photo ? <img src={profile.photo} alt="" decoding="async" fetchPriority="high" /> : null}
+      </motion.div>
 
-        <motion.div
-          aria-hidden="true"
-          style={{ scale: shotScale, opacity: shotFade }}
-          className="hero-figure"
-        >
-          {profile.photo ? (
-            <img src={profile.photo} alt="" decoding="async" fetchPriority="high" />
-          ) : null}
+      <div className="hero-scene">
+        <motion.div style={{ opacity: typeFade }} className="hero-lockup">
+          <p aria-hidden="true" className="hero-greet">
+            {t(T.greeting)}
+          </p>
+          <h1 id="hero-title" className="hero-name">
+            <span className="sr-only">
+              {profile.name} — {t(T.portfolio)}
+            </span>
+            <motion.span aria-hidden="true" style={{ y: nameY }} className="hero-name-line">
+              {profile.name}
+            </motion.span>
+          </h1>
+          <p aria-hidden="true" className="hero-subtitle">
+            {t(T.portfolio)}
+          </p>
         </motion.div>
 
-        <div className="hero-col hero-col--right">
-          <motion.div style={{ x: rightX, opacity: typeFade }}>
-            <p aria-hidden="true" className="hero-surname">
-              {surname}
-            </p>
-            {/* The third line of the lockup: the name ends with what this page is. Smaller and
-                quieter so it extends the name without competing with it. */}
-            <p aria-hidden="true" className="hero-subtitle">
-              {t(T.portfolio)}
-            </p>
-          </motion.div>
+        <div className="hero-captions">
+          <p className="hero-caption">
+            <span aria-hidden="true" className="hero-dot" />
+            {t(profile.availability)}
+          </p>
+          <p className="hero-caption">{t(profile.role)}</p>
         </div>
-
-        {/* Row 2: the two eyebrows share one baseline in their own grid row. Inside the columns
-            they inherited each column's own height and sat 42px apart, which read as a mistake. */}
-        <motion.p style={{ opacity: typeFade }} className="hero-caption hero-caption--left">
-          <span aria-hidden="true" className="hero-dot" />
-          {t(profile.availability)}
-        </motion.p>
-        <motion.p style={{ opacity: typeFade }} className="hero-caption hero-caption--end">
-          {t(profile.role)}
-        </motion.p>
       </div>
 
       <div className="hero-bottom">

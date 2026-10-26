@@ -41,8 +41,8 @@ ada nama perusahaan, tidak ada harga, dan tidak ada URL yang tidak jelas asalnya
 
 ## Catatan khusus
 
-- `PROFILE.photo` menunjuk ke `frontend/public/images/aldi-celebrate.webp`
-  (karakter ilustrasi pose selebrasi, bukan foto). Ganti berkasnya dengan nama yang sama, atau
+- `PROFILE.photo` menunjuk ke `frontend/public/images/aldi-pixar.webp`
+  (karakter 3D gaya animasi, bukan foto). Ganti berkasnya dengan nama yang sama, atau
   ubah nilainya kalau namanya berbeda. Kalau berkasnya hilang, antarmuka otomatis
   kembali menampilkan monogram "AP" (lihat `Hero.tsx`), jadi halaman tidak pernah
   menampilkan gambar rusak.
