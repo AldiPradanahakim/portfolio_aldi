@@ -36,7 +36,7 @@ export const PROFILE: Profile = {
 
   email: 'aldi.pradan.hakim26@gmail.com',
 
-  photo: '/images/aldi.webp',
+  photo: '/images/aldi-character.webp',
 
   availability: {
     id: 'Terbuka untuk proyek freelance baru',

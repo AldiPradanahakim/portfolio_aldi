@@ -1,24 +1,20 @@
 import { useRef } from 'react';
-import { ArrowDown, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { useContent } from '../../data';
 import { useLang } from '../../shared/context/language';
-import { Magnetic } from '../../motion/Magnetic';
+import { socialIcon } from '../../shared/lib/icons';
 import { Marquee } from '../../motion/Marquee';
 
 const T = {
   seeWork: { en: 'See the work', id: 'Lihat karya' },
-  hireMe: { en: 'Get in touch', id: 'Hubungi' },
-  scroll: { en: 'Scroll', id: 'Gulir' },
+  socials: { en: 'Social profiles', id: 'Media sosial' },
 };
 
 /**
- * Hero: one gesture per screen.
- *
- * Rebuilt after a design audit against the 2026 reference set — the previous version stacked
- * eight decorations (rings, halo, giant monogram, status pill, version chips, numeric rail) and
- * the largest object on screen was a watermark, not the message. Here the portrait is the ground,
- * the name is the focal object, and there is exactly one accent colour and one CTA row.
+ * Hero: one gesture per screen — the name at poster scale with the figure standing in front of
+ * it, occluding the letterforms. Two type voices only: heavy grotesque for ALDI PRADANA, one
+ * italic serif for Hakim. Everything else is 11px metadata, which is what makes the scale read.
  */
 export function Hero() {
   const { t } = useLang();
@@ -31,14 +27,17 @@ export function Hero() {
     offset: ['start start', 'end start'],
   });
 
-  // The name drifts up and dissolves; the portrait stays and only dims, so the two layers
-  // separate in depth instead of sliding as one flat card.
-  const nameY = useTransform(scrollYProgress, [0, 1], ['0%', '-16%']);
-  const nameFade = useTransform(scrollYProgress, [0, 0.75], [1, 0]);
-  const shotScale = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
-  const shotFade = useTransform(scrollYProgress, [0, 0.9], [1, 0.55]);
+  // The two type groups drift apart and dissolve while the figure stays and recedes: the layers
+  // separate in depth instead of sliding away as one flat card.
+  const leftX = useTransform(scrollYProgress, [0, 1], ['0%', '-12%']);
+  const rightX = useTransform(scrollYProgress, [0, 1], ['0%', '12%']);
+  const typeFade = useTransform(scrollYProgress, [0, 0.72], [1, 0]);
+  const shotScale = useTransform(scrollYProgress, [0, 1], [1, 1.04]);
+  const shotFade = useTransform(scrollYProgress, [0, 0.95], [1, 0.55]);
 
-  const nameWords = profile.name.trim().split(/\s+/);
+  const words = profile.name.trim().split(/\s+/);
+  const given = words.slice(0, -1); // ALDI PRADANA
+  const surname = words[words.length - 1]; // Hakim
 
   // no version numbers: those are dependency trivia that reads junior, and they rot
   const stack = Array.from(
@@ -47,80 +46,98 @@ export function Hero() {
     .slice(0, 8)
     .map((item) => t(item));
 
+  const socials = profile.socials.filter((social) => social.icon !== 'mail').slice(0, 4);
+
   return (
-    <section
-      ref={sectionRef}
-      id="hero"
-      aria-labelledby="hero-title"
-      className="hero-stage relative flex flex-col justify-between overflow-hidden pb-0 pt-16 sm:pt-20"
-    >
-      {/* the only decoration: one ember bloom behind the subject */}
+    <section ref={sectionRef} id="hero" aria-labelledby="hero-title" className="hero-stage">
       <div aria-hidden="true" className="hero-bloom" />
 
-      <motion.div aria-hidden="true" style={{ scale: shotScale, opacity: shotFade }} className="hero-shot">
-        {profile.photo ? <img src={profile.photo} alt="" decoding="async" fetchPriority="high" /> : null}
-      </motion.div>
+      <div className="hero-scene">
+        <div className="hero-col hero-col--left">
+          <motion.div style={{ x: leftX, opacity: typeFade }}>
+            <h1 id="hero-title" className="hero-mega">
+              <span className="sr-only">{profile.name}</span>
+              {given.map((word) => (
+                <span key={word} aria-hidden="true" className="hero-word">
+                  {word}
+                </span>
+              ))}
+            </h1>
+          </motion.div>
+        </div>
 
-      <div className="shell relative z-10">
-        <motion.div style={{ y: nameY, opacity: nameFade }}>
-          <p className="hero-status">
-            <span aria-hidden="true" className="hero-dot" />
-            {t(profile.availability)}
-          </p>
-
-          <h1 id="hero-title" aria-label={profile.name} className="hero-title mt-6">
-            {/* Last word in italic serif: the one piece of typographic contrast on the page. */}
-            <span className="sr-only">{profile.name}</span>
-            <span aria-hidden="true" className="block">
-              {nameWords.slice(0, -1).join(' ')}{' '}
-              <span className="st-numeral">{nameWords[nameWords.length - 1]}</span>
-            </span>
-          </h1>
-
-          <div className="hero-foot">
-            <div className="max-w-md">
-              <p className="hero-role">{t(profile.role)}</p>
-              <p className="mt-4 text-body text-chalk-muted">{t(profile.tagline)}</p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-3">
-              <Magnetic>
-                <a href="#work" data-cursor="link" className="hero-cta">
-                  {t(T.seeWork)}
-                  <ArrowRight className="h-4 w-4" aria-hidden="true" />
-                </a>
-              </Magnetic>
-              <Magnetic>
-                <a href="#contact" data-cursor="link" className="hero-cta hero-cta--ghost">
-                  {t(T.hireMe)}
-                </a>
-              </Magnetic>
-            </div>
-          </div>
-        </motion.div>
-      </div>
-
-      <div className="relative z-10">
-        <Marquee duration={38} className="hero-marquee">
-          <span className="hero-stack">
-            {stack.map((item) => (
-              <span key={item} className="hero-stack-item">
-                {item}
-                <span aria-hidden="true" className="hero-star">✳</span>
-              </span>
-            ))}
-          </span>
-        </Marquee>
-
-        <a
-          href="#about"
-          data-cursor="link"
-          className="hero-scroll shell"
+        <motion.div
+          aria-hidden="true"
+          style={{ scale: shotScale, opacity: shotFade }}
+          className="hero-figure"
         >
-          <ArrowDown className="h-3.5 w-3.5" aria-hidden="true" />
-          {t(T.scroll)}
-        </a>
+          {profile.photo ? (
+            <img src={profile.photo} alt="" decoding="async" fetchPriority="high" />
+          ) : null}
+        </motion.div>
+
+        <div className="hero-col hero-col--right">
+          <motion.div style={{ x: rightX, opacity: typeFade }}>
+            <p aria-hidden="true" className="hero-surname">
+              {surname}
+            </p>
+          </motion.div>
+        </div>
+
+        {/* Row 2: the two eyebrows share one baseline in their own grid row. Inside the columns
+            they inherited each column's own height and sat 42px apart, which read as a mistake. */}
+        <motion.p style={{ opacity: typeFade }} className="hero-caption hero-caption--left">
+          <span aria-hidden="true" className="hero-dot" />
+          {t(profile.availability)}
+        </motion.p>
+        <motion.p style={{ opacity: typeFade }} className="hero-caption hero-caption--end">
+          {t(profile.role)}
+        </motion.p>
       </div>
+
+      <div className="hero-bottom">
+        <ul aria-label={t(T.socials)} className="hero-socials">
+          {socials.map((social) => {
+            const Icon = socialIcon(social.icon);
+            return (
+              <li key={social.url}>
+                <a
+                  href={social.url}
+                  rel="noopener noreferrer"
+                  aria-label={social.label}
+                  data-cursor="link"
+                  className="hero-social"
+                >
+                  <Icon className="h-4 w-4" aria-hidden="true" />
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+
+        <div className="hero-links">
+          <a href="#work" data-cursor="link" className="hero-link">
+            {t(T.seeWork)}
+            <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+          </a>
+          <a href={`mailto:${profile.email}`} data-cursor="link" className="hero-link hero-link--mail">
+            {profile.email}
+          </a>
+        </div>
+      </div>
+
+      <Marquee duration={38} className="hero-marquee">
+        <span className="hero-stack">
+          {stack.map((item) => (
+            <span key={item} className="hero-stack-item">
+              {item}
+              <span aria-hidden="true" className="hero-star">
+                ✳
+              </span>
+            </span>
+          ))}
+        </span>
+      </Marquee>
     </section>
   );
 }

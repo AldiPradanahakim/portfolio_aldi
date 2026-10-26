@@ -63,7 +63,7 @@ export function ProfileEditor({ draft, update }: EditorProps) {
               value={profile.photo}
               onChange={(value) => set({ photo: value })}
               mono
-              placeholder="/images/aldi.webp"
+              placeholder="/images/aldi-character.webp"
             />
             {profile.photo ? (
               <img src={profile.photo} alt="" className="h-20 w-20 rounded-xl border border-ink-800 object-cover" />

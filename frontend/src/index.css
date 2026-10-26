@@ -714,68 +714,140 @@
     animation: fade-in 360ms var(--ease) both;
   }
 
-  /* ---------- hero ---------- */
+/* ---------- hero ---------- */
 
-  /* One gesture: the portrait is the ground, the name is the object. Everything the first
-     version stacked here (rings, halo, giant monogram, status pill, version chips, numeric
-     rail) is gone — eight decorations meant none of them led. */
+  /* One gesture: the name at poster scale, split to both edges, with the figure standing in
+     front of it and occluding the letterforms. The type is the light source — a dark suit reads
+     as a silhouette exactly because it cuts a bright letterform in half, so the portrait needs no
+     frame, no arch and no border. Everything else on the screen is 11px metadata. */
 
-  .hero-stage { min-height: 92svh; }
+  .hero-stage {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100svh - 4rem);
+    padding-top: clamp(1rem, 3vh, 2rem);
+    overflow: hidden;
+  }
 
-  /* The only decoration: one soft ember bloom behind the subject's head. It reads as a light
-     source in a dark room, which is what makes a hero look photographed rather than filled. */
+  /* The only decoration: one warm bloom behind the head, plus a faint lift at the very top so the
+     canvas is not a flat fill. Two light sources, one colour. */
   .hero-bloom {
     position: absolute;
-    inset: -18% -8% auto -8%;
-    height: 80%;
+    inset: -14% -8% auto -8%;
+    height: 74%;
     pointer-events: none;
-    background: radial-gradient(44% 56% at 70% 24%, rgb(var(--accent) / 0.15), transparent 68%);
-    filter: blur(12px);
+    background:
+      radial-gradient(32% 38% at 50% 44%, rgb(var(--accent) / 0.17), transparent 66%),
+      radial-gradient(62% 56% at 50% 4%, rgb(var(--text) / 0.05), transparent 72%);
+    filter: blur(10px);
   }
 
-  /* Portrait: no arch, no rings, no border — full-bleed to the right edge, stopping above the
-     marquee band. A single bottom-fade mask dissolves the cutout's rectangle; two crossed
-     gradients were tried and rejected because `mask-composite` differs across engines and the
-     wrong composite crops the shoulders. */
-  .hero-shot {
-    position: absolute;
-    inset: 1.5rem 0 auto auto;
-    bottom: 8.5rem;
-    z-index: 0;
-    width: min(62vw, 740px);
-    pointer-events: none;
-    -webkit-mask-image: linear-gradient(to bottom, #000 64%, transparent 100%);
-    mask-image: linear-gradient(to bottom, #000 64%, transparent 100%);
+  /* Three tracks, not two: the middle track is the figure's own column, so the two type columns
+     stop at its edge and the portrait can only ever eat the last letter of each word. With two
+     equal tracks the words ended at the page's centre line — half the figure — and "PRADANA" was
+     read as "PRADAN". */
+  .hero-scene {
+    --fig: min(31vw, 470px);
+    position: relative;
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) calc(var(--fig) - 2rem) minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    align-items: center;
+    padding-inline: clamp(1.25rem, 5vw, 4rem);
+    padding-bottom: clamp(0.75rem, 2vh, 1.5rem);
   }
-  .hero-shot img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: 50% 6%;
-    filter: grayscale(0.42) contrast(1.06);
+
+  .hero-col { position: relative; z-index: 0; grid-row: 1; }
+  .hero-col--left { grid-column: 1; text-align: right; }
+  .hero-col--right { grid-column: 3; text-align: left; }
+
+  /* The focal object. Tracking is loosened from -0.05em to -0.035em: at seven uppercase letters
+     a tighter run closes A–N into a blur, and loosening costs less than hand-kerned paths. */
+  .hero-mega {
+    @apply font-sans font-bold uppercase;
+    display: flex;
+    flex-direction: column;
+    font-size: clamp(3rem, min(8.6vw, 13svh), 8.75rem);
+    line-height: 0.82;
+    letter-spacing: -0.035em;
+    color: rgb(var(--text));
+    text-shadow: 0 0 0.1em rgb(var(--text) / 0.3);
+    white-space: nowrap;
   }
-  /* Warm the cool studio photo into the palette. Multiply keeps the blacks; a `color` wash was
-     tried first and greyed out the skin. */
-  .hero-shot::after {
-    content: '';
+  .hero-word { display: block; white-space: nowrap; }
+
+  /* Second voice: one italic serif word against the heavy grotesque. The oldest trick in
+     editorial design, and it still reads as "designed" rather than "default". */
+  .hero-surname {
+    font-family: 'Instrument Serif', Iowan Old Style, Palatino Linotype, Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(2.75rem, min(9vw, 13.5svh), 9rem);
+    line-height: 0.9;
+    letter-spacing: -0.02em;
+    color: rgb(var(--text));
+    text-shadow: 0 0 0.1em rgb(var(--text) / 0.3);
+  }
+
+  /* The figure: absolutely placed and centred with insets + auto margins, never a translate —
+     motion owns this element's transform for the scroll scale, and a translate here would be
+     overwritten the moment the spring starts. */
+  .hero-figure {
     position: absolute;
     inset: 0;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
     pointer-events: none;
-    background: radial-gradient(58% 62% at 62% 34%, rgb(var(--accent) / 0.22), transparent 72%);
-    mix-blend-mode: multiply;
   }
-  :root.light .hero-shot img {
-    mix-blend-mode: multiply;
-    filter: grayscale(0.45) contrast(1.16) brightness(1.02);
+  /* Dark theme: the suit, the hair and the canvas are all near-black, so the silhouette has no
+     edge at all and the figure reads as a hole in the type. Lifting the canvas behind the bust by
+     10% restores the shape without adding a rim light to the artwork. */
+  :root:not(.light) .hero-figure::before {
+    content: '';
+    position: absolute;
+    inset: 4% 2% 8%;
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(50% 50% at 50% 50%, rgb(var(--text) / 0.16), transparent 70%);
+    filter: blur(20px);
+  }
+  /* and the rim light the artwork does not have: black-on-black needs one lit edge, and a light
+     drop-shadow on the mask outline is exactly that — it traces the silhouette, not the canvas. */
+  :root:not(.light) .hero-figure img {
+    filter: drop-shadow(0 0 2px rgb(var(--text) / 0.55)) drop-shadow(0 0 14px rgb(var(--text) / 0.12));
+  }
+  .hero-figure img {
+    position: relative;
+    width: var(--fig);
+    height: auto;
+    max-height: 76svh;
+    object-fit: contain;
+    object-position: bottom;
+    /* A halo in the page's own colour separates a dark cutout from whatever sits behind it: on
+       the dark theme the suit would otherwise dissolve into the canvas wherever it clears the
+       letters. Same trick, both themes, one line. */
+    filter: drop-shadow(0 0 2.5px rgb(var(--bg))) drop-shadow(0 0 2.5px rgb(var(--bg)));
+    -webkit-mask-image: linear-gradient(to bottom, #000 82%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 82%, transparent 100%);
   }
 
-  /* Availability reads as a status line, not a badge: no pill, no shadow, no icon box. */
-  .hero-status {
-    @apply inline-flex items-center gap-2.5 font-mono uppercase;
+  /* Metadata, not badges: no pills, no shadows, no icon boxes. */
+  .hero-caption {
+    @apply flex items-center gap-2.5 font-mono uppercase;
+    grid-row: 2;
+    margin-top: clamp(1rem, 2.5vh, 1.75rem);
     font-size: 11px;
     letter-spacing: 0.26em;
     color: rgb(var(--text-muted));
   }
+  /* Eyebrows sit on the outer margins, the words hug the gutter: the figure only ever overlaps a
+     letterform, never a sentence. */
+  .hero-caption--left { grid-column: 1; justify-content: flex-start; }
+  .hero-caption--end { grid-column: 3; justify-content: flex-end; }
   .hero-dot {
     width: 5px;
     height: 5px;
@@ -789,60 +861,54 @@
     100% { box-shadow: 0 0 0 0 rgb(var(--accent) / 0); }
   }
 
-  /* The focal object. Capped at 12ch so three words stack into a block instead of stretching
-     into a band; the jump from 11px metadata to this is the whole design. */
-  .hero-title {
-    @apply font-sans font-semibold uppercase text-chalk;
-    max-width: 12ch;
-    font-size: clamp(3rem, min(11vw, 14svh), 9rem);
-    line-height: 0.84;
-    letter-spacing: -0.035em;
-  }
-  /* Optical repair: a long uppercase run at -0.05em closes D–A and A–N into a blur. Loosening
-     the tracking is cheaper than hand-kerned paths. */
-  .hero-title .st-word + .st-word { margin-left: 0.1em; }
-
-  /* Second voice: one italic serif word against a heavy grotesque. The oldest trick in
-     editorial design, and it still reads as "designed" rather than "default". */
-  .hero-title .st-numeral {
-    font-family: 'Instrument Serif', Iowan Old Style, Georgia, serif;
-    font-style: italic;
-    font-weight: 400;
-    text-transform: none;
-    letter-spacing: -0.01em;
-  }
-
-  .hero-foot {
+  /* One rail set for the whole hero: the scene's padding, not `.shell`'s max-width. Two rails
+     put the captions 90px outside the utility row and every right-aligned item ended on a
+     different edge. */
+  .hero-bottom {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1.75rem;
-    max-width: 34rem;
-    margin-top: clamp(1.75rem, 4vh, 3rem);
-    margin-bottom: clamp(2rem, 6vh, 4rem);
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 1rem;
+    padding-inline: clamp(1.25rem, 5vw, 4rem);
+  }
+  .hero-socials { display: flex; align-items: center; gap: 0.5rem; }
+  .hero-social {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 999px;
+    border: 1px solid rgb(var(--border-strong));
+    color: rgb(var(--text-muted));
+    transition:
+      color 200ms var(--ease),
+      border-color 200ms var(--ease),
+      transform 200ms var(--ease);
+  }
+  .hero-social:hover {
+    color: rgb(var(--accent));
+    border-color: rgb(var(--accent) / 0.6);
+    transform: translateY(-2px);
   }
 
-  .hero-role {
-    @apply font-mono uppercase text-accent;
-    font-size: 11px;
-    letter-spacing: 0.28em;
+  .hero-links { display: flex; align-items: center; gap: clamp(1rem, 3vw, 2rem); }
+  .hero-link {
+    @apply inline-flex items-center gap-2 font-mono uppercase;
+    min-height: 2.75rem;
+    font-size: 10.5px;
+    letter-spacing: 0.26em;
+    color: rgb(var(--text-muted));
+    transition: color 200ms var(--ease);
   }
-
-  /* Ink on accent, not white on accent: white on #FF4A24 is ~3.3:1 and fails AA, near-black
-     clears 5.7:1 and looks printed rather than stuck on. */
-  .hero-cta {
-    @apply inline-flex items-center gap-2 rounded-full px-6 py-3 text-small font-semibold;
-    background: rgb(var(--accent));
-    color: #0b0705;
-    transition: transform 260ms var(--ease), background-color 260ms var(--ease);
+  .hero-link:hover { color: rgb(var(--accent)); }
+  /* an address is not a label: it keeps its casing and its own tracking */
+  .hero-link--mail {
+    text-transform: none;
+    letter-spacing: 0.04em;
+    font-size: 12px;
   }
-  .hero-cta:hover { background: rgb(var(--accent-hover)); transform: translateY(-2px); }
-  .hero-cta--ghost {
-    background: transparent;
-    color: rgb(var(--text));
-    box-shadow: inset 0 0 0 1px rgb(var(--border-strong));
-  }
-  .hero-cta--ghost:hover { background: rgb(var(--text) / 0.06); color: rgb(var(--text)); }
 
   /* Stack as a moving rhythm strip instead of a row of tagged pills under the headline.
      The edge mask makes a clipped word read as motion; without it a marquee looks broken. */
@@ -867,63 +933,88 @@
   }
   .hero-star { color: rgb(var(--accent)); font-size: 9px; letter-spacing: 0; }
 
-  .hero-scroll {
-    @apply inline-flex items-center gap-2.5 font-mono uppercase;
-    width: 100%;
-    padding-block: 0.9rem;
-    font-size: 10.5px;
-    letter-spacing: 0.28em;
-    color: rgb(var(--text-muted));
-    transition: color 200ms var(--ease);
-  }
-  .hero-scroll:hover { color: rgb(var(--accent)); }
-
-  /* Between 900 and 1180 the headline is at its width limit and starts colliding with the
-     portrait: bring the type scale and the photo width down together. */
+  /* Between 900 and 1180 the two halves start to collide with the figure: bring the type scale
+     and the figure down together rather than letting them fight. */
   @media (min-width: 901px) and (max-width: 1180px) {
-    .hero-title { font-size: clamp(2.75rem, min(8.2vw, 12svh), 6rem); max-width: 13ch; }
-    .hero-shot { width: min(56vw, 560px); }
-    .hero-foot { max-width: 30rem; }
+    .hero-mega { font-size: clamp(2.75rem, min(8.6vw, 13svh), 7rem); }
+    .hero-surname { font-size: clamp(2.75rem, min(9vw, 14svh), 7.5rem); }
+    .hero-figure { width: min(54vw, 520px); }
+    .hero-figure img { height: clamp(340px, 66svh, 620px); }
   }
 
-  /* Below 900px the portrait cannot share the screen with the type: any overlap puts body copy
-     across a face, and no scrim makes that read as a decision. It becomes its own band above
-     the type instead — same hierarchy, stacked. */
+  /* Below 900px the figure cannot stand between two columns: it becomes its own band above the
+     type, same hierarchy stacked, and the name stays whole underneath it. */
   @media (max-width: 900px) {
-    .hero-stage {
-      min-height: auto;
+    .hero-stage { min-height: auto; }
+    .hero-scene {
+      display: flex;
       flex-direction: column;
-      justify-content: flex-start;
-      padding-top: 4.5rem;
+      align-items: stretch;
+      gap: 0;
+      padding-top: 1rem;
     }
-    .hero-shot {
+    .hero-figure {
       position: relative;
+      order: -1;
       inset: auto;
+      flex: 0 0 auto;
       width: 100%;
-      height: 44svh;
-      min-height: 270px;
-      margin-bottom: 0.5rem;
-      -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 66%, transparent 100%);
-      mask-image: linear-gradient(to bottom, #000 0%, #000 66%, transparent 100%);
+      margin-bottom: -0.5rem;
     }
-    .hero-shot img { object-position: 50% 4%; }
-    .hero-bloom { inset: -2rem 0 auto 0; height: 48svh; opacity: 0.7; }
-    .hero-status { margin-top: 1.75rem; }
-    .hero-foot { margin-top: 1.5rem; margin-bottom: 1.75rem; }
+    /* Height-driven on mobile, not width-driven: a 31vw portrait inside a full-width flex box
+       rendered the figure 121px wide in a 354px tall box — a postage stamp with 200px of
+       transparent air around it. Driving the height fills the band. */
+    .hero-figure img {
+      width: auto;
+      height: clamp(280px, 44svh, 400px);
+      max-height: none;
+      max-width: 88vw;
+    }
+    .hero-bloom { inset: -2rem 0 auto 0; height: 46svh; opacity: 0.75; }
+    /* one left rail on a phone: the desktop stagger (right, right, left) leaves a dead pocket
+       from a 130px void and reads as a broken grid at this width */
+    .hero-col--left,
+    .hero-col--right { grid-column: 1; justify-self: stretch; text-align: left; }
+    .hero-mega { font-size: clamp(2.75rem, 13vw, 6rem); }
+    .hero-surname { font-size: clamp(2.75rem, 13vw, 6rem); }
+    .hero-caption--end { justify-content: flex-start; }
   }
 
   @media (max-width: 640px) {
-    .hero-stage { padding-top: 4.25rem; }
-    .hero-shot { height: 38svh; min-height: 240px; }
-    .hero-title { max-width: 100%; font-size: clamp(2.4rem, 12.5vw, 4rem); }
-    .hero-foot { max-width: 100%; margin-bottom: 1.5rem; }
-    .hero-foot > div:last-child { width: 100%; flex-direction: column; align-items: stretch; }
-    .hero-cta { justify-content: center; width: 100%; }
+    .hero-mega { font-size: clamp(2.4rem, 14.5vw, 4rem); }
+    .hero-surname { font-size: clamp(2.6rem, 15vw, 4.4rem); }
+    .hero-caption { font-size: 10px; letter-spacing: 0.22em; }
+    .hero-bottom {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.5rem;
+      padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+    }
+    .hero-links { flex-direction: column; align-items: flex-start; gap: 0; }
+    .hero-link--mail { min-height: auto; padding-block: 0.5rem; }
   }
 
   @media (max-height: 700px) and (min-width: 901px) {
-    .hero-foot { margin-bottom: 1.5rem; }
-    .hero-title { font-size: clamp(2.5rem, min(9vw, 12svh), 6rem); }
+    .hero-mega { font-size: clamp(2.5rem, min(9vw, 15svh), 6.5rem); }
+    .hero-surname { font-size: clamp(2.5rem, min(10vw, 16svh), 7rem); }
+    .hero-figure img { height: clamp(320px, 70svh, 560px); }
+  }
+
+  /* About's portrait frame. With a cutout asset it has to be a real panel: a transparent image on
+     a flat section has no edge, so the figure floated with a hard horizontal slice at the chest.
+     One tinted panel with an arch top turns the crop back into a deliberate shape. */
+  .hero-arch {
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    border: 1px solid rgb(var(--border-strong));
+    border-radius: 999px 999px 14px 14px;
+    background: rgb(var(--surface-raised));
+  }
+  .hero-arch img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 2%;
   }
 
   /* ---------- work ---------- */
@@ -1487,10 +1578,7 @@ html[data-theme-ripple]::view-transition-old(root) {
     animation: none !important;
     opacity: 0 !important;
   }
-  .hero-arch img {
-    transform: scale(1.08) !important;
-    transition: none !important;
-  }
+  .hero-arch img { transform: none !important; }
   .ghost {
     transform: none !important;
   }

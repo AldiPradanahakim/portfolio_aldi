@@ -41,10 +41,11 @@ ada nama perusahaan, tidak ada harga, dan tidak ada URL yang tidak jelas asalnya
 
 ## Catatan khusus
 
-- `PROFILE.photo` menunjuk ke `frontend/public/images/aldi.webp`. Ganti berkasnya
-  dengan nama yang sama, atau ubah nilainya kalau namanya berbeda. Kalau
-  berkasnya hilang, antarmuka otomatis kembali menampilkan monogram "AP"
-  (lihat `Hero.tsx`), jadi halaman tidak pernah menampilkan gambar rusak.
+- `PROFILE.photo` menunjuk ke `frontend/public/images/aldi-character.webp`
+  (karakter ilustrasi, bukan foto). Ganti berkasnya dengan nama yang sama, atau
+  ubah nilainya kalau namanya berbeda. Kalau berkasnya hilang, antarmuka otomatis
+  kembali menampilkan monogram "AP" (lihat `Hero.tsx`), jadi halaman tidak pernah
+  menampilkan gambar rusak.
 - `PROFILE.socials` berisi empat tautan: WhatsApp (`wa.me`), LinkedIn,
   Instagram, dan email. Nomor WhatsApp ditulis dalam format internasional tanpa
   tanda plus dan tanpa nol di depan (`62…`) supaya tautan `wa.me` valid.
