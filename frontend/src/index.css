@@ -2,104 +2,168 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ==========================================================================
+   Design system — cinematic dark editorial. Near-black canvas, warm off-white
+   type, one ember accent. All colours resolve through CSS variables so the
+   light theme is one re-declaration, not a set of dark: variants.
+   ========================================================================== */
+
 @layer base {
-  /* Dark is the default. `:root.light` (set by the pre-paint script in index.html and kept in
-     sync by ThemeProvider) re-declares the same variables — one mechanism, no dark: variants. */
   :root {
     color-scheme: dark;
 
-    /* near-black with a cool cast; the ramp stays monotonic so every surface step is legible */
-    --bg: 7 8 11;
-    --surface: 11 13 18;
-    --surface-raised: 16 19 25;
-    --border: 28 33 42;
-    --border-strong: 43 50 63;
-    --border-hover: 66 76 94;
-    --text: 237 240 245;
-    --text-muted: 168 177 191;
-    --text-faint: 132 142 158;
-    --accent: 138 170 255;
-    --accent-hover: 182 201 255;
-    --accent-deep: 38 55 96;
-    --danger: 252 165 165;
-    --danger-border: 248 113 113;
+    /* near-black with a violet-neutral cast; the ramp stays monotonic */
+    --bg: 7 7 10;
+    --surface: 12 12 16;
+    --surface-raised: 18 18 24;
+    --border: 30 29 34;
+    --border-strong: 46 44 50;
+    --border-hover: 70 67 74;
+    /* the nav pill's own edge: a container boundary needs 3:1 against the page, which the shared
+       `--border`/`--border-strong` tokens do not reach — they are tuned for dividers, not edges */
+    --nav-edge: 93 93 99;
+    /* warm off-white ink over the cool canvas */
+    --text: 243 239 231;
+    --text-muted: 176 170 158;
+    --text-faint: 138 132 121;
+    /* the one hot colour */
+    --accent: 255 74 36;
+    --accent-hover: 255 138 76;
+    --accent-deep: 96 27 13;
+    --ember: 255 138 76;
+    --steel: 154 166 184;
+    --danger: 255 152 142;
+    --danger-border: 198 62 48;
 
-    /* media frames stay dark in both themes so the dark UI mockups read as screens */
-    --media: 11 13 18;
-    --media-ring: 43 50 63;
-    --media-text: 237 240 245;
+    /* media frames stay dark in both themes so dark UI mockups read as screens */
+    --media: 9 9 12;
+    --media-ring: 44 42 48;
+    --media-text: 243 239 231;
+    /* laptop shell: light aluminium, so the hardware reads as an object on the dark canvas */
+    --laptop-body-1: 214 212 208;
+    --laptop-body-2: 168 166 163;
+    --laptop-edge: 120 118 116;
 
-    --grid-line: 237 240 245;
-    --grid-line-alpha: 0.04;
-    --glow-1: 0.14;
-    --glow-2: 0.06;
-    --portrait-glow: 0.2;
-    --aurora: 0.55;
-    /* the brick plates on the portrait's entrance: accent-adjacent, but deep enough to read as
-       moulded plastic rather than as a surface tint */
-    --brick-hi: 150 182 255;
-    --brick-lo: 26 40 78;
-    --brick-shadow: 2 3 6;
+    --grid-line: 243 239 231;
+    --grid-line-alpha: 0.03;
+    --glow-1: 0.16;
+    --glow-2: 0.07;
+    --ghost: 0.05;
+    --grain: 0.07;
+    /* 96px marquee words are ghosted, not invisible: 0.38 clears 3:1 on the canvas */
+    --ghost-strong: 0.38;
 
-    /* per-panel mesh wash and the fixed grain: both decorative, both static */
-    --mesh-a: 0.09;
-    --mesh-b: 0.05;
-    --grain: 0.028;
-
-    /* one curve, three durations (plus the panel's own, which is deliberately longer) */
+    /* one shared easing vocabulary, three durations */
     --ease: cubic-bezier(0.22, 1, 0.36, 1);
-    --dur-fast: 150ms;
-    --dur: 220ms;
-    --dur-slow: 600ms;
-    --dur-panel: 380ms;
+    --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+    --ease-in-out-quint: cubic-bezier(0.83, 0, 0.17, 1);
+    --dur-1: 160ms;
+    --dur-2: 260ms;
+    --dur-3: 640ms;
+    --radius: 18px;
   }
 
-  /* Measured WCAG 2.1 ratios for the light ramp are recorded in the report; the darkest text
-     pair (faint on raised) still clears 4.5:1. */
+  /* Light: warm paper, the same layout, glow alphas pulled down for legibility.
+     The ember accent deepens so it still clears 4.5:1 against the paper. */
   :root.light {
     color-scheme: light;
 
-    --bg: 248 247 244;
-    --surface: 255 255 255;
-    --surface-raised: 242 240 235;
-    --border: 228 224 217;
-    --border-strong: 208 202 193;
-    --border-hover: 178 170 158;
-    --text: 22 24 28;
-    --text-muted: 82 78 71;
-    --text-faint: 105 99 91;
-    --accent: 30 64 175;
-    --accent-hover: 24 52 145;
-    --accent-deep: 191 211 255;
-    --danger: 170 30 20;
-    --danger-border: 185 28 28;
+    --bg: 245 242 236;
+    --surface: 252 250 245;
+    --surface-raised: 238 234 226;
+    --border: 218 212 202;
+    --border-strong: 196 189 177;
+    --border-hover: 164 156 144;
+    --nav-edge: 148 138 124;
+    --text: 24 22 20;
+    --text-muted: 84 80 74;
+    --text-faint: 92 87 80;
+    --accent: 200 56 20;
+    --accent-hover: 160 42 12;
+    --accent-deep: 250 214 202;
+    --ember: 214 78 34;
+    --steel: 92 104 122;
+    --danger: 176 36 26;
+    --danger-border: 190 40 30;
 
-    --grid-line: 22 24 28;
+    --media: 12 12 15;
+    --media-ring: 52 50 56;
+    --media-text: 243 239 231;
+    /* same shell in light theme: against cream the aluminium needs a darker edge, or the lid
+       dissolves into the page and only the shadow keeps the silhouette */
+    --laptop-body-1: 240 238 233;
+    --laptop-body-2: 199 195 187;
+    --laptop-edge: 112 108 102;
+
+    --grid-line: 24 22 20;
     --grid-line-alpha: 0.05;
     --glow-1: 0.08;
     --glow-2: 0.04;
-    --portrait-glow: 0.14;
-    --aurora: 0.32;
-    --brick-hi: 76 124 240;
-    --brick-lo: 21 54 154;
-    --brick-shadow: 12 24 56;
-
-    --mesh-a: 0.06;
-    --mesh-b: 0.035;
-    --grain: 0.018;
+    --ghost: 0.06;
+    --grain: 0.05;
+    /* higher alpha than dark: the same ink over warm paper loses contrast faster */
+    --ghost-strong: 0.5;
   }
 
   html {
     -webkit-text-size-adjust: 100%;
     scroll-behavior: smooth;
+    scroll-padding-top: 96px;
   }
 
   body {
     @apply bg-ink-950 font-sans text-chalk antialiased;
     min-height: 100vh;
+    overflow-x: clip;
   }
 
-  /* Fixed film grain. One static SVG tile, no repaint, and it never takes a pointer event. */
+  /* The nav pill floats over the content, so the first section carries its own top offset
+     (`pt-16` in App) instead of the page reserving a column for a rail. */
+
+  ::selection {
+    background: rgb(var(--accent));
+    color: rgb(var(--bg));
+  }
+
+  :focus-visible {
+    outline: 2px solid rgb(var(--accent));
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  /* thin ember-tinted scrollbar; the page still scrolls natively */
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--border-hover)) transparent;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgb(var(--border-hover));
+    border-radius: 999px;
+    border: 2px solid rgb(var(--bg));
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--accent) / 0.7);
+  }
+
+  /* Route fades default to a cross-fade; the theme toggle scopes a ripple instead. */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 420ms;
+    animation-timing-function: var(--ease-out-expo);
+  }
+}
+
+/* ==========================================================================
+   Fixed film grain. One static SVG tile, no repaint, never a pointer target.
+   ========================================================================== */
+@layer base {
   body::after {
     content: '';
     position: fixed;
@@ -110,332 +174,933 @@
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
     background-size: 180px 180px;
   }
-
-  [id] {
-    scroll-margin-top: 96px;
-  }
-
-  :focus-visible {
-    outline: 2px solid rgb(var(--accent));
-    outline-offset: 3px;
-  }
-
-  ::selection {
-    background: rgb(var(--accent) / 0.28);
-  }
-
-  ::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
-  }
-  ::-webkit-scrollbar-track {
-    background: rgb(var(--bg));
-  }
-  ::-webkit-scrollbar-thumb {
-    background: rgb(var(--border-strong));
-    border: 3px solid rgb(var(--bg));
-    border-radius: 8px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: rgb(var(--border-hover));
-  }
 }
 
 @layer components {
+  /* ---------- layout ---------- */
+
   .shell {
-    @apply mx-auto w-full max-w-shell px-6 sm:px-8;
+    @apply mx-auto w-full;
+    max-width: theme(maxWidth.shell);
+    padding-inline: clamp(1.25rem, 5vw, 4rem);
   }
 
-  .card {
-    @apply rounded-2xl border border-ink-800 bg-ink-900;
-  }
-
-  /* hover: border tint plus a composited lift — no shadow, filter, or layout property */
-  .card-hover {
-    transition: border-color var(--dur) var(--ease), transform var(--dur) var(--ease);
-  }
-  .card-hover:hover {
-    border-color: rgb(var(--border-strong));
-    transform: translate3d(0, -2px, 0);
-  }
-
-  .chip {
-    @apply inline-flex items-center rounded-full border border-ink-800 bg-ink-850 px-2.5 py-1 font-mono text-[11px] leading-none text-chalk-muted;
-  }
-
-  /* Stand-in for a project with no screenshot: a static diagonal weave, no image request. */
-  .media-fallback {
-    display: grid;
-    height: 100%;
+  /* hairline rule used between editorial meta groups */
+  .rule {
+    display: block;
+    height: 1px;
     width: 100%;
-    place-items: center;
-    background-image: repeating-linear-gradient(
-      -45deg,
-      rgb(var(--media-ring) / 0.55) 0 1px,
-      transparent 1px 14px
-    );
+    background: rgb(var(--border));
   }
 
-  /* press feedback: transform only, so nothing reflows */
-  .press {
-    transition: color var(--dur-fast) var(--ease), background-color var(--dur-fast) var(--ease),
-      border-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+  /* mono micro label with a leading ember dash — the house eyebrow */
+  .eyebrow {
+    @apply font-mono uppercase text-micro text-chalk-faint;
+    letter-spacing: 0.28em;
   }
-  .press:active {
-    transform: scale(0.97);
-  }
-
-  .reveal {
-    opacity: 0;
-    transform: translate3d(0, 18px, 0);
-    transition: opacity var(--dur-slow) var(--ease), transform var(--dur-slow) var(--ease);
-  }
-  .reveal[data-revealed='true'] {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
+  .eyebrow::before {
+    content: '— ';
+    color: rgb(var(--accent));
   }
 
-  /* ---------- atmosphere ---------- */
-
-  /* One cheap wash per panel: two radial gradients on a pseudo-element, no extra DOM. The
-     section only needs `isolation` so the negative layer stays above the panel's background. */
-  .panel-mesh {
-    position: relative;
-    isolation: isolate;
+  /* oversized section numeral — hairline-outlined, decorative */
+  .numeral {
+    @apply select-none font-mono font-medium leading-none;
+    font-size: clamp(3rem, 10vw, 8rem);
+    letter-spacing: -0.05em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgb(var(--text) / 0.16);
   }
-  .panel-mesh::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    pointer-events: none;
-    background:
-      radial-gradient(55% 45% at 8% 0%, rgb(var(--accent) / var(--mesh-a)), transparent 72%),
-      radial-gradient(48% 42% at 92% 14%, rgb(var(--accent) / var(--mesh-b)), transparent 70%);
-  }
-  .panel-mesh[data-mesh='work']::before {
-    background:
-      radial-gradient(52% 42% at 92% 0%, rgb(var(--accent) / var(--mesh-a)), transparent 72%),
-      radial-gradient(44% 38% at 6% 28%, rgb(var(--accent) / var(--mesh-b)), transparent 70%);
-  }
-  .panel-mesh[data-mesh='contact']::before {
-    background:
-      radial-gradient(60% 55% at 50% 100%, rgb(var(--accent) / var(--mesh-a)), transparent 72%),
-      radial-gradient(40% 36% at 12% 0%, rgb(var(--accent) / var(--mesh-b)), transparent 70%);
+  .numeral-solid {
+    @apply select-none font-mono font-medium leading-none text-accent;
+    font-size: clamp(1.25rem, 3vw, 2.5rem);
+    letter-spacing: -0.04em;
   }
 
-  /* ---------- hero entrance ---------- */
+  .section-title {
+    @apply font-display text-display text-chalk;
+  }
+  .section-head {
+    @apply relative;
+    transform: scale(calc(1 - 0.05 * var(--p, 0)));
+    opacity: calc(1 - 0.28 * var(--p, 0));
+  }
 
-  /* The choreography is gated on the intro curtain through one attribute on `<html>`: while the
-     curtain is up the hero is held hidden, and the single flip to `done` starts every animation
-     together. Each element's own delay does the staggering, so nothing needs to know a timing. */
-  html[data-intro='pending'] .hero-rise,
-  html[data-intro='pending'] .hero-word {
-    opacity: 0;
+  /* ---------- type treatment ---------- */
+
+  /* ghost duplicate behind real type: solid at ~5% opacity, drifts on scroll */
+  .ghost {
+    @apply pointer-events-none select-none absolute font-display text-mega leading-none;
+    color: rgb(var(--text) / var(--ghost));
+    letter-spacing: -0.04em;
+    white-space: nowrap;
+    transform: translate3d(0, calc(var(--y, 0px) * -0.16), 0);
+    will-change: transform;
   }
-  html[data-intro='done'] .hero-rise {
-    animation: rise-in var(--dur-slow) var(--ease) both;
+  /* outlined variant: transparent fill, one hairline stroke */
+  .outline {
+    color: transparent;
+    -webkit-text-stroke: 1px rgb(var(--text) / var(--ghost-strong));
   }
-  html[data-intro='done'] .hero-word {
-    animation: word-in 760ms var(--ease) both;
+  .outline-strong {
+    color: transparent;
+    -webkit-text-stroke: 1px rgb(var(--accent) / 0.5);
   }
-  .hero-word {
+
+  .wordmark {
+    @apply font-sans font-semibold uppercase leading-none;
+    font-size: clamp(2.75rem, 10.5vw, 11rem);
+    letter-spacing: -0.06em;
+    white-space: nowrap;
+  }
+
+  /* ---------- split text (line masks) ---------- */
+
+  .st-line {
     display: inline-block;
-  }
-
-  /* Cursor-follow spotlight: the section's custom properties are written by usePointerStage on
-     an rAF tick; the blob itself only ever moves on `transform`. */
-  .hero-spotlight {
-    position: absolute;
-    inset: 0;
     overflow: hidden;
-    pointer-events: none;
+    vertical-align: bottom;
+    padding-bottom: 0.11em;
+    margin-bottom: -0.11em;
   }
-  .hero-spotlight::before {
-    content: '';
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 720px;
-    height: 720px;
-    border-radius: 9999px;
-    background: radial-gradient(
-      circle,
-      rgb(var(--accent) / 0.13) 0%,
-      rgb(var(--accent) / 0.05) 38%,
-      transparent 68%
-    );
-    transform: translate3d(
-      calc(var(--spot-x, 50vw) - 360px),
-      calc(var(--spot-y, 40vh) - 360px),
-      0
-    );
-    opacity: var(--spot-on, 0);
-    transition: opacity 500ms var(--ease);
+  .st-word {
+    display: inline-block;
+    white-space: nowrap;
   }
-
-  /* static gradient wash behind the hero */
-  .hero-glow {
-    background: radial-gradient(60% 55% at 50% 0%, rgb(var(--accent) / var(--glow-1)), transparent 70%),
-      radial-gradient(40% 40% at 85% 15%, rgb(var(--accent) / var(--glow-2)), transparent 70%);
-  }
-
-  /* the only continuously animated background layer: one composited, transform-only layer */
-  .hero-grid {
-    background-image: linear-gradient(
-        to right,
-        rgb(var(--grid-line) / var(--grid-line-alpha)) 1px,
-        transparent 1px
-      ),
-      linear-gradient(to bottom, rgb(var(--grid-line) / var(--grid-line-alpha)) 1px, transparent 1px);
-    background-size: 72px 72px;
-    -webkit-mask-image: radial-gradient(75% 60% at 50% 0%, #000 20%, transparent 80%);
-    mask-image: radial-gradient(75% 60% at 50% 0%, #000 20%, transparent 80%);
-    animation: hero-drift 48s linear infinite;
-  }
-
-  /* ---------- portrait ---------- */
-
-  /* Positioning context for the layers below; `isolation` keeps the multiply scrim from
-     reaching through to the panel behind it. */
-  .portrait-frame {
-    position: relative;
-    isolation: isolate;
-  }
-
-  /* Two counter-rotating conic sweeps behind the photo, each masked down to a ring so only a
-     soft arc of light shows. Rotation is a compositor transform: the gradient is rasterised
-     once and never repainted. */
-  .portrait-aurora {
-    position: absolute;
-    inset: -18%;
-    border-radius: 9999px;
-    pointer-events: none;
-    background: conic-gradient(
-      from 0deg,
-      transparent 0deg,
-      rgb(var(--accent) / var(--aurora)) 55deg,
-      transparent 150deg,
-      rgb(var(--accent) / calc(var(--aurora) * 0.7)) 235deg,
-      transparent 330deg
-    );
-    -webkit-mask-image: radial-gradient(closest-side, transparent 46%, #000 66%, transparent 88%);
-    mask-image: radial-gradient(closest-side, transparent 46%, #000 66%, transparent 88%);
-    animation: aurora-spin 26s linear infinite;
-  }
-  .portrait-aurora-2 {
-    animation-duration: 38s;
-    animation-direction: reverse;
-    opacity: 0.6;
-  }
-  .portrait-aurora-3 {
-    inset: -30%;
-    opacity: 0.35;
-    animation-duration: 52s;
-    animation-direction: reverse;
-  }
-
-  /* the hero portrait's accent halo, now breathing rather than static */
-  .portrait-glow {
-    border-radius: 32px;
-    background: radial-gradient(
-      60% 60% at 50% 45%,
-      rgb(var(--accent) / var(--portrait-glow)),
-      transparent 70%
-    );
-    animation: halo-breathe 9s var(--ease) infinite alternate;
-  }
-
-  .portrait-in {
-    animation: portrait-in var(--dur-slow) var(--ease) both;
-  }
-
-  /* the photo drifts on its own layer, so the aurora behind it stays put; it is also the
-     positioning box for the scrims and the plate wall, which must track the photo exactly */
-  .portrait-float {
-    position: relative;
-    animation: portrait-float 7.5s var(--ease) infinite alternate;
-  }
-
-  /* pointer parallax: usePointerStage writes --par-x/--par-y on the hero section; this wrapper
-     carries the transform so it never fights the float animation on its child */
-  .portrait-parallax {
-    transform: translate3d(var(--par-x, 0px), var(--par-y, 0px), 0);
-    transition: transform 400ms var(--ease);
-  }
-
-  /* "Built brick by brick": a wall of studded plates laid over the portrait that dissolves to
-     reveal it, from the top-left corner down. Each plate is three gradients — a dark base, the
-     moulded top face, and the stud with its own highlight — plus two inset shadows for the bevel.
-     Transform and opacity only, and the whole layer is unmounted by React once the last plate has
-     gone, so the resting portrait carries no extra nodes. */
-  .brick-grid {
-    position: absolute;
-    inset: 0;
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    grid-template-rows: repeat(5, 1fr);
-    gap: 3px;
-    overflow: hidden;
-    border-radius: 22px;
-    pointer-events: none;
-  }
-  .brick {
-    border-radius: 5px;
+  /* Hidden state lives here, released by `.st-root[data-show='true']`. CSS-only, so a heading can
+     never be stuck invisible by a runtime that failed to start — worst case it appears instantly,
+     which no visitor will ever notice. */
+  .st-inner {
+    display: inline-block;
+    transform-origin: left bottom;
+    transform: translateY(110%) rotate(1.5deg);
     opacity: 0;
-    background:
-      /* the stud: a lit cap over a shaded rim */
-      radial-gradient(circle at 34% 28%, rgb(255 255 255 / 0.55) 0 22%, transparent 46%),
-      radial-gradient(circle at 50% 40%, rgb(var(--brick-hi)) 0 32%, transparent 33%),
-      /* the top face, lit from the top-left */
-      linear-gradient(157deg, rgb(var(--brick-hi)) 0%, rgb(var(--brick-lo)) 78%);
-    box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.22),
-      inset 0 -3px 5px rgb(var(--brick-shadow) / 0.5),
-      0 2px 4px rgb(var(--brick-shadow) / 0.35);
+    transition:
+      transform 920ms var(--ease-out-expo) var(--st-delay, 0s),
+      opacity 620ms var(--ease-out-expo) var(--st-delay, 0s);
+    will-change: transform, opacity;
   }
-  html[data-intro='done'] .brick {
-    animation: brick-out 380ms var(--ease) both;
+  .st-root[data-show='true'] .st-inner {
+    transform: translateY(0) rotate(0deg);
+    opacity: 1;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .st-inner {
+      transform: none;
+      opacity: 1;
+      transition: none;
+    }
+  }
+
+  /* ---------- case study panels ---------- */
+
+  /* One panel per project: copy on the left, the product on a laptop on the right. Both
+     columns sit on one midline, so the laptop's height sets the panel's breathing room rather
+     than the length of the paragraph. */
+  .case {
+    border-top: 1px solid rgb(var(--border));
+    padding-block: clamp(2rem, 5vw, 3.5rem);
+  }
+  .case:last-child { border-bottom: 1px solid rgb(var(--border)); }
+
+  .case-body {
+    display: grid;
+    align-items: center;
+    gap: clamp(2rem, 5vw, 4.5rem);
+  }
+  @media (min-width: 900px) {
+    .case-body { grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr); }
+  }
+
+  .case-head {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+  /* the number lives in a hairline box, not as a floating label: it marks the panel as one of
+     a numbered set without adding another type size */
+  .case-index {
+    display: grid;
+    place-items: center;
+    width: 2.1rem;
+    height: 2.1rem;
+    flex-shrink: 0;
+    border: 1px solid rgb(var(--border-strong));
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: rgb(var(--text-faint));
+  }
+  .case-name {
+    font-size: clamp(1.9rem, 4.6vw, 3.1rem);
+    font-weight: 700;
+    letter-spacing: -0.045em;
+    line-height: 1.02;
+    color: rgb(var(--text));
+  }
+  .case-lead {
+    margin-top: 1.1rem;
+    max-width: 46ch;
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: rgb(var(--text-muted));
+  }
+
+  .case-links {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem;
+    margin-top: 1.6rem;
+  }
+  .case-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding-bottom: 1px;
+    border-bottom: 1px solid rgb(var(--border-hover));
+    font-size: 0.8125rem;
+    color: rgb(var(--text));
+    transition: border-color 200ms var(--ease), color 200ms var(--ease);
+  }
+  .case-toggle:hover { border-color: rgb(var(--accent)); color: rgb(var(--accent-hover)); }
+  .case-meta {
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    color: rgb(var(--text-faint));
+  }
+
+  .case-detail { display: grid; gap: 2rem; margin-top: 1.75rem; padding-top: 1.75rem; border-top: 1px solid rgb(var(--border)); }
+  /* prose column capped for reading; the metric/chip column keeps its own measure */
+  .case-detail > div:first-child { max-width: 68ch; }
+  @media (min-width: 1100px) {
+    .case-detail { grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr); gap: 3.5rem; }
+  }
+
+  /* The base is 4.5% wider than the lid on each side; padding the same amount keeps the base
+     inside the column instead of overhanging the panel margin. */
+  .case-media { min-width: 0; padding-inline: 4.5%; }
+  @media (min-width: 900px) {
+    .case-media { max-width: 520px; justify-self: end; width: 100%; }
+  }
+
+  /* ---------- contact panel ---------- */
+
+  /* One rounded panel inset from the canvas, not a full-width section: the inset is what makes
+     it read as a sheet laid on the page rather than another band of it. */
+  .contact { padding-block: clamp(3rem, 7vw, 5.5rem); }
+  .contact-panel {
+    position: relative;
+    border-radius: 24px;
+    border: 1px solid rgb(var(--border));
+    background:
+      radial-gradient(70% 90% at 100% 0%, rgb(var(--accent) / 0.07), transparent 60%),
+      rgb(var(--surface-raised));
+    padding: clamp(1.75rem, 4.5vw, 3.5rem);
+  }
+
+  .contact-grid { display: grid; gap: clamp(2rem, 5vw, 3.5rem); }
+  @media (min-width: 900px) {
+    .contact-grid { grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr); }
+  }
+  /* the left column stretches to the panel's height so its footer can sit at the bottom */
+  .contact-col { display: flex; flex-direction: column; }
+
+  .contact-title {
+    margin-top: 1.1rem;
+    font-size: clamp(2.5rem, 7vw, 4.5rem);
+    font-weight: 600;
+    letter-spacing: -0.045em;
+    line-height: 0.98;
+    color: rgb(var(--text));
+  }
+  .contact-lead {
+    margin-top: 1rem;
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: rgb(var(--text-muted));
+    /* no ch cap: the column already bounds the measure, and a cap orphaned the last word */
+    text-wrap: pretty;
+  }
+
+  /* Pills scattered rather than gridded: an alternating left offset is what gives the cluster
+     its hand-placed feel without a per-item class. */
+  .contact-pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 0.7rem;
+    margin-top: clamp(2rem, 4vw, 3rem);
+    max-width: 30rem;
+  }
+  .contact-pills li {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.85rem;
+    border: 1px solid rgb(var(--border));
+    border-radius: 999px;
+    background: rgb(var(--text) / 0.04);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+    color: rgb(var(--text-muted));
+    transition: border-color 200ms var(--ease), color 200ms var(--ease);
+  }
+  .contact-pills li:hover { border-color: rgb(var(--border-hover)); color: rgb(var(--text)); }
+  .contact-pills li:nth-child(even) { transform: translateY(0.35rem); }
+
+  .contact-foot { margin-top: auto; padding-top: clamp(2.5rem, 6vw, 4rem); }
+  /* rule, then one row: copyright and the copy action share a baseline, so the column ends on
+     a single line instead of trailing a stray button */
+  .contact-foot-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+  .contact-foot-row p {
+    font-size: 0.8125rem;
+    color: rgb(var(--text-faint));
+  }
+
+  .contact-list { display: grid; gap: 0.85rem; align-content: start; }
+  .contact-card {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid rgb(var(--border));
+    border-radius: 16px;
+    background: rgb(var(--surface-raised) / 0.6);
+    transition: border-color 220ms var(--ease), background-color 220ms var(--ease);
+  }
+  .contact-card:hover {
+    border-color: rgb(var(--border-hover));
+    background: rgb(var(--surface-raised));
+  }
+  .contact-card-icon {
+    width: 1.15rem;
+    height: 1.15rem;
+    flex-shrink: 0;
+    color: rgb(var(--text-faint));
+    transition: color 220ms var(--ease);
+  }
+  .contact-card:hover .contact-card-icon { color: rgb(var(--accent)); }
+  .contact-card-text { display: grid; gap: 0.15rem; min-width: 0; flex: 1; }
+  .contact-card-title {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: rgb(var(--text));
+  }
+  /* long handles truncate rather than push the arrow off the card */
+  .contact-card-handle {
+    font-size: 0.8125rem;
+    color: rgb(var(--text-muted));
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .contact-card-arrow {
+    width: 0.95rem;
+    height: 0.95rem;
+    flex-shrink: 0;
+    color: rgb(var(--text-faint));
+    transition: color 220ms var(--ease), transform 220ms var(--ease);
+  }
+  .contact-card:hover .contact-card-arrow {
+    color: rgb(var(--accent));
+    transform: translate(2px, -2px);
+  }
+
+  .contact-copy {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.45rem;
+    /* 36px visual pill, 44px hit area: the border box stays small, the tappable box does not */
+    min-height: 2.75rem;
+    padding: 0.45rem 0.9rem;
+    border: 1px solid rgb(var(--border));
+    border-radius: 999px;
+    font-size: 0.8125rem;
+    color: rgb(var(--text-muted));
+    transition: border-color 200ms var(--ease), color 200ms var(--ease);
+  }
+  .contact-copy:hover { border-color: rgb(var(--border-hover)); color: rgb(var(--text)); }
+  .contact-copy svg { width: 0.9rem; height: 0.9rem; }
+
+  /* ---------- journey depth field ---------- */
+
+  /* `--near` is written by the journey scroll loop: 1 at the centre line, 0 a screen away.
+     Unset (mobile, reduced motion) falls back to fully lit. */
+  /* Stays legible at the edges: depth is a hint, not a fade-out. */
+  .journey-item {
+    opacity: calc(0.72 + var(--near, 1) * 0.28);
+    transform: scale(calc(0.975 + var(--near, 1) * 0.025));
+    filter: blur(calc((1 - var(--near, 1)) * 0.9px));
+  }
+  @media (max-width: 767px) {
+    .journey-item {
+      opacity: 1;
+      transform: none;
+      filter: none;
+    }
+  }
+
+  /* ---------- ticker band ---------- */
+
+  .ticker-band {
+    overflow: hidden;
+    border-block: 1px solid rgb(var(--border));
+    padding-block: clamp(1rem, 2.4vw, 1.9rem);
+    background: rgb(var(--surface) / 0.5);
+    user-select: none;
+  }
+  .ticker-pair {
+    display: inline-flex;
+    align-items: center;
+  }
+  .ticker-item {
+    @apply font-sans font-semibold uppercase leading-none;
+    font-size: clamp(1.75rem, 4.6vw, 3.6rem);
+    letter-spacing: -0.03em;
+    color: transparent;
+    -webkit-text-stroke: 1px rgb(var(--text) / 0.55);
+    white-space: nowrap;
+  }
+  /* every other repetition is solid, so the band reads as type rather than a wireframe */
+  .ticker-pair:nth-child(even) .ticker-item {
+    color: rgb(var(--text) / 0.14);
+    -webkit-text-stroke: 0;
+  }
+  .ticker-dot {
+    display: inline-block;
+    margin-inline: clamp(1.2rem, 3vw, 2.6rem);
+    height: 0.42em;
+    width: 0.42em;
+    border-radius: 999px;
+    background: rgb(var(--accent));
+    vertical-align: middle;
   }
 
   /* ---------- marquee ---------- */
 
   .marquee {
     overflow: hidden;
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
-    mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent);
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
   }
   .marquee-track {
     display: flex;
     width: max-content;
-    animation: marquee-x 42s linear infinite;
+    animation: marquee-x var(--marquee-duration, 42s) linear infinite;
+  }
+  .marquee-track[data-direction='-1'] {
+    animation-direction: reverse;
   }
   .marquee:hover .marquee-track,
   .marquee:focus-within .marquee-track {
     animation-play-state: paused;
   }
-
-  /* oversized footer wordmark: decorative, duplicated for a seamless -50% loop */
-  .marquee-wordmark {
-    font-family: ui-serif, 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', Palatino,
-      Georgia, serif;
-    font-size: clamp(3.5rem, 11vw, 9rem);
-    line-height: 0.8;
-    letter-spacing: -0.04em;
-    text-transform: uppercase;
-    color: rgb(var(--text) / 0.1);
+  .marquee-group {
+    display: flex;
+    align-items: center;
+    width: max-content;
   }
-
-  /* the hero's scroll/next hint: a vertical line that nudges downward (transform only) */
-  .hint-line {
-    display: inline-block;
-    height: 22px;
-    width: 1px;
+  /* A drawn circle, not the `●` glyph: a glyph sits on the text baseline, so the separator hung
+     low and read as a stray period. The flex parent centres it; the text's own `px-6` supplies
+     the gap on both sides, so no margin is needed. */
+  .marquee-dot {
+    flex-shrink: 0;
+    height: 5px;
+    width: 5px;
+    border-radius: 50%;
     background: rgb(var(--accent));
-    animation: hint-nudge 2s var(--ease) infinite;
   }
 
-  /* link underline that sweeps in from the right; the anchor is its own hit area */
+  /* ---------- cursor ---------- */
+
+  .cursor-dot,
+  .cursor-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 96;
+    pointer-events: none;
+    border-radius: 9999px;
+    will-change: transform;
+  }
+  .cursor-dot {
+    width: 6px;
+    height: 6px;
+    background: rgb(var(--accent));
+    box-shadow: 0 0 12px rgb(var(--accent) / 0.8);
+  }
+  .cursor-ring {
+    width: 36px;
+    height: 36px;
+    border: 1px solid rgb(var(--accent) / 0.5);
+    transition:
+      width 240ms var(--ease),
+      height 240ms var(--ease),
+      border-color 240ms var(--ease),
+      background-color 240ms var(--ease);
+  }
+  .cursor-ring[data-mode='link'] {
+    width: 52px;
+    height: 52px;
+    border-color: rgb(var(--accent));
+  }
+  .cursor-ring[data-mode='view'],
+  .cursor-ring[data-mode='drag'] {
+    width: 68px;
+    height: 68px;
+    background: rgb(var(--accent) / 0.12);
+    border-color: rgb(var(--ember));
+  }
+
+  /* ---------- scroll progress ---------- */
+
+  .progress-rail {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 70;
+    height: 2px;
+    background: rgb(var(--accent) / 0.18);
+    pointer-events: none;
+  }
+  .progress-fill {
+    display: block;
+    height: 100%;
+    background: rgb(var(--accent));
+    box-shadow: 0 0 12px rgb(var(--accent) / 0.8);
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+
+  /* ---------- nav ---------- */
+
+  .nav-indicator {
+    position: absolute;
+    left: 0;
+    bottom: 12px;
+    height: 2px;
+    width: 1px;
+    border-radius: 2px;
+    background: rgb(var(--accent));
+    opacity: 0;
+    transform-origin: left;
+    transform: translate3d(var(--nav-x, 0px), 0, 0) scaleX(var(--nav-w, 0));
+    transition:
+      transform 420ms var(--ease),
+      opacity 240ms var(--ease);
+    pointer-events: none;
+  }
+  .nav-indicator.is-active {
+    opacity: 1;
+  }
+
+  .drawer-item {
+    animation: drawer-item-in 460ms var(--ease-out-expo) both;
+  }
+  .animate-drawer-in-left {
+    animation: drawer-in-left 420ms var(--ease-out-expo) both;
+  }
+  .animate-fade-in {
+    animation: fade-in 360ms var(--ease) both;
+  }
+
+  /* ---------- hero ---------- */
+
+  /* One gesture: the portrait is the ground, the name is the object. Everything the first
+     version stacked here (rings, halo, giant monogram, status pill, version chips, numeric
+     rail) is gone — eight decorations meant none of them led. */
+
+  .hero-stage { min-height: 92svh; }
+
+  /* The only decoration: one soft ember bloom behind the subject's head. It reads as a light
+     source in a dark room, which is what makes a hero look photographed rather than filled. */
+  .hero-bloom {
+    position: absolute;
+    inset: -18% -8% auto -8%;
+    height: 80%;
+    pointer-events: none;
+    background: radial-gradient(44% 56% at 70% 24%, rgb(var(--accent) / 0.15), transparent 68%);
+    filter: blur(12px);
+  }
+
+  /* Portrait: no arch, no rings, no border — full-bleed to the right edge, stopping above the
+     marquee band. A single bottom-fade mask dissolves the cutout's rectangle; two crossed
+     gradients were tried and rejected because `mask-composite` differs across engines and the
+     wrong composite crops the shoulders. */
+  .hero-shot {
+    position: absolute;
+    inset: 1.5rem 0 auto auto;
+    bottom: 8.5rem;
+    z-index: 0;
+    width: min(62vw, 740px);
+    pointer-events: none;
+    -webkit-mask-image: linear-gradient(to bottom, #000 64%, transparent 100%);
+    mask-image: linear-gradient(to bottom, #000 64%, transparent 100%);
+  }
+  .hero-shot img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 50% 6%;
+    filter: grayscale(0.42) contrast(1.06);
+  }
+  /* Warm the cool studio photo into the palette. Multiply keeps the blacks; a `color` wash was
+     tried first and greyed out the skin. */
+  .hero-shot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(58% 62% at 62% 34%, rgb(var(--accent) / 0.22), transparent 72%);
+    mix-blend-mode: multiply;
+  }
+  :root.light .hero-shot img {
+    mix-blend-mode: multiply;
+    filter: grayscale(0.45) contrast(1.16) brightness(1.02);
+  }
+
+  /* Availability reads as a status line, not a badge: no pill, no shadow, no icon box. */
+  .hero-status {
+    @apply inline-flex items-center gap-2.5 font-mono uppercase;
+    font-size: 11px;
+    letter-spacing: 0.26em;
+    color: rgb(var(--text-muted));
+  }
+  .hero-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 999px;
+    background: rgb(var(--accent));
+    animation: hero-pulse 2.6s var(--ease) infinite;
+  }
+  @keyframes hero-pulse {
+    0% { box-shadow: 0 0 0 0 rgb(var(--accent) / 0.5); }
+    70% { box-shadow: 0 0 0 8px rgb(var(--accent) / 0); }
+    100% { box-shadow: 0 0 0 0 rgb(var(--accent) / 0); }
+  }
+
+  /* The focal object. Capped at 12ch so three words stack into a block instead of stretching
+     into a band; the jump from 11px metadata to this is the whole design. */
+  .hero-title {
+    @apply font-sans font-semibold uppercase text-chalk;
+    max-width: 12ch;
+    font-size: clamp(3rem, min(11vw, 14svh), 9rem);
+    line-height: 0.84;
+    letter-spacing: -0.035em;
+  }
+  /* Optical repair: a long uppercase run at -0.05em closes D–A and A–N into a blur. Loosening
+     the tracking is cheaper than hand-kerned paths. */
+  .hero-title .st-word + .st-word { margin-left: 0.1em; }
+
+  /* Second voice: one italic serif word against a heavy grotesque. The oldest trick in
+     editorial design, and it still reads as "designed" rather than "default". */
+  .hero-title .st-numeral {
+    font-family: 'Instrument Serif', Iowan Old Style, Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    text-transform: none;
+    letter-spacing: -0.01em;
+  }
+
+  .hero-foot {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.75rem;
+    max-width: 34rem;
+    margin-top: clamp(1.75rem, 4vh, 3rem);
+    margin-bottom: clamp(2rem, 6vh, 4rem);
+  }
+
+  .hero-role {
+    @apply font-mono uppercase text-accent;
+    font-size: 11px;
+    letter-spacing: 0.28em;
+  }
+
+  /* Ink on accent, not white on accent: white on #FF4A24 is ~3.3:1 and fails AA, near-black
+     clears 5.7:1 and looks printed rather than stuck on. */
+  .hero-cta {
+    @apply inline-flex items-center gap-2 rounded-full px-6 py-3 text-small font-semibold;
+    background: rgb(var(--accent));
+    color: #0b0705;
+    transition: transform 260ms var(--ease), background-color 260ms var(--ease);
+  }
+  .hero-cta:hover { background: rgb(var(--accent-hover)); transform: translateY(-2px); }
+  .hero-cta--ghost {
+    background: transparent;
+    color: rgb(var(--text));
+    box-shadow: inset 0 0 0 1px rgb(var(--border-strong));
+  }
+  .hero-cta--ghost:hover { background: rgb(var(--text) / 0.06); color: rgb(var(--text)); }
+
+  /* Stack as a moving rhythm strip instead of a row of tagged pills under the headline.
+     The edge mask makes a clipped word read as motion; without it a marquee looks broken. */
+  .hero-marquee {
+    border-block: 1px solid rgb(var(--border));
+    padding-block: 0.85rem;
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
+  }
+  .hero-stack { display: inline-flex; align-items: center; }
+  .hero-stack-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 1.1rem;
+    padding-inline: 1.35rem;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.24em;
+    color: rgb(var(--text-muted));
+    white-space: nowrap;
+  }
+  .hero-star { color: rgb(var(--accent)); font-size: 9px; letter-spacing: 0; }
+
+  .hero-scroll {
+    @apply inline-flex items-center gap-2.5 font-mono uppercase;
+    width: 100%;
+    padding-block: 0.9rem;
+    font-size: 10.5px;
+    letter-spacing: 0.28em;
+    color: rgb(var(--text-muted));
+    transition: color 200ms var(--ease);
+  }
+  .hero-scroll:hover { color: rgb(var(--accent)); }
+
+  /* Between 900 and 1180 the headline is at its width limit and starts colliding with the
+     portrait: bring the type scale and the photo width down together. */
+  @media (min-width: 901px) and (max-width: 1180px) {
+    .hero-title { font-size: clamp(2.75rem, min(8.2vw, 12svh), 6rem); max-width: 13ch; }
+    .hero-shot { width: min(56vw, 560px); }
+    .hero-foot { max-width: 30rem; }
+  }
+
+  /* Below 900px the portrait cannot share the screen with the type: any overlap puts body copy
+     across a face, and no scrim makes that read as a decision. It becomes its own band above
+     the type instead — same hierarchy, stacked. */
+  @media (max-width: 900px) {
+    .hero-stage {
+      min-height: auto;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding-top: 4.5rem;
+    }
+    .hero-shot {
+      position: relative;
+      inset: auto;
+      width: 100%;
+      height: 44svh;
+      min-height: 270px;
+      margin-bottom: 0.5rem;
+      -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 66%, transparent 100%);
+      mask-image: linear-gradient(to bottom, #000 0%, #000 66%, transparent 100%);
+    }
+    .hero-shot img { object-position: 50% 4%; }
+    .hero-bloom { inset: -2rem 0 auto 0; height: 48svh; opacity: 0.7; }
+    .hero-status { margin-top: 1.75rem; }
+    .hero-foot { margin-top: 1.5rem; margin-bottom: 1.75rem; }
+  }
+
+  @media (max-width: 640px) {
+    .hero-stage { padding-top: 4.25rem; }
+    .hero-shot { height: 38svh; min-height: 240px; }
+    .hero-title { max-width: 100%; font-size: clamp(2.4rem, 12.5vw, 4rem); }
+    .hero-foot { max-width: 100%; margin-bottom: 1.5rem; }
+    .hero-foot > div:last-child { width: 100%; flex-direction: column; align-items: stretch; }
+    .hero-cta { justify-content: center; width: 100%; }
+  }
+
+  @media (max-height: 700px) and (min-width: 901px) {
+    .hero-foot { margin-bottom: 1.5rem; }
+    .hero-title { font-size: clamp(2.5rem, min(9vw, 12svh), 6rem); }
+  }
+
+  /* ---------- work ---------- */
+
+  .work-filter {
+    @apply rounded-full px-4 py-1.5 font-mono uppercase;
+    font-size: 10px;
+    letter-spacing: 0.22em;
+    color: rgb(var(--text-faint));
+    transition: color 200ms var(--ease), background-color 200ms var(--ease);
+  }
+  .work-filter:hover { color: rgb(var(--text)); }
+  .work-filter.is-on {
+    color: rgb(var(--bg));
+    background: rgb(var(--text));
+  }
+  :root.light .work-filter.is-on { background: rgb(var(--text)); color: rgb(var(--bg)); }
+
+  .work-link {
+    @apply inline-flex items-center gap-1.5 text-small font-medium text-accent;
+    border-bottom: 1px solid rgb(var(--accent) / 0.4);
+  }
+  .work-link:hover { border-color: rgb(var(--accent)); }
+
+  /* ---------- laptop mockup ---------- */
+
+  /* Lid, bezel, base and notch are pure CSS: one tree reads as hardware at every width, and
+     the screenshot is never shown as a bare card image. */
+  .laptop {
+    position: relative;
+    width: 100%;
+    /* two shadows: a tight one locks the base to the page, a wide one gives the object weight.
+       A single diffuse shadow makes the machine hover. */
+    filter: drop-shadow(0 6px 10px rgb(0 0 0 / 0.28)) drop-shadow(0 34px 50px rgb(0 0 0 / 0.42));
+  }
+  .laptop-lid {
+    border-radius: clamp(8px, 1.1vw, 14px);
+    /* aluminium, not a dark panel: against the near-black canvas a dark body has no silhouette,
+       so the bezel reads as a cropped screenshot instead of hardware */
+    border: 1px solid rgb(var(--laptop-edge));
+    background: linear-gradient(165deg, rgb(var(--laptop-body-1)) 0%, rgb(var(--laptop-body-2)) 100%);
+    padding: clamp(6px, 0.8vw, 10px);
+  }
+  .laptop-screen {
+    position: relative;
+    overflow: hidden;
+    border-radius: clamp(4px, 0.6vw, 8px);
+    background: rgb(var(--media));
+  }
+  /* Let each cover define the screen height instead of forcing a ratio: the assets are 2:1
+     ultrawide and 16:10, so any fixed ratio crops the app's right-hand panel on one of them. */
+  .laptop-screen img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .laptop-fallback {
+    display: grid;
+    height: 100%;
+    place-items: center;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    letter-spacing: 0.3em;
+    color: rgb(var(--media-text) / 0.25);
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+  }
+  /* a single raking highlight across the glass — sells the surface without a gradient overlay
+     that would wash out the screenshot */
+  .laptop-glare {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      104deg,
+      rgb(255 255 255 / 0.09) 0%,
+      rgb(255 255 255 / 0.02) 26%,
+      transparent 46%
+    );
+  }
+  .laptop-base {
+    position: relative;
+    display: block;
+    height: clamp(9px, 1.2vw, 15px);
+    margin-inline: -4.5%;
+    border-radius: 0 0 clamp(10px, 1.4vw, 18px) clamp(10px, 1.4vw, 18px);
+    border: 1px solid rgb(var(--laptop-edge));
+    border-top: none;
+    background: linear-gradient(180deg, rgb(var(--laptop-body-2)), rgb(var(--laptop-body-1)));
+  }
+  .laptop-notch {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    height: 40%;
+    width: clamp(46px, 12%, 96px);
+    transform: translateX(-50%);
+    border-radius: 0 0 999px 999px;
+    background: rgb(var(--bg));
+    box-shadow: inset 0 -1px 0 rgb(var(--border-strong));
+  }
+
+  /* ---------- journey ---------- */
+
+  .journey-track {
+    display: flex;
+    gap: clamp(1.5rem, 4vw, 4rem);
+    will-change: transform;
+    transform: translate3d(
+      calc(var(--p, 0) * -1 * max(0px, var(--track, 0px) - 100vw)),
+      0,
+      0
+    );
+  }
+  .journey-rail {
+    height: 1px;
+    background: rgb(var(--border));
+  }
+  .journey-fill {
+    height: 1px;
+    background: rgb(var(--accent));
+    box-shadow: 0 0 10px rgb(var(--accent) / 0.7);
+    transform-origin: left;
+    transform: scaleX(0);
+  }
+  .journey-dot {
+    @apply relative grid h-4 w-4 place-items-center;
+  }
+  .journey-dot::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 9999px;
+    background: rgb(var(--border-strong));
+    transition:
+      transform 300ms var(--ease),
+      background-color 300ms var(--ease);
+  }
+  .journey-dot[data-active='true']::before {
+    background: rgb(var(--accent));
+    transform: scale(1.5);
+  }
+  .journey-dot[data-active='true']::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    border: 1px solid rgb(var(--accent) / 0.6);
+    animation: ping 2.2s var(--ease) infinite;
+  }
+
+  /* ---------- misc primitives ---------- */
+
+  .card {
+    @apply rounded-2xl border border-ink-800 bg-ink-900;
+  }
+  .card-hover {
+    transition:
+      transform 340ms var(--ease-out-expo),
+      border-color 240ms var(--ease);
+  }
+  .card-hover:hover {
+    transform: translateY(-4px);
+    border-color: rgb(var(--border-hover));
+  }
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full border border-ink-800 bg-ink-850 px-3 py-1.5 font-mono text-[11px] leading-none text-chalk-muted;
+  }
+  .press {
+    transition:
+      transform 160ms var(--ease),
+      background-color 160ms var(--ease),
+      border-color 160ms var(--ease),
+      color 160ms var(--ease),
+      opacity 160ms var(--ease);
+  }
+  .press:active {
+    transform: scale(0.97);
+  }
   .link-sweep {
     position: relative;
   }
@@ -444,154 +1109,225 @@
     position: absolute;
     left: 0;
     right: 0;
-    bottom: -2px;
+    bottom: -3px;
     height: 1px;
     background: currentColor;
     transform: scaleX(0);
     transform-origin: right;
-    transition: transform var(--dur) var(--ease);
+    transition: transform 240ms var(--ease);
   }
   .link-sweep:hover::after,
   .link-sweep:focus-visible::after {
     transform: scaleX(1);
     transform-origin: left;
   }
-
-  /* ---------- nav ---------- */
-
-  /* the active-item indicator is 1px wide and only ever scales/translates — never `width` */
-  .nav-indicator {
-    position: absolute;
-    left: 0;
-    bottom: -1px;
-    height: 2px;
+  .media-fallback {
+    background-image: repeating-linear-gradient(
+      -45deg,
+      rgb(var(--media-ring) / 0.5) 0 1px,
+      transparent 1px 14px
+    );
+  }
+  .hint-line {
+    display: inline-block;
+    height: 22px;
     width: 1px;
-    border-radius: 2px;
     background: rgb(var(--accent));
-    opacity: 0;
-    transform-origin: left;
-    transform: translate3d(var(--nav-x, 0px), 0, 0) scaleX(var(--nav-w, 0));
-    transition: transform 420ms var(--ease), opacity 220ms var(--ease);
-    pointer-events: none;
-  }
-  .nav-indicator.is-active {
-    opacity: 1;
+    animation: hint-nudge 2s var(--ease) infinite;
   }
 
-  /* staggered drawer items (delay comes from inline animationDelay) */
-  .drawer-item {
-    animation: drawer-item-in 420ms var(--ease) both;
-  }
+  /* ---------- floating nav pill ---------- */
 
-  /* ---------- intro curtain ---------- */
-
-  /* Full-screen curtain shown once per page load. It sits above the header and lifts away on a
-     composited transform with a slight scale; nothing under it is interacted with while it is
-     up, and it is removed from the DOM (not just hidden) once the lift is done. */
-  .intro {
+  /* One pill for every width, the way the reference does it: it floats 12px below the fold over
+     the content instead of reserving a column. `padding-block` on the shell is what keeps the
+     first section clear of it, so no section needs its own top offset. */
+  .nav-shell {
     position: fixed;
-    inset: 0;
-    z-index: 90;
-    display: grid;
-    place-items: center;
-    background: rgb(var(--bg));
-    transition: transform 700ms var(--ease), opacity 320ms var(--ease);
-  }
-  .intro::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    background: radial-gradient(52% 50% at 50% 38%, rgb(var(--accent) / 0.12), transparent 72%);
-  }
-  .intro[data-done='true'] {
-    transform: translate3d(0, -101%, 0) scale(1.03);
-    opacity: 0;
-    pointer-events: none;
-  }
-  .intro-inner {
-    position: relative;
-    display: grid;
-    justify-items: center;
-    gap: 22px;
-    animation: rise-in var(--dur-slow) var(--ease) both;
-  }
-  .intro-mark {
-    @apply grid place-items-center font-mono;
-    height: 52px;
-    width: 52px;
-    border-radius: 16px;
-    border: 1px solid rgb(var(--border));
-    background: rgb(var(--surface));
-    font-size: 0.75rem;
-    letter-spacing: 0.18em;
-    color: rgb(var(--accent));
-  }
-  .intro-name {
-    @apply font-mono uppercase;
-    font-size: 0.75rem;
-    letter-spacing: 0.42em;
-    padding-left: 0.42em;
-    color: rgb(var(--text-muted));
-    animation: intro-name-in 900ms var(--ease) both;
-  }
-  .intro-count {
+    inset-inline: 0;
+    top: 12px;
+    z-index: 50;
     display: flex;
-    align-items: baseline;
-    gap: 2px;
-    font-family: ui-monospace, 'Cascadia Mono', 'Segoe UI Mono', 'SFMono-Regular', Menlo,
-      Consolas, monospace;
-    font-size: clamp(3rem, 8vw, 5rem);
-    line-height: 1;
-    font-variant-numeric: tabular-nums;
+    justify-content: center;
+    padding-inline: clamp(1rem, 4vw, 2rem);
+    pointer-events: none;
+  }
+  .nav-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 860px;
+    /* `--nav-edge`, not `--border-strong`: a container boundary needs 3:1 against the page, and
+       the shared border tokens are tuned for dividers — the pill read as a glow without it */
+    border: 1px solid rgb(var(--nav-edge));
+    border-radius: 999px;
+    background: rgb(var(--bg) / 0.82);
+    backdrop-filter: blur(24px);
+    padding: 0.4rem 0.55rem 0.4rem 1.15rem;
+    box-shadow: 0 18px 40px -24px rgb(0 0 0 / 0.65);
+    pointer-events: auto;
+    transition:
+      background-color 260ms var(--ease),
+      border-color 260ms var(--ease);
+  }
+  /* the theme toggle is the only bare icon button in the actions row; it takes the same 40px
+     target as the burger so the pair reads as a set */
+  .nav-actions > button.press {
+    height: 2.5rem;
+    width: 2.5rem;
+  }
+
+  .nav-mark {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    min-width: 0;
+    flex: 1;
     color: rgb(var(--text));
   }
-  .intro-digit {
-    display: inline-block;
-    height: 1em;
-    width: 0.62em;
-    overflow: hidden;
+  .nav-badge {
+    display: grid;
+    place-items: center;
+    height: 30px;
+    width: 30px;
+    flex-shrink: 0;
+    border-radius: 10px;
+    border: 1px solid rgb(var(--border));
+    background: rgb(var(--surface));
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: rgb(var(--accent));
   }
-  .intro-digit-reel {
+  .nav-name {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* links sit dead centre of the pill; the two side groups are `flex: 1` so they do */
+  .nav-links {
+    display: none;
+    align-items: center;
+    gap: 0.15rem;
+    flex: none;
+  }
+  @media (min-width: 900px) {
+    .nav-links {
+      display: flex;
+    }
+  }
+  .nav-link {
+    display: block;
+    border-radius: 12px;
+    padding: 0.55rem 0.65rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
+    color: rgb(var(--text-muted));
+    transition:
+      color 200ms var(--ease),
+      background-color 200ms var(--ease);
+  }
+  .nav-link:hover,
+  .nav-link:focus-visible {
+    color: rgb(var(--text));
+    background: rgb(var(--text) / 0.06);
+  }
+  /* the active section is a soft accent wash, not a second indicator line */
+  .nav-link.is-active {
+    color: rgb(var(--accent));
+    background: rgb(var(--accent) / 0.12);
+  }
+
+  .nav-actions {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.4rem;
+    flex: 1;
   }
-  .intro-digit-reel > span {
-    height: 1em;
-    line-height: 1;
-    text-align: center;
+  .nav-cta {
+    align-items: center;
+    border-radius: 999px;
+    background: rgb(var(--text));
+    padding: 0.6rem 1.1rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: rgb(var(--bg));
+    transition: background-color 200ms var(--ease), color 200ms var(--ease);
   }
-  .intro-track {
-    display: block;
-    height: 1px;
-    width: min(260px, 60vw);
-    overflow: hidden;
-    border-radius: 1px;
-    background: rgb(var(--border));
-  }
-  .intro-fill {
-    display: block;
-    height: 100%;
+  .nav-cta:hover {
     background: rgb(var(--accent));
-    box-shadow: 0 0 14px rgb(var(--accent) / 0.6);
-    transform: scaleX(0);
-    transform-origin: left;
+    color: rgb(var(--bg));
+  }
+  /* the drawer is the only nav below `md`, so the burger stays visible there */
+  .nav-burger {
+    display: grid;
+    place-items: center;
+    height: 36px;
+    width: 36px;
+    flex-shrink: 0;
+    border-radius: 999px;
+    border: 1px solid rgb(var(--border));
+    color: rgb(var(--text-muted));
+    transition: border-color 200ms var(--ease), color 200ms var(--ease);
+  }
+  .nav-burger:hover {
+    border-color: rgb(var(--border-hover));
+    color: rgb(var(--text));
+  }
+  @media (min-width: 900px) {
+    .nav-burger { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .nav-pill { backdrop-filter: none; background: rgb(var(--bg) / 0.96); }
   }
 
-  .animate-fade-in {
-    animation: fade-in var(--dur) var(--ease) both;
+  /* two-line hamburger that folds into an X, drawn so it needs no icon dependency */
+  .menu-glyph {
+    display: block;
+    position: relative;
+    height: 10px;
+    width: 16px;
   }
-  .animate-drawer-in {
-    animation: drawer-in var(--dur) var(--ease) both;
+  .menu-glyph::before,
+  .menu-glyph::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    height: 1.5px;
+    width: 100%;
+    border-radius: 2px;
+    background: currentColor;
+    transition:
+      transform 260ms var(--ease),
+      top 260ms var(--ease);
+  }
+  .menu-glyph::before {
+    top: 0;
+  }
+  .menu-glyph::after {
+    top: 8px;
+  }
+  .menu-glyph[data-open='true']::before {
+    top: 4px;
+    transform: rotate(45deg);
+  }
+  .menu-glyph[data-open='true']::after {
+    top: 4px;
+    transform: rotate(-45deg);
   }
 
-  /* A deck panel is remounted on every switch (React `key`), so the animation always replays.
-     `.deck-panel-reverse` only swaps the direction, keeping the transform compositor-only. */
-  .deck-panel {
-    animation: deck-in-right var(--dur-panel) var(--ease) both;
-  }
-  .deck-panel-reverse {
-    animation-name: deck-in-left;
+  /* ---------- page transition (CSS fallback when View Transitions are absent) ---------- */
+
+  .page-enter {
+    animation: page-in 520ms var(--ease-out-expo) both;
   }
 }
 
@@ -601,14 +1337,9 @@
   }
 }
 
-@keyframes hero-drift {
-  from {
-    transform: translate3d(0, 0, 0);
-  }
-  to {
-    transform: translate3d(-72px, -72px, 0);
-  }
-}
+/* ==========================================================================
+   Keyframes — transform / opacity / clip-path / filter only.
+   ========================================================================== */
 
 @keyframes marquee-x {
   from {
@@ -628,31 +1359,20 @@
   }
 }
 
-@keyframes deck-in-right {
+@keyframes page-in {
   from {
     opacity: 0;
-    transform: translate3d(2.5%, 0, 0) scale(0.98);
+    transform: translate3d(0, 18px, 0);
   }
   to {
     opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
+    transform: none;
   }
 }
 
-@keyframes deck-in-left {
+@keyframes drawer-in-left {
   from {
-    opacity: 0;
-    transform: translate3d(-2.5%, 0, 0) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
-@keyframes drawer-in {
-  from {
-    transform: translate3d(100%, 0, 0);
+    transform: translate3d(-100%, 0, 0);
     opacity: 0;
   }
   to {
@@ -664,7 +1384,7 @@
 @keyframes drawer-item-in {
   from {
     opacity: 0;
-    transform: translate3d(0, 14px, 0);
+    transform: translate3d(0, 18px, 0);
   }
   to {
     opacity: 1;
@@ -672,138 +1392,129 @@
   }
 }
 
-@keyframes portrait-in {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 10px, 0) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-}
-
-/* shared by the intro contents and every hero element: one visible, staggered arrival */
-@keyframes rise-in {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 16px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-/* headline words: a tight rise + sharpen on a small composited text span */
-@keyframes word-in {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 0.32em, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes intro-name-in {
-  from {
-    opacity: 0;
-    clip-path: inset(0 100% 0 0);
-  }
-  to {
-    opacity: 1;
-    clip-path: inset(0 0 0 0);
-  }
-}
-
-@keyframes aurora-spin {
-  from {
-    transform: rotate(0deg);
-  }
+@keyframes spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-@keyframes halo-breathe {
+@keyframes breathe {
   from {
-    opacity: 0.65;
-    transform: scale(0.96);
+    opacity: 0.5;
+    transform: scale(1);
   }
   to {
     opacity: 1;
-    transform: scale(1.04);
+    transform: scale(1.05);
   }
 }
 
-@keyframes portrait-float {
-  from {
-    transform: translate3d(0, 0, 0);
+@keyframes ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
   }
-  to {
-    transform: translate3d(0, -10px, 0);
-  }
-}
-
-@keyframes brick-out {
-  from {
-    opacity: 1;
-    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
-  }
-  to {
+  80%,
+  100% {
+    transform: scale(2.1);
     opacity: 0;
-    transform: translate3d(0, -14px, 0) scale(0.28) rotate(-14deg);
   }
 }
+
+@keyframes hint-nudge {
+  0%,
+  100% {
+    transform: translateY(-3px);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+
+/* theme ripple scoped to the toggle so route transitions keep the plain cross-fade */
+@keyframes theme-ripple {
+  from {
+    clip-path: circle(0px at var(--theme-ripple-x, 50%) var(--theme-ripple-y, 50%));
+  }
+  to {
+    clip-path: circle(var(--theme-ripple-r, 100vmax) at var(--theme-ripple-x, 50%)
+      var(--theme-ripple-y, 50%));
+  }
+}
+html[data-theme-ripple]::view-transition-new(root) {
+  animation: theme-ripple 560ms var(--ease-out-expo) both;
+}
+html[data-theme-ripple]::view-transition-old(root) {
+  animation: none;
+}
+
+/* ==========================================================================
+   Reduced motion — no autoplay loops, no parallax, instant reveals.
+   ========================================================================== */
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-delay: 0ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    transition-delay: 0ms !important;
-  }
-  .reveal {
-    opacity: 1 !important;
-    transform: none !important;
-  }
-  /* continuous loops must be switched off, not merely sped up: a 0.001ms iteration on an
-     `alternate` animation leaves the element parked at its end state */
-  .marquee-track,
-  .portrait-float,
-  .portrait-aurora,
-  .portrait-glow,
-  .hero-grid {
-    animation: none !important;
-    transform: none !important;
-  }
-  .brick {
-    opacity: 0 !important;
+
+  .marquee-track {
     animation: none !important;
   }
-  /* the hero is released instantly when the intro is skipped, so nothing may stay blurred */
-  html[data-intro='pending'] .hero-rise,
-  html[data-intro='pending'] .hero-word {
-    opacity: 1;
+  .marquee {
+    -webkit-mask-image: none;
+    mask-image: none;
+    overflow-x: auto;
   }
-  .hero-rise,
-  .hero-word {
-    animation: none !important;
-    opacity: 1 !important;
+  .marquee-group[aria-hidden='true'] {
+    display: none;
+  }
+
+  .cursor-dot,
+  .cursor-ring {
+    display: none !important;
+  }
+
+
+  .magnetic,
+  .tilt {
     transform: none !important;
+    transition: none !important;
   }
-  .hero-spotlight::before {
+
+  .hero-ring,
+  .hero-ring--arc,
+  .hero-halo {
+    animation: none !important;
     opacity: 0 !important;
   }
-  .portrait-parallax {
+  .hero-arch img {
+    transform: scale(1.08) !important;
+    transition: none !important;
+  }
+  .ghost {
     transform: none !important;
+  }
+
+  .journey-track {
+    transform: none !important;
+  }
+  .journey-dot::after {
+    animation: none !important;
+  }
+  .section-head {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .page-enter {
+    animation: none !important;
+  }
+  .drawer-item,
+  .animate-drawer-in-left,
+  .animate-fade-in {
+    animation: none !important;
+  }
+  .hint-line {
+    animation: none !important;
   }
 }

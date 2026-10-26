@@ -5,10 +5,14 @@ interface NavSection {
   label: L;
 }
 
+/** Document order of the home page, shared by Home and the section index labels. */
+export const SECTION_IDS = ['hero', 'about', 'journey', 'work', 'contact'] as const;
+
+export type SectionId = (typeof SECTION_IDS)[number];
+
 export const NAV_SECTIONS: NavSection[] = [
   { id: 'about', label: { en: 'About', id: 'Tentang' } },
-  { id: 'work', label: { en: 'Work', id: 'Proyek' } },
-  { id: 'services', label: { en: 'Services', id: 'Layanan' } },
-  { id: 'skills', label: { en: 'Stack', id: 'Teknologi' } },
-  { id: 'journey', label: { en: 'Journey', id: 'Perjalanan' } },
+  { id: 'journey', label: { en: 'Experience', id: 'Pengalaman' } },
+  { id: 'work', label: { en: 'Work', id: 'Portofolio' } },
+  { id: 'contact', label: { en: 'Contact', id: 'Kontak' } },
 ];

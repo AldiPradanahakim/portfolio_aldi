@@ -6,6 +6,7 @@ import {
   CreditCard,
   Database,
   Github,
+  Gitlab,
   Instagram,
   Linkedin,
   Mail,
@@ -31,6 +32,7 @@ const SERVICE_ICONS: Record<string, LucideIcon> = {
 const SOCIAL_ICONS: Record<string, LucideIcon> = {
   mail: Mail,
   github: Github,
+  gitlab: Gitlab,
   linkedin: Linkedin,
   instagram: Instagram,
   whatsapp: MessageCircle,

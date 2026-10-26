@@ -4,22 +4,33 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="color-scheme" content="dark light" />
-    <meta name="theme-color" content="#08090C" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#FAF9F7" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#07070A" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#F5F2EC" media="(prefers-color-scheme: light)" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <title>Aldi Pradan Hakim — Full-Stack Web Developer</title>
+
+    <!-- Three roles, three families: a high-contrast display serif, a tight grotesque, a mono.
+         `display=swap` keeps first paint text visible; the stacks in tailwind.config.js carry
+         system fallbacks so an offline dev machine still looks deliberate. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>Aldi Pradana Hakim — Full-Stack Web Developer</title>
     <meta
       name="description"
-      content="Portfolio of Aldi Pradan Hakim, a full-stack web developer in Indonesia. Web applications, point-of-sale systems, realtime device tracking, REST APIs and web GIS — each with its real stack and results."
+      content="Portfolio of Aldi Pradana Hakim, a full-stack web developer in Indonesia. Web applications, point-of-sale systems, realtime device tracking, REST APIs and web GIS — each with its real stack and results."
     />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="Aldi Pradan Hakim — Full-Stack Web Developer" />
+    <meta property="og:title" content="Aldi Pradana Hakim — Full-Stack Web Developer" />
     <meta
       property="og:description"
       content="Web applications, point-of-sale systems, realtime device tracking, REST APIs and web GIS — built end to end, from the database schema to the last screen."
     />
     <meta name="twitter:card" content="summary" />
-    <meta name="twitter:title" content="Aldi Pradan Hakim — Full-Stack Web Developer" />
+    <meta name="twitter:title" content="Aldi Pradana Hakim — Full-Stack Web Developer" />
     <meta
       name="twitter:description"
       content="Web applications, point-of-sale systems, realtime device tracking, REST APIs and web GIS — built end to end."
@@ -37,16 +48,443 @@
         } catch (error) {
           /* storage blocked: the dark default in index.css stands */
         }
-        /* Holds the hero back until the intro curtain in LoadingScreen lifts, and releases it
-           unconditionally after 2.5s so a failure there can never leave the hero hidden. */
-        document.documentElement.dataset.intro = 'pending';
-        setTimeout(function () {
-          document.documentElement.dataset.intro = 'done';
-        }, 2500);
       })();
     </script>
+    <!-- Boot splash: a chibi anime guy walks to an arched double door while the bar fills, the
+         scene holds at 100%, he reaches for the knob, both leaves swing open onto a burst of
+         light and he steps through. Lives outside #root so it paints before the bundle exists,
+         and every phase is one percentage of a single 3.6s timeline, so nothing can drift out of
+         sync. Needs no JS: the exit keyframe collapses to a point and ends on visibility:hidden,
+         so a failed bundle still leaves the page usable. -->
+    <style>
+      #boot {
+        --t: 3600ms;
+        --boot-bg: #07070a;
+        --boot-ink: #ff4a36;
+        --boot-void: #000;
+        --boot-panel: #34344a;
+        --boot-pants: #5d5d78;
+        --boot-skin: #f6e6d6;
+        --boot-silhouette: #07070a;
+        --boot-glow: #ff8a4c;
+        --boot-track: rgb(243 239 231 / 0.22);
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 22px;
+        background: var(--boot-bg);
+        color: var(--boot-ink);
+        animation: boot-exit var(--t) linear forwards;
+      }
+      .boot-scene {
+        width: clamp(290px, 52vw, 400px);
+        height: auto;
+        overflow: visible;
+        opacity: 0;
+        animation: boot-in var(--t) linear forwards;
+      }
+      .boot-scene * {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 2.4;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      .boot-scene .floor { opacity: 0.4; stroke-width: 1.5; }
+      .boot-scene .arch-in { opacity: 0.45; stroke-width: 1.4; }
+      .boot-scene .stud { fill: currentColor; stroke: none; opacity: 0.55; }
+      .boot-scene .keystone { opacity: 1; fill: var(--boot-bg); }
+      .boot-scene .crest { opacity: 0.9; fill: var(--boot-bg); }
+      .boot-scene .crest-rule { opacity: 0.5; stroke-width: 1.4; }
+      .boot-scene .molding { opacity: 0.55; stroke-width: 1.3; }
+      .boot-scene .sill { fill: var(--boot-panel); stroke: currentColor; stroke-width: 1.6; }
+      .boot-scene .step { stroke-width: 2; opacity: 0.55; }
+      .boot-scene .hinge { fill: currentColor; stroke: none; opacity: 0.7; }
+      /* a second knob on the right leaf: a double door with one handle reads as a mistake */
+      .boot-scene .knob-r { fill: currentColor; stroke: none; }
+      /* soft bloom outside the frame so the opening lights the room, not just its own rectangle */
+      .boot-scene .bloom {
+        fill: var(--boot-glow);
+        stroke: none;
+        opacity: 0;
+        filter: blur(16px);
+      }
+
+      /* light: the void is the room beyond, the glow sits on top of it */
+      .boot-scene .void { fill: var(--boot-void); stroke: none; }
+      .boot-scene .glow {
+        fill: var(--boot-glow);
+        stroke: none;
+        opacity: 0;
+        filter: blur(7px);
+      }
+      .boot-scene .spill {
+        fill: var(--boot-glow);
+        stroke: none;
+        opacity: 0;
+        filter: blur(4px);
+      }
+      .boot-scene .rays line { stroke: var(--boot-glow); stroke-width: 1.6; }
+      .boot-scene .seam { stroke: var(--boot-glow); stroke-width: 2; opacity: 0; }
+
+      /* door leaves and the figure */
+      .boot-scene .panel { fill: var(--boot-panel); }
+      .boot-scene .panel-rule { stroke: currentColor; stroke-width: 1.2; opacity: 0.35; }
+      .boot-scene .knob { fill: currentColor; stroke: none; }
+      /* three values do the work: ink for hair and clothes, warm skin for the face */
+      .boot-scene .face { fill: var(--boot-skin); stroke: currentColor; stroke-width: 1.6; }
+      .boot-scene .hair { fill: currentColor; }
+      .boot-scene .body { fill: currentColor; }
+      .boot-scene .sleeve { fill: currentColor; }
+      .boot-scene .sleeve-hem { stroke: var(--boot-bg); stroke-width: 1.4; }
+      /* trousers carry their own tone: near-background fills read as holes, not fabric */
+      .boot-scene .pants { fill: var(--boot-pants); stroke: var(--boot-pants); stroke-width: 2.4; }
+      .boot-scene .shoe { stroke: currentColor; stroke-width: 4; }
+      .boot-scene .eye { fill: var(--boot-silhouette); stroke: none; }
+      .boot-scene .brow { stroke: var(--boot-silhouette); stroke-width: 2.2; }
+      .boot-scene .eye-shine { fill: #fff; stroke: none; }
+      .boot-scene .mouth { stroke: var(--boot-silhouette); stroke-width: 1.5; }
+      .boot-scene .neck { stroke: var(--boot-skin); stroke-width: 7; }
+      .boot-scene .collar { stroke: currentColor; stroke-width: 1.6; }
+      .boot-scene .hem { stroke: var(--boot-bg); stroke-width: 1.6; }
+      .boot-scene .hand-back { fill: var(--boot-skin); stroke: currentColor; stroke-width: 1.2; opacity: 0.85; }
+      .boot-scene .hand { fill: var(--boot-skin); stroke: currentColor; stroke-width: 1.4; }
+      .boot-scene .arm-back { stroke: currentColor; stroke-width: 2; opacity: 0.85; }
+
+      /* every moving part is a percentage of the same timeline */
+      .walker, .bob, .leg, .arm, .leaf, .knob, .glow, .rays, .seam, .spill, .bloom,
+      .face, .pants, .eye, .eye-shine, .hand, .hand-back, .neck {
+        animation-duration: var(--t);
+        animation-fill-mode: forwards;
+      }
+      .walker {
+        animation-name: walker-x, walker-ink;
+        animation-timing-function: cubic-bezier(0.45, 0.05, 0.55, 0.95), linear;
+      }
+      .bob { animation-name: walker-bob; animation-timing-function: linear; transform-box: fill-box; transform-origin: 50% 100%; }
+      .face, .hand, .hand-back { animation-name: walker-skin; animation-timing-function: linear; }
+      .neck { animation-name: walker-neck; animation-timing-function: linear; }
+      .pants { animation-name: walker-pants; animation-timing-function: linear; }
+      .eye { animation-name: walker-eye; animation-timing-function: linear; }
+      .eye-shine { animation-name: walker-shine; animation-timing-function: linear; }
+      .leg, .arm, .leaf, .knob, .rays { transform-box: fill-box; }
+      .leg { transform-origin: 50% 0; animation-timing-function: linear; }
+      .leg-a { animation-name: leg-a; }
+      .leg-b { animation-name: leg-b; }
+      .arm { transform-origin: 0 0; animation-name: arm-reach; animation-timing-function: cubic-bezier(0.3, 0, 0.2, 1); }
+      .leaf-l { transform-origin: 0% 50%; animation-name: leaf-open; animation-timing-function: cubic-bezier(0.5, 0, 0.2, 1); }
+      .leaf-r { transform-origin: 100% 50%; animation-name: leaf-open; animation-timing-function: cubic-bezier(0.5, 0, 0.2, 1); }
+      .knob { transform-origin: 50% 50%; animation-name: knob-click; animation-timing-function: ease-out; }
+      .glow { animation-name: glow-up; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+      .spill { animation-name: glow-up; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+      .bloom { animation-name: bloom-up; animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1); }
+      .rays { transform-origin: 50% 100%; animation-name: rays-burst; animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1); }
+      .seam { animation-name: seam-glow; animation-timing-function: ease-out; }
+
+      .boot-bar {
+        width: clamp(190px, 38vw, 240px);
+        height: 3px;
+        border-radius: 3px;
+        overflow: hidden;
+        background: var(--boot-track);
+      }
+      .boot-bar::after {
+        content: '';
+        display: block;
+        height: 100%;
+        background: currentColor;
+        box-shadow: 0 0 12px currentColor;
+        transform: scaleX(0);
+        transform-origin: left;
+        animation: bar-fill var(--t) cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
+      }
+      .boot-pct {
+        margin: 0;
+        font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 13px;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        opacity: 0;
+        animation: pct-in var(--t) linear forwards;
+      }
+
+      /* 4% start walking · 44% bar full · 44-56% stand still · 56-63% reach + click
+         63-74% both leaves swing · 74-86% step through · 86-100% splash collapses into the door */
+      @keyframes boot-in { 0% { opacity: 0; } 5%, 100% { opacity: 1; } }
+      @keyframes boot-exit {
+        0%, 86% { opacity: 1; visibility: visible; clip-path: inset(0 0 0 0); transform: scale(1); }
+        96% { opacity: 1; }
+        100% {
+          opacity: 0;
+          visibility: hidden;
+          clip-path: circle(0% at 50% 50%);
+          transform: scale(1.05);
+        }
+      }
+      @keyframes walker-x {
+        0%, 4% { transform: translateX(8px); }
+        44%, 74% { transform: translateX(148px); }
+        86%, 100% { transform: translateX(196px); }
+      }
+      /* past the threshold she becomes a dark silhouette — ink-on-ink would erase her exactly
+         where the eye is */
+      @keyframes walker-ink {
+        0%, 74% { color: var(--boot-ink); }
+        80%, 100% { color: var(--boot-silhouette); }
+      }
+      /* the face and hands are separate fills, so they need their own silhouette switch —
+         otherwise a white face glows inside a black body against the lit doorway */
+      @keyframes walker-skin {
+        0%, 74% { fill: var(--boot-skin); }
+        80%, 100% { fill: var(--boot-silhouette); }
+      }
+      @keyframes walker-pants {
+        0%, 74% { fill: var(--boot-pants); stroke: var(--boot-pants); }
+        80%, 100% { fill: var(--boot-silhouette); stroke: var(--boot-silhouette); }
+      }
+      @keyframes walker-eye {
+        0%, 74% { fill: var(--boot-silhouette); }
+        80%, 100% { fill: var(--boot-bg); }
+      }
+      /* catchlights would punch white holes through the silhouette, so they fade out with it */
+      @keyframes walker-shine {
+        0%, 74% { fill: #fff; }
+        80%, 100% { fill: var(--boot-silhouette); }
+      }
+      /* the neck is a stroke, not a fill, so it needs its own silhouette switch */
+      @keyframes walker-neck {
+        0%, 74% { stroke: var(--boot-skin); }
+        80%, 100% { stroke: var(--boot-silhouette); }
+      }
+      @keyframes walker-bob {
+        0%, 4% { transform: translateY(0); }
+        8%, 24%, 40% { transform: translateY(-1.8px); }
+        16%, 32%, 44%, 74% { transform: translateY(0); }
+        78%, 84% { transform: translateY(-1.8px); }
+        82%, 86%, 100% { transform: translateY(0); }
+      }
+      @keyframes leg-a {
+        0%, 4% { transform: rotate(16deg); }
+        12% { transform: rotate(-16deg); }
+        20% { transform: rotate(16deg); }
+        28% { transform: rotate(-16deg); }
+        36% { transform: rotate(16deg); }
+        44%, 74% { transform: rotate(0deg); }
+        80% { transform: rotate(-14deg); }
+        86% { transform: rotate(14deg); }
+        92%, 100% { transform: rotate(0deg); }
+      }
+      @keyframes leg-b {
+        0%, 4% { transform: rotate(-16deg); }
+        12% { transform: rotate(16deg); }
+        20% { transform: rotate(-16deg); }
+        28% { transform: rotate(16deg); }
+        36% { transform: rotate(-16deg); }
+        44%, 74% { transform: rotate(0deg); }
+        80% { transform: rotate(14deg); }
+        86% { transform: rotate(-14deg); }
+        92%, 100% { transform: rotate(0deg); }
+      }
+      @keyframes arm-reach {
+        0%, 56% { transform: rotate(0deg); }
+        60% { transform: rotate(-24deg); }
+        63% { transform: rotate(-19deg); }
+        68% { transform: rotate(-24deg); }
+        76%, 100% { transform: rotate(0deg); }
+      }
+      @keyframes knob-click {
+        0%, 58% { transform: scale(1); }
+        61% { transform: scale(1.9); }
+        65%, 100% { transform: scale(1); }
+      }
+      /* a leaf swung to the jamb is seen edge-on: it must keep a visible sliver, or the opening
+         reads as "there were never any doors" */
+      @keyframes leaf-open {
+        0%, 63% { transform: scaleX(1); }
+        74%, 100% { transform: scaleX(0.16); }
+      }
+      @keyframes seam-glow {
+        0%, 57% { opacity: 0; }
+        62% { opacity: 1; }
+        70% { opacity: 0.5; }
+        76%, 100% { opacity: 0; }
+      }
+      @keyframes rays-burst {
+        0%, 63% { opacity: 0; transform: scale(0.4); }
+        72% { opacity: 0.9; transform: scale(1); }
+        86% { opacity: 0.5; transform: scale(1.1); }
+        100% { opacity: 0; transform: scale(1.15); }
+      }
+      @keyframes glow-up {
+        0%, 63% { opacity: 0; }
+        74% { opacity: 0.34; }
+        86% { opacity: 0.5; }
+        100% { opacity: 0; }
+      }
+      @keyframes bloom-up {
+        0%, 63% { opacity: 0; }
+        76% { opacity: 0.5; }
+        88% { opacity: 0.62; }
+        100% { opacity: 0; }
+      }
+      @keyframes bar-fill {
+        0%, 4% { transform: scaleX(0); }
+        44%, 100% { transform: scaleX(1); }
+      }
+      @keyframes pct-in {
+        0%, 43% { opacity: 0; }
+        45%, 86% { opacity: 1; }
+        100% { opacity: 0; }
+      }
+      /* The site fades and settles in the moment the bundle paints — well before the splash
+         collapses — so the reveal is the splash's own collapse onto an already-settled page, with
+         no pop. Scoped to .boot-ready (added by main.tsx after first paint) so a bundle that never
+         runs can never leave the page stuck invisible. */
+      html.boot-ready #root {
+        /* `backwards`, not `both`: `both` keeps the final `transform` on the element, and any
+           transform makes it the containing block for `position: fixed` — which pinned the nav
+           pill to the document instead of the viewport. The end state is the static style, so
+           reverting to it costs nothing. */
+        animation: site-in 900ms cubic-bezier(0.22, 1, 0.36, 1) backwards;
+      }
+      @keyframes site-in {
+        from { opacity: 0; transform: scale(1.015); }
+        to { opacity: 1; transform: none; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #boot { display: none; }
+      }
+      /* The pre-paint script above has already set .light on <html>, so the splash matches the
+         theme the visitor is about to land in instead of flashing black into cream. */
+      html.light #boot {
+        --boot-bg: #f5f2ec;
+        --boot-ink: #c83814;
+        --boot-void: #ddd5c5;
+        --boot-panel: #f2ece0;
+        --boot-pants: #a49a86;
+        --boot-skin: #fffdf6;
+        --boot-silhouette: #c83814;
+        --boot-glow: #fff6e8;
+        --boot-track: rgb(24 22 20 / 0.22);
+      }
+    </style>
   </head>
   <body>
+    <div id="boot" aria-hidden="true">
+      <svg class="boot-scene" viewBox="0 0 240 200">
+        <defs>
+          <clipPath id="boot-doorway">
+            <path d="M146 180 V109 A37 37 0 0 1 220 109 V180 Z" />
+          </clipPath>
+        </defs>
+        <line class="floor" x1="6" y1="180" x2="234" y2="180" />
+
+        <!-- soft bloom outside the frame so the opening lights the room around it -->
+        <ellipse class="bloom" cx="183" cy="140" rx="62" ry="66" />
+
+        <!-- the room beyond, then the light sitting on top of it -->
+        <path class="void" d="M146 180 V109 A37 37 0 0 1 220 109 V180 Z" />
+        <g class="rays" clip-path="url(#boot-doorway)">
+          <line x1="183" y1="158" x2="183" y2="78" />
+          <line x1="183" y1="158" x2="152" y2="92" />
+          <line x1="183" y1="158" x2="214" y2="92" />
+          <line x1="183" y1="158" x2="138" y2="122" />
+          <line x1="183" y1="158" x2="228" y2="122" />
+          <line x1="183" y1="158" x2="144" y2="156" />
+          <line x1="183" y1="158" x2="222" y2="156" />
+        </g>
+        <path class="glow" d="M146 180 V109 A37 37 0 0 1 220 109 V180 Z" />
+        <ellipse class="spill" cx="183" cy="180" rx="38" ry="5" />
+
+        <!-- twin leaves, hinged at the outer jambs, sitting behind the figure -->
+        <g class="leaf leaf-l">
+          <path class="panel" d="M146 180 V109 A18.5 18.5 0 0 1 183 109 V180 Z" />
+          <path class="panel-rule" d="M152 176 V118 A12.5 12.5 0 0 1 177 118 V176" />
+          <circle class="knob" cx="170" cy="134" r="3" />
+        </g>
+        <g class="leaf leaf-r">
+          <path class="panel" d="M183 180 V109 A18.5 18.5 0 0 1 220 109 V180 Z" />
+          <path class="panel-rule" d="M189 176 V118 A12.5 12.5 0 0 0 214 118 V176" />
+          <circle class="knob-r" cx="196" cy="134" r="3" />
+        </g>
+        <line class="seam" x1="183" y1="72" x2="183" y2="180" />
+
+        <!-- casing drawn before the figure: the frame never slices her as she crosses it -->
+        <path class="arch" d="M140 180 V109 A43 43 0 0 1 226 109 V180" />
+        <path class="molding" d="M143 180 V109 A40 40 0 0 1 223 109 V180" />
+        <path class="arch-in" d="M146 180 V109 A37 37 0 0 1 220 109 V180" />
+        <path class="keystone" d="M176 61 L190 61 L192 74 L174 74 Z" />
+        <path class="crest" d="M183 38 L191 51 L183 62 L175 51 Z" />
+        <circle class="stud" cx="140.5" cy="132" r="1.9" />
+        <circle class="stud" cx="140.5" cy="162" r="1.9" />
+        <circle class="stud" cx="225.5" cy="132" r="1.9" />
+        <circle class="stud" cx="225.5" cy="162" r="1.9" />
+        <line class="step" x1="134" y1="181" x2="232" y2="181" />
+
+        <!-- chibi anime guy. The inner group scales him about the floor point so he stays shorter
+             than the doorway. -->
+        <g class="walker">
+          <g transform="translate(0 180) scale(0.86) translate(0 -180)">
+            <g class="bob">
+              <!-- short hair: a rounded cap with blunt tufts, not tall spikes (tall spikes read
+                   as horns at this size) -->
+              <path class="hair" d="M-16 92 C-16 74 -9 67 0 67 C9 67 16 74 16 92 L16 100 L12 95 L9 101 L5 95 L1 101 L-3 95 L-7 101 L-11 95 L-14 99 L-16 96 Z" />
+              <path class="hair" d="M-13 76 L-18 70 L-8 71 Z" />
+              <path class="hair" d="M-1 69 L2 62 L7 70 Z" />
+              <path class="hair" d="M10 72 L17 67 L14 77 Z" />
+              <path class="hair" d="M-17 85 L-18 94 L-14 89 Z" />
+              <path class="hair" d="M17 85 L18 94 L14 89 Z" />
+
+              <ellipse class="face" cx="0" cy="90" rx="14.5" ry="15.5" />
+
+              <!-- fringe: short uneven locks, brow left clear -->
+              <path class="hair" d="M-14 88 C-14 76 -7 72 0 72 C7 72 14 76 14 88 L11 80 L7 87 L3 79 L-1 87 L-5 80 L-9 87 L-12 80 Z" />
+
+              <!-- brows sit above the eyes: the cheapest, clearest read of "male" in this style -->
+              <path class="brow" d="M-9.6 88.4 L-3.4 87.2" />
+              <path class="brow" d="M9.6 88.4 L3.4 87.2" />
+              <ellipse class="eye" cx="-6" cy="95" rx="2.7" ry="3.2" />
+              <ellipse class="eye" cx="6" cy="95" rx="2.7" ry="3.2" />
+              <circle class="eye-shine" cx="-6.8" cy="93.9" r="0.85" />
+              <circle class="eye-shine" cx="5.2" cy="93.9" r="0.85" />
+              <path class="mouth" d="M-2.2 102 q2.2 1.6 4.4 -0.2" />
+
+              <line class="neck" x1="0" y1="104" x2="0" y2="116" />
+              <!-- crew-neck tee, then a hem line so the shirt reads as a separate garment -->
+              <path class="collar" d="M-6.5 112 q6.5 3.6 13 0" />
+
+              <path class="body" d="M-9 116 L9 116 L8.5 143 L-8.5 143 Z" />
+              <!-- short sleeves: the shoulder join reads as a garment, not a bare limb -->
+              <path class="sleeve" d="M-9 116.5 L-13.5 119.5 L-13 127 L-8.8 125 Z" />
+              <path class="sleeve" d="M9 116.5 L13.5 119.5 L13 127 L8.8 125 Z" />
+              <line class="sleeve-hem" x1="-13.2" y1="126.6" x2="-9" y2="124.6" />
+              <line class="sleeve-hem" x1="13.2" y1="126.6" x2="9" y2="124.6" />
+              <line class="hem" x1="-8.5" y1="143" x2="8.5" y2="143" />
+
+              <!-- trousers: a wide gap between the legs, so they never read as one tube -->
+              <path class="pants" d="M-8.5 143 L-2 143 L-2 172 L-7 172 Z" />
+              <path class="pants" d="M2 143 L8.5 143 L7 172 L2 172 Z" />
+
+              <path class="arm-back" d="M-9 121 L-14.5 137" />
+              <circle class="hand-back" cx="-15" cy="139" r="2.4" />
+              <path class="leg leg-a" d="M-3.6 172 L-3.9 175" />
+              <path class="leg leg-b" d="M3.6 172 L3.9 175" />
+              <path class="shoe" d="M-9 177 L-2 177" />
+              <path class="shoe" d="M2 177 L9 177" />
+
+              <path class="arm" d="M9 120 L23 128" />
+              <circle class="hand" cx="23" cy="128" r="2.6" />
+            </g>
+          </g>
+        </g>
+      </svg>
+      <span class="boot-bar"></span>
+      <p class="boot-pct">100%</p>
+    </div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

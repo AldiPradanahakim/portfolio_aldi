@@ -1,10 +1,12 @@
 # Isi Website — `frontend/src/content/`
 
-Seluruh teks dan data website ada di folder ini sebagai file TypeScript biasa.
-Tidak ada database dan tidak ada API konten pihak ketiga: mengubah tulisan di
-sini langsung mengubah isi halaman setelah disimpan (Vite memuat ulang
-otomatis). Satu-satunya bagian yang menghubungi backend adalah formulir kontak,
-yang mengirim pesan ke API Go di folder `api/`.
+Seluruh teks dan data bawaan website ada di folder ini sebagai file TypeScript
+biasa. Mengubah tulisan di sini langsung mengubah isi halaman setelah disimpan
+(Vite memuat ulang otomatis). Sejak ada panel CMS (`/admin`), berkas-berkas ini
+berperan sebagai **isi bawaan** (`SEED_CONTENT`) — kalau adapter CMS punya
+dokumen tersimpan, dokumen itulah yang menang. Satu-satunya bagian yang
+menghubungi backend adalah formulir kontak, yang mengirim pesan ke API Go di
+folder `api/`.
 
 ## Mau mengubah apa? Edit file ini
 
@@ -12,8 +14,7 @@ yang mengirim pesan ke API Go di folder `api/`.
 |---|---|
 | Nama, peran, bio, email, lokasi, tautan sosial | `profile.ts` |
 | Daftar proyek, kategori, cover, teknologi | `projects.ts` |
-| Layanan yang ditawarkan | `services.ts` |
-| Daftar keahlian per kelompok | `skills.ts` |
+| Daftar keahlian per kelompok (dipakai chip hero & statistik) | `skills.ts` |
 | Riwayat kuliah & proyek (timeline) | `journey.ts` |
 | Bentuk datanya (kolom apa saja yang wajib) | `types.ts` |
 
@@ -71,3 +72,11 @@ ada nama perusahaan, tidak ada harga, dan tidak ada URL yang tidak jelas asalnya
 2. Buat berkas cover di `frontend/public/images/projects/<slug>.webp`.
 3. Kalau kategorinya belum ada di `CATEGORIES`, tambahkan sekalian —
    pilihannya terbatas pada `CategoryId` di `types.ts`.
+
+## Panel admin (`/admin`)
+
+Isi sekarang juga bisa diedit lewat `/admin` tanpa menyentuh kode: masuk
+(mode lokal: sandi `admin`), ubah, lalu simpan. Isi disimpan sebagai satu
+dokumen JSON lewat adapter (localStorage / Supabase / Firebase). Berkas di
+folder ini tetap menjadi **isi bawaan** — `frontend/src/data/seed.ts` menyusun
+`SEED_CONTENT` dari ekspor di sini dan dipakai saat adapter belum punya data.

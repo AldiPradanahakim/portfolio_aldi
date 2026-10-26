@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
-import { PROFILE } from '../../content';
+import { useContent } from '../../data';
 import { NAV_SECTIONS } from '../../shared/constants/sections';
 import { useLang } from '../../shared/context/language';
 import { BackToTop } from '../../shared/components/BackToTop';
+import { Marquee } from '../../motion/Marquee';
 import { socialIcon } from '../../shared/lib/icons';
 
 const T = {
@@ -12,24 +13,39 @@ const T = {
 
 export function Footer() {
   const { t } = useLang();
+  const { content } = useContent();
+  const profile = content.profile;
+
+  const navItems = NAV_SECTIONS.map((section) => {
+    const custom = content.settings.nav.find((item) => item.id === section.id);
+    return { id: section.id, label: custom?.label ?? section.label };
+  });
 
   return (
-    <footer className="border-t border-ink-800 py-12">
-      <div className="shell flex flex-col gap-10">
-        <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
+    <footer className="overflow-hidden border-t border-ink-800">
+      <Marquee duration={42} repeat={6} className="border-b border-ink-800 py-6">
+        <span className="px-6 font-mono text-small uppercase tracking-[0.24em] text-chalk-faint">
+          {t(content.settings.footerNote)}
+        </span>
+        <span aria-hidden="true" className="marquee-dot" />
+      </Marquee>
+
+      <div className="shell flex flex-col gap-10 py-14">
+        <div className="flex flex-col gap-8 md:flex-row md:items-start md:justify-between">
           <div>
-            <p className="text-small font-medium text-chalk">{PROFILE.name}</p>
+            <p className="text-small font-medium text-chalk">{profile.name}</p>
             <p className="mt-1 text-small text-chalk-muted">
-              {t(PROFILE.role)} · {t(PROFILE.location)}
+              {t(profile.role)} · {t(profile.location)}
             </p>
           </div>
 
           <nav aria-label={t(T.footerNav)}>
             <ul className="flex flex-wrap gap-x-6 gap-y-2">
-              {NAV_SECTIONS.map((section) => (
+              {navItems.map((section) => (
                 <li key={section.id}>
                   <Link
                     to={`/#${section.id}`}
+                    data-cursor="link"
                     className="link-sweep text-small text-chalk-muted transition-colors duration-fast hover:text-chalk"
                   >
                     {t(section.label)}
@@ -40,7 +56,7 @@ export function Footer() {
           </nav>
 
           <div className="flex items-center gap-3">
-            {PROFILE.socials.map((social) => {
+            {profile.socials.map((social) => {
               const Icon = socialIcon(social.icon);
               return (
                 <a
@@ -48,7 +64,8 @@ export function Footer() {
                   href={social.url}
                   rel="noopener noreferrer"
                   aria-label={social.label}
-                  className="rounded-full border border-ink-800 p-2 text-chalk-muted transition-colors duration-fast hover:border-ink-700 hover:text-chalk"
+                  data-cursor="link"
+                  className="press rounded-full border border-ink-800 p-2 text-chalk-muted hover:border-ink-700 hover:text-chalk"
                 >
                   <Icon className="h-4 w-4" aria-hidden="true" />
                 </a>
@@ -59,19 +76,14 @@ export function Footer() {
         </div>
       </div>
 
-      <div className="marquee mt-10" aria-hidden="true">
-        <div className="marquee-track items-center">
-          {[0, 1].map((copy) => (
-            <span key={copy} className="marquee-wordmark shrink-0 pr-16">
-              {PROFILE.name}
-            </span>
-          ))}
-        </div>
-      </div>
+      {/* giant wordmark, edge to edge */}
+      <h2 aria-hidden="true" className="wordmark whitespace-nowrap px-[clamp(1.25rem,5vw,4rem)]">
+        {profile.name}
+      </h2>
 
-      <div className="shell mt-10 flex flex-col gap-3 border-t border-ink-800/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
+      <div className="shell flex flex-col gap-3 border-t border-ink-800/60 py-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-small text-chalk-faint">
-          © {new Date().getFullYear()} {PROFILE.name}
+          © {new Date().getFullYear()} {profile.name}
         </p>
         <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-chalk-faint">
           Indonesia · Remote

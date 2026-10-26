@@ -1,46 +1,35 @@
-import { PROJECTS } from '../../content';
+import { useContent } from '../../data';
 import { useLang } from '../../shared/context/language';
-import { BackToTop } from '../../shared/components/BackToTop';
+import { Marquee } from '../../motion/Marquee';
 
 const T = {
   label: {
     en: 'Technologies used across the projects on this page',
     id: 'Teknologi yang dipakai di proyek-proyek pada halaman ini',
   },
-  stack: { en: 'Stack', id: 'Teknologi' },
-  backToTop: { en: 'Back to top', id: 'Kembali ke atas' },
 };
 
-/** Every name here comes from a project stack in the content data — nothing is added. */
-const STACK = Array.from(new Set(PROJECTS.flatMap((project) => project.stack)));
-
+/** Real stack names from the CMS, one marquee row with ember separators and edge fades. */
 export function TrustStrip() {
   const { t } = useLang();
+  const { content } = useContent();
+
+  const items = Array.from(
+    new Map(content.skills.flatMap((group) => group.items).map((item) => [item.en, item])).values(),
+  );
 
   return (
-    <section aria-label={t(T.label)} className="border-y border-ink-800 py-5">
-      <div className="shell flex items-center gap-6">
-        <span
-          aria-hidden="true"
-          className="hidden shrink-0 font-mono text-label uppercase text-chalk-faint sm:block"
-        >
-          {t(T.stack)}
-        </span>
-        <div className="marquee min-w-0 flex-1">
-          <ul className="marquee-track items-center">
-            {[...STACK, ...STACK].map((item, index) => (
-              <li
-                key={`${item}-${index}`}
-                aria-hidden={index >= STACK.length ? true : undefined}
-                className="shrink-0 whitespace-nowrap pr-10 font-mono text-small text-chalk-faint"
-              >
-                {item}
-              </li>
-            ))}
-          </ul>
-        </div>
-        <BackToTop label={t(T.backToTop)} />
-      </div>
+    <section aria-label={t(T.label)} className="overflow-hidden border-y border-ink-800 py-6">
+      <Marquee duration={36}>
+        {items.map((item) => (
+          <span key={item.en} className="flex items-center">
+            <span className="px-6 font-mono text-small uppercase tracking-[0.24em] text-chalk-faint">
+              {t(item)}
+            </span>
+            <span aria-hidden="true" className="marquee-dot" />
+          </span>
+        ))}
+      </Marquee>
     </section>
   );
 }

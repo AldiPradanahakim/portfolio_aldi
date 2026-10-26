@@ -1,10 +1,10 @@
 import { useEffect, useRef } from 'react';
 import { Briefcase, FolderGit2, GraduationCap, type LucideIcon } from 'lucide-react';
-import { JOURNEY, type L, type Milestone } from '../../content';
+import { useContent } from '../../data';
+import type { L, Milestone } from '../../content';
 import { Section } from '../../shared/components/Section';
 import { useLang } from '../../shared/context/language';
 import { usePrefersReducedMotion } from '../../shared/hooks/usePrefersReducedMotion';
-import { cx } from '../../shared/lib/cn';
 
 const KIND_ICON: Record<Milestone['kind'], LucideIcon> = {
   education: GraduationCap,
@@ -21,152 +21,205 @@ const KIND_LABEL: Record<Milestone['kind'], L> = {
 const T = {
   eyebrow: { en: 'Journey', id: 'Perjalanan' },
   title: {
-    en: 'Coursework, capstone and thesis, in the order they happened',
-    id: 'Perkuliahan, capstone, dan tugas akhir, sesuai urutan kejadiannya',
+    en: 'Where I have been',
+    id: 'Tempat saya pernah berkarya',
   },
   lead: {
-    en: 'Each milestone below is tied to a period that can be checked against the project pages.',
-    id: 'Setiap tonggak di bawah ini terikat pada rentang waktu yang bisa dicocokkan dengan halaman proyeknya.',
+    en: 'Coursework, capstone and thesis, in the order they happened — each traceable to a repository.',
+    id: 'Perkuliahan, capstone, dan tugas akhir, sesuai urutan kejadiannya — masing-masing bisa ditelusuri ke repositori.',
   },
 };
 
-/** nearest ancestor that actually scrolls vertically; the deck panel on Home, else the page */
-function scrollParent(el: HTMLElement | null): HTMLElement | Document {
-  let node: HTMLElement | null = el?.parentElement ?? null;
-  while (node) {
-    const { overflowY } = getComputedStyle(node);
-    if (overflowY === 'auto' || overflowY === 'scroll') return node;
-    node = node.parentElement;
-  }
-  return document;
-}
-
 export function Journey() {
   const { t } = useLang();
+  const { content } = useContent();
   const reduced = usePrefersReducedMotion();
-  const trackRef = useRef<HTMLDivElement>(null);
-  const fillRef = useRef<HTMLSpanElement>(null);
+
+  const outerRef = useRef<HTMLDivElement | null>(null);
+  const trackRef = useRef<HTMLOListElement | null>(null);
+  const fillRef = useRef<HTMLSpanElement | null>(null);
+  const itemRefs = useRef<Array<HTMLLIElement | null>>([]);
   const dotRefs = useRef<Array<HTMLSpanElement | null>>([]);
+  const lastActive = useRef(-1);
 
+  // mobile: the dot nearest the vertical centre lights up (plain IntersectionObserver)
   useEffect(() => {
-    const track = trackRef.current;
-    if (!track) return;
+    const mq = window.matchMedia('(min-width: 768px)');
+    let io: IntersectionObserver | null = null;
 
-    if (reduced) {
-      if (fillRef.current) fillRef.current.style.transform = 'scaleY(1)';
-      for (const dot of dotRefs.current) if (dot) dot.dataset.passed = 'true';
-      return;
-    }
-
-    const scroller = scrollParent(track);
-    const onScroll = () => {
-      const rect = track.getBoundingClientRect();
-      const viewTop = scroller === document ? 0 : (scroller as HTMLElement).getBoundingClientRect().top;
-      const viewHeight =
-        scroller === document
-          ? window.innerHeight
-          : (scroller as HTMLElement).clientHeight;
-      const center = viewTop + viewHeight * 0.55;
-      const progress = rect.height > 0 ? (center - rect.top) / rect.height : 1;
-      const clamped = Math.min(1, Math.max(0, progress));
-
-      if (fillRef.current) fillRef.current.style.transform = `scaleY(${clamped})`;
-      const point = clamped * rect.height;
-      for (const dot of dotRefs.current) {
-        if (!dot) continue;
-        const dotCenter = dot.offsetTop + dot.offsetHeight / 2;
-        dot.dataset.passed = point >= dotCenter ? 'true' : 'false';
+    const sync = () => {
+      if (mq.matches || reduced) {
+        io?.disconnect();
+        io = null;
+        return;
       }
+      if (io) return;
+      const dots = dotRefs.current.filter((dot): dot is HTMLSpanElement => dot !== null);
+      if (dots.length === 0) return;
+      io = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) entry.target.setAttribute('data-active', 'true');
+            else entry.target.removeAttribute('data-active');
+          }
+        },
+        { rootMargin: '-42% 0px -42% 0px' },
+      );
+      dots.forEach((dot) => io!.observe(dot));
+    };
+
+    sync();
+    mq.addEventListener('change', sync);
+    return () => {
+      io?.disconnect();
+      mq.removeEventListener('change', sync);
+    };
+  }, [reduced]);
+
+  // desktop: one rAF loop translates the track horizontally and lights the nearest dot
+  useEffect(() => {
+    const outer = outerRef.current;
+    const track = trackRef.current;
+    const fill = fillRef.current;
+    if (!outer || !track || !fill) return;
+
+    const read = () => {
+      frame = 0;
+      const vh = window.innerHeight;
+      const items = itemRefs.current.filter(Boolean) as HTMLLIElement[];
+      const dots = dotRefs.current.filter(Boolean) as HTMLSpanElement[];
+
+      if (reduced) {
+        fill.style.transform = 'scaleX(1)';
+        dots.forEach((dot) => dot.setAttribute('data-active', 'true'));
+        items.forEach((item) => item.style.removeProperty('--near'));
+        return;
+      }
+
+      const rect = outer.getBoundingClientRect();
+      const total = Math.max(0, rect.height - vh);
+      const p = total > 0 ? Math.min(1, Math.max(0, -rect.top / total)) : 0;
+      fill.style.transform = `scaleX(${p.toFixed(4)})`;
+
+      const overhang = Math.max(0, track.scrollWidth - outer.clientWidth);
+      const tx = p * overhang;
+      track.style.transform = `translate3d(${-tx}px, 0, 0)`;
+
+      const trackLeft = track.getBoundingClientRect().left;
+      const centre = window.innerWidth / 2;
+      let nearest = -1;
+      let distance = Infinity;
+      items.forEach((item, index) => {
+        const middle = trackLeft + item.offsetLeft + item.offsetWidth / 2 - tx;
+        const gap = Math.abs(middle - centre);
+        // `--near` runs 1 at the centre line → 0 once the card is a screen away. CSS turns it
+        // into opacity/scale/blur, so the row reads as a depth field that scrolls both ways.
+        const near = Math.max(0, 1 - gap / (window.innerWidth * 0.85));
+        item.style.setProperty('--near', near.toFixed(3));
+        if (gap < distance) {
+          distance = gap;
+          nearest = index;
+        }
+      });
+
+      if (nearest !== lastActive.current) {
+        if (lastActive.current >= 0) dots[lastActive.current]?.removeAttribute('data-active');
+        dots[nearest]?.setAttribute('data-active', 'true');
+        lastActive.current = nearest;
+      }
+    };
+
+    let frame = 0;
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(read);
     };
 
     const io = new IntersectionObserver(
       (entries) => {
-        if (entries[0]?.isIntersecting) onScroll();
+        if (entries[0]?.isIntersecting) schedule();
       },
-      { root: scroller === document ? null : (scroller as HTMLElement), rootMargin: '10% 0px' },
+      { rootMargin: '20% 0px' },
     );
-    io.observe(track);
+    io.observe(outer);
 
-    let raf = 0;
-    const schedule = () => {
-      if (raf) return;
-      raf = requestAnimationFrame(() => {
-        raf = 0;
-        onScroll();
-      });
-    };
-    const target = scroller === document ? window : (scroller as HTMLElement);
-    target.addEventListener('scroll', schedule, { passive: true });
-    window.addEventListener('resize', schedule);
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule, { passive: true });
     schedule();
 
     return () => {
       io.disconnect();
-      target.removeEventListener('scroll', schedule);
+      window.removeEventListener('scroll', schedule);
       window.removeEventListener('resize', schedule);
-      if (raf) cancelAnimationFrame(raf);
+      if (frame) cancelAnimationFrame(frame);
+      lastActive.current = -1;
     };
   }, [reduced]);
 
   return (
     <Section id="journey" eyebrow={t(T.eyebrow)} title={t(T.title)} lead={t(T.lead)}>
-      <div ref={trackRef} className="relative">
-        {/* base rail plus a fill line scaled from the top — transform only */}
-        <span
-          aria-hidden="true"
-          className="absolute top-0 bottom-0 left-5 w-px -translate-x-1/2 bg-ink-800 md:left-1/2"
-        />
-        <span
-          ref={fillRef}
-          aria-hidden="true"
-          className="absolute top-0 bottom-0 left-5 w-px -translate-x-1/2 origin-top scale-y-0 bg-accent md:left-1/2"
-        />
+      <div ref={outerRef} className="md:h-[190vh]">
+        <div className="md:sticky md:top-24 md:flex md:h-screen md:flex-col md:justify-center md:overflow-x-clip">
+          {/* progress rail between the end numerals */}
+          <div className="hidden items-center gap-3 pb-8 md:flex">
+            <span className="font-mono text-micro uppercase tracking-[0.2em] text-chalk-faint">
+              01
+            </span>
+            <span className="relative h-px flex-1 bg-ink-800">
+              <span ref={fillRef} className="journey-fill absolute inset-0" />
+            </span>
+            <span className="font-mono text-micro uppercase tracking-[0.2em] text-chalk-faint">
+              {String(content.journey.length).padStart(2, '0')}
+            </span>
+          </div>
 
-        <ol className="flex flex-col gap-12">
-          {JOURNEY.map((milestone, index) => {
-            const Icon = KIND_ICON[milestone.kind];
-            const right = index % 2 === 1;
-            return (
-              <li key={`${milestone.period}-${t(milestone.title)}`} className="relative">
-                <span
+          <ol
+            ref={trackRef}
+            className="relative flex flex-col gap-12 md:flex-row md:items-stretch md:gap-10"
+          >
+            {content.journey.map((milestone, index) => {
+              const Icon = KIND_ICON[milestone.kind];
+              return (
+                <li
+                  key={`${milestone.period}-${t(milestone.title)}`}
                   ref={(node) => {
-                    dotRefs.current[index] = node;
+                    itemRefs.current[index] = node;
                   }}
-                  aria-hidden="true"
-                  className={cx(
-                    'absolute top-0 left-5 z-10 grid h-10 w-10 -translate-x-1/2 place-items-center rounded-full border border-ink-700 bg-ink-950 text-chalk-faint transition-colors duration-fast md:left-1/2',
-                    'data-[passed=true]:border-accent data-[passed=true]:text-accent',
-                  )}
+                  className="journey-item relative flex gap-5 md:w-[min(88vw,460px)] md:shrink-0 md:flex-col md:gap-6"
                 >
-                  <Icon className="h-4 w-4" />
-                </span>
-
-                <div
-                  className={cx(
-                    'pl-14 md:grid md:grid-cols-2 md:gap-16 md:pl-0',
-                    right ? 'md:text-left' : 'md:text-left',
-                  )}
-                >
-                  <div className={cx(right ? 'md:col-start-2' : 'md:col-start-1 md:text-right')}>
-                    <p
-                      className={cx(
-                        'flex flex-wrap items-center gap-3 font-mono text-label uppercase text-chalk-faint',
-                        !right && 'md:justify-end',
-                      )}
+                  {/* vertical hairline on mobile, dot beside it */}
+                  <span aria-hidden="true" className="hidden h-1 w-full bg-ink-800 md:block" />
+                  <span
+                    aria-hidden="true"
+                    className="absolute left-0 top-0 h-full w-px bg-ink-800 md:hidden"
+                  />
+                  <div className="relative flex flex-col pb-12 pl-8 md:pb-0 md:pl-0 md:pt-6">
+                    <span
+                      ref={(node) => {
+                        dotRefs.current[index] = node;
+                      }}
+                      aria-hidden="true"
+                      className="journey-dot absolute left-0 top-0 -translate-y-1 md:static"
                     >
+                      <span className="grid h-8 w-8 place-items-center rounded-full border border-ink-700 bg-ink-950 text-chalk-faint">
+                        <Icon className="h-3.5 w-3.5" />
+                      </span>
+                    </span>
+
+                    <p className="flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-label uppercase text-chalk-faint md:pt-4">
+                      <span className="text-accent">{String(index + 1).padStart(2, '0')}</span>
                       <span>{milestone.period}</span>
-                      <span aria-hidden="true" className="h-px w-4 bg-ink-700" />
+                      <span aria-hidden="true" className="h-px w-3 bg-ink-700" />
                       <span>{t(KIND_LABEL[milestone.kind])}</span>
                     </p>
-                    <h3 className="mt-2 text-h3 font-semibold text-chalk">{t(milestone.title)}</h3>
+                    <h3 className="mt-3 text-h3 font-semibold text-chalk">{t(milestone.title)}</h3>
                     <p className="mt-1 text-small text-accent">{t(milestone.org)}</p>
                     <p className="mt-3 text-body text-chalk-muted">{t(milestone.detail)}</p>
                   </div>
-                </div>
-              </li>
-            );
-          })}
-        </ol>
+                </li>
+              );
+            })}
+          </ol>
+        </div>
       </div>
     </Section>
   );

@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react';
+import { SECTION_IDS } from '../constants/sections';
+import { useScrollProgress } from '../../motion/useScrollProgress';
+import { SplitText } from '../../motion/SplitText';
 import { cx } from '../lib/cn';
-import { Reveal } from './Reveal';
 
 interface SectionProps {
   id: string;
@@ -11,27 +13,40 @@ interface SectionProps {
   className?: string;
 }
 
+/**
+ * Editorial section shell: mono eyebrow with an ember dash, a serif display title that splits
+ * word-by-word, a hairline rule, and an oversized outlined numeral. The numeral and title read
+ * `--p` from the shared scroll loop, so the header breathes as it leaves the viewport.
+ */
 export function Section({ id, eyebrow, title, lead, children, className }: SectionProps) {
+  const index = SECTION_IDS.indexOf(id as never) + 1;
+  const { ref } = useScrollProgress<HTMLDivElement>();
+
   return (
-    <section
-      id={id}
-      aria-labelledby={`${id}-title`}
-      data-mesh={id}
-      className={cx('panel-mesh py-8 sm:py-10', className)}
-    >
+    <section id={id} aria-labelledby={`${id}-title`} className={cx('py-20 sm:py-28', className)}>
       <div className="shell">
-        <Reveal>
-          <div className="max-w-2xl">
-            {eyebrow && (
-              <p className="font-mono text-label uppercase text-accent">{eyebrow}</p>
+        <div ref={ref} className="section-head">
+          <div className="flex items-end justify-between gap-8">
+            <div className="min-w-0">
+              {eyebrow && <p className="eyebrow">{eyebrow}</p>}
+              <SplitText
+                as="h2"
+                id={`${id}-title`}
+                text={title}
+                stagger={38}
+                className="section-title mt-5 max-w-5xl text-balance"
+              />
+            </div>
+            {index > 0 && (
+              <span aria-hidden="true" className="numeral hidden shrink-0 md:block">
+                {String(index).padStart(2, '0')}
+              </span>
             )}
-            <h2 id={`${id}-title`} className="mt-3 text-balance text-h2 font-semibold text-chalk">
-              {title}
-            </h2>
-            {lead && <p className="mt-4 text-body text-chalk-muted">{lead}</p>}
           </div>
-        </Reveal>
-        <div className="mt-8 sm:mt-10">{children}</div>
+          {lead && <p className="mt-6 max-w-2xl text-body text-chalk-muted">{lead}</p>}
+          <span aria-hidden="true" className="rule mt-8" />
+        </div>
+        <div className="mt-10 sm:mt-14">{children}</div>
       </div>
     </section>
   );

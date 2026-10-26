@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 
 /**
- * Reads the shared scroll position as a boolean; no component re-renders per frame. One capture
- * listener sees both the window (ScrollManager's territory) and the deck panel's own scroll box
- * (`data-scroll-root`), so the header still reacts once a panel starts scrolling internally.
+ * Reads the document scroll position as a boolean; no component re-renders per frame. One
+ * passive, rAF-throttled listener, so the fixed header reacts once content slides underneath.
  */
 export function useScrolled(threshold = 16): boolean {
   const [scrolled, setScrolled] = useState(false);
@@ -11,26 +10,20 @@ export function useScrolled(threshold = 16): boolean {
   useEffect(() => {
     let frame = 0;
 
-    const read = (event?: Event) => {
+    const read = () => {
       frame = 0;
-      const target = event?.target;
-      const root =
-        target instanceof Element
-          ? target.closest<HTMLElement>('[data-scroll-root]')
-          : document.querySelector<HTMLElement>('[data-scroll-root]');
-      const y = root ? root.scrollTop : window.scrollY;
-      setScrolled(y > threshold);
+      setScrolled(window.scrollY > threshold);
     };
 
-    const onScroll = (event: Event) => {
-      if (!frame) frame = requestAnimationFrame(() => read(event));
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(read);
     };
 
-    document.addEventListener('scroll', onScroll, { capture: true, passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
     read();
 
     return () => {
-      document.removeEventListener('scroll', onScroll, true);
+      window.removeEventListener('scroll', onScroll);
       if (frame) cancelAnimationFrame(frame);
     };
   }, [threshold]);

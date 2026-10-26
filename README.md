@@ -1,15 +1,17 @@
-# Portofolio Aldi Pradan Hakim
+# Portofolio Aldi Pradana Hakim
 
-Situs portofolio pribadi: profil, daftar proyek, layanan, riwayat, dan formulir kontak.
+Situs portofolio pribadi: profil, daftar proyek, riwayat, dan formulir kontak.
 Frontend React + Vite + Tailwind, backend Go kecil yang hanya dipakai untuk
 mengirim email dari formulir kontak.
 
-**Isi halaman tidak bergantung pada apa pun di luar repositori ini.** Seluruh
+**Isi halaman tidak bergantung pada layanan luar apa pun secara bawaan.** Seluruh
 teks dan data website berasal dari berkas TypeScript lokal di
-`frontend/src/content/` — tidak ada database dan tidak ada API konten pihak
-ketiga. Satu-satunya layanan luar yang dipakai adalah Gmail SMTP lewat stdlib
-Go (`net/smtp`), dan itu hanya untuk formulir kontak: kalau kredensialnya kosong,
-seluruh halaman tetap tampil normal, hanya pengiriman pesannya yang tidak jalan.
+`frontend/src/content/`; tanpa konfigurasi tambahan situs tetap tampil penuh.
+Sejak ada panel CMS (`/admin`), isi itu bisa ditimpa dari satu dokumen JSON yang
+disimpan di `localStorage`, Supabase, atau Firebase — semuanya opsional. Layanan
+luar yang dipakai hanya Gmail SMTP lewat stdlib Go (`net/smtp`) untuk formulir
+kontak: kalau kredensialnya kosong, seluruh halaman tetap tampil normal, hanya
+pengiriman pesannya yang tidak jalan.
 
 ## Cara menjalankan
 
@@ -55,8 +57,7 @@ Semua teks ada di **`frontend/src/content/`**, satu berkas per bagian:
 |---|---|
 | Nama, peran, bio, email, lokasi, tautan sosial | `content/profile.ts` |
 | Daftar proyek, kategori, gambar cover | `content/projects.ts` |
-| Layanan yang ditawarkan | `content/services.ts` |
-| Keahlian | `content/skills.ts` |
+| Keahlian (dipakai chip hero & statistik) | `content/skills.ts` |
 | Riwayat kuliah & proyek | `content/journey.ts` |
 
 Semua teks wajib diisi dua bahasa (`id` dan `en`). Penjelasan lengkapnya ada di
@@ -74,23 +75,23 @@ putihnya akan tampak sebagai kotak terang di tema gelap.
 
 ## Cara halaman utama bekerja
 
-Halaman utama **tidak bisa di-scroll**. Yang tampil selalu satu panel penuh
-setinggi layar, dan menu di header menggantinya di tempat: klik **Proyek**,
-isinya berganti jadi panel proyek dengan animasi slide, bukan meluncur ke
-bawah. Panel yang isinya lebih panjang dari layar (Proyek, Layanan,
-Perjalanan) punya scroll sendiri di dalamnya, sementara header tetap di
-atas.
+Halaman utama adalah halaman biasa yang **bisa di-scroll**. Semua bagian
+ditumpuk berurutan — hero, tentang, proyek, perjalanan, lalu kontak — dan
+header tetap menempel di atas saat halaman bergulir.
+Setelah bagian kontak ada footer, sama seperti halaman detail proyek.
 
-- Alamatnya memakai hash, jadi setiap panel bisa dibuka langsung:
-  `/#work`, `/#contact`, dan seterusnya.
-- Daftar panelnya ada di `frontend/src/pages/Home/Home.tsx` (`PANELS`). Menu
+- Alamat memakai hash, jadi setiap bagian bisa dibuka langsung: `/#work`,
+  `/#contact`, dan seterusnya. Membuka hash itu dari halaman lain akan mendarat
+  di bagian tersebut, dan mengklik menu di header menggulir mulus ke bagian itu
+  tanpa memuat ulang halaman.
+- Daftar bagiannya ada di `frontend/src/pages/Home/Home.tsx` (`SECTIONS`). Menu
   header hanya sebagian dari daftar itu: `shared/constants/sections.ts` memuat
-  `NAV_SECTIONS`, dan setiap id-nya harus berupa id panel. Panel pembuka dibuka
-  lewat logo atau hash, panel kontak lewat tombol di header dan di panel lain.
-- Tombol **See my work** dan **Hire me** di panel pembuka juga berpindah panel,
-  bukan menggulir.
-- Halaman detail proyek (`/project/<slug>`) tetap halaman biasa yang bisa
-  di-scroll, lengkap dengan footer.
+  `NAV_SECTIONS`, dan setiap id-nya harus berupa id bagian. Bagian pembuka
+  dibuka lewat logo, bagian kontak lewat tombol di header dan di bagian lain.
+- Tombol **See my work** dan **Hire me** di hero menggulir ke bagian proyek dan
+  kontak.
+- Sorotan menu mengikuti bagian yang sedang terlihat di layar, bukan hash di
+  address bar.
 
 ## Animasi
 
@@ -99,11 +100,11 @@ di `frontend/src/index.css`), dan semuanya transform/opacity saja. Yang perlu
 diketahui kalau mau mengubahnya:
 
 - **Animasi masuk saat pertama kali dibuka.** Tirai penuh layar dengan
-  penghitung di `shared/components/LoadingScreen.tsx` naik ke atas, lalu panel
-  pembuka masuk berurutan. Tirai ini muncul satu kali per pemuatan halaman, dan
+  penghitung di `shared/components/LoadingScreen.tsx` naik ke atas, lalu isi
+  hero masuk berurutan. Tirai ini muncul satu kali per pemuatan halaman, dan
   **dilewati** kalau pengunjung menyalakan Reduce Motion atau kembali lewat
   tombol back browser.
-- **Panel pembuka dipegang dulu oleh `<html data-intro="pending">`.** Atribut
+- **Hero dipegang dulu oleh `<html data-intro="pending">`.** Atribut
   itu diset skrip pra-paint di `frontend/index.html` dan dilepas oleh
   `LoadingScreen`; CSS memakai atribut itu untuk menahan isi hero sampai tirai
   mulai terbuka. Skrip yang sama melepasnya paksa setelah 2,5 detik, jadi isi
@@ -111,15 +112,14 @@ diketahui kalau mau mengubahnya:
 - **Foto profil dibangun "bata per bata"** — 25 pelat bergaya lego menutupinya,
   lalu luruh dari sudut kiri atas. Pelatnya dilepas dari DOM setelah selesai
   (`Hero.tsx`), jadi foto yang sudah tenang tidak menyimpan node animasi.
-- Gerakan yang menyala terus-menerus hanya tiga: marquee teknologi, denyut halo
-  foto, dan dua busur aurora di belakang foto.
+- Gerakan yang menyala terus-menerus hanya empat: marquee teknologi, denyut halo
+  foto, dua busur aurora di belakang foto, dan denyut titik garis waktu yang
+  sedang aktif di `Journey.tsx`.
 - Reduce Motion mematikan seluruh gerakan, termasuk yang berulang — bukan
   sekadar mempercepatnya.
 - **Posisi scroll diingat per entri riwayat.** `shared/lib/scroll.ts` menyimpan
   posisi `window.scrollY` per key riwayat, dan `App.tsx` memulihkannya saat
-  tombol back/forward (POP). Di halaman utama `window` tidak pernah menggulir —
-  hanya panelnya yang menggulir — jadi pemulihan ini hanya berlaku di halaman
-  biasa seperti detail proyek.
+  tombol back/forward (POP) — berlaku di semua halaman.
 
 ## Formulir kontak
 
@@ -262,14 +262,21 @@ frontend/         React + Vite + Tailwind
   src/index.css       Tailwind + token warna/tipografi
   src/vite-env.d.ts   tipe untuk import.meta.env (VITE_*)
   src/content/        seluruh isi website (lihat tabel di atas)
+  src/data/           dokumen SiteContent: tipe, SEED_CONTENT, adapter
+                      (local / Supabase / Firebase), provider + store
+  src/admin/          panel CMS: Login, Dashboard, 6 editor, validasi
+  src/motion/         primitif animasi: SplitText, Reveal, Tilt, Marquee,
+                      Magnetic, CountUp, MaskImage, PageTransition, Lightbox
   src/pages/          halaman: Home, ProjectDetail, NotFound
   src/widgets/        bagian halaman: Hero, About, Work, Services, Skills,
                       Journey, Contact, TrustStrip, Footer, Nav
   src/entities/       komponen data: ProjectCard
   src/shared/         ui, components, hooks, context, constants, lib
   public/             favicon dan gambar proyek
-  index.html          skrip pra-paint `data-intro`
+  index.html          skrip pra-paint tema + `data-intro`
   vite.config.ts      konfigurasi Vite (manual chunks, optimizeDeps)
+supabase/schema.sql   tabel + RLS untuk adapter Supabase
+firebase/firestore.rules  aturan baca publik / tulis terautentikasi
 dev.mjs           menjalankan backend + frontend sekaligus
 ```
 
@@ -414,4 +421,47 @@ sesungguhnya ada di log server:
 ```
 vercel logs https://portofolioaldi-eta.vercel.app --json
 ```
+
+## CMS
+
+Isi situs sekarang dikelola lewat panel `/admin` (React, tanpa dependensi baru):
+
+- **Satu dokumen JSON.** Seluruh isi — profil, kategori, proyek, keahlian,
+  perjalanan, dan pengaturan SEO — disatukan menjadi satu objek
+  `SiteContent` (`frontend/src/content/types.ts`).
+- **Isi bawaan tetap di `frontend/src/content/*`** sebagai `SEED_CONTENT`
+  (`frontend/src/data/seed.ts`). Situs merender dari sini secara instan walau
+  adapter belum punya data.
+- **Adapter bisa ditukar** (local / Supabase / Firebase) tanpa SDK baru: baca
+  dan tulis lewat `fetch`. Pilih sumber dengan `VITE_DATA_SOURCE`, atau biarkan
+  otomatis: Supabase bila kuncinya lengkap, lalu Firebase, lalu local.
+
+### Menjalankan
+
+```
+cd frontend
+npm run dev
+# buka http://localhost:5180/admin
+```
+
+Mode lokal (default): sandi `admin` (ubah lewat `VITE_ADMIN_PASSWORD`). Mode ini
+**hanya untuk pratinjau** — kata sandinya dibandingkan di peramban, bukan
+keamanan sungguhan; data disimpan di `localStorage`.
+
+### Menghubungkan Supabase
+
+1. Isi `frontend/.env`: `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` (atau
+   set `VITE_DATA_SOURCE=supabase`).
+2. Aktifkan provider Email di Authentication, buat pengguna admin.
+3. Jalankan `supabase/schema.sql` di SQL Editor.
+
+### Menghubungkan Firebase
+
+1. Isi `frontend/.env`: `VITE_FIREBASE_API_KEY` + `VITE_FIREBASE_PROJECT_ID`
+   (atau set `VITE_DATA_SOURCE=firebase`).
+2. Aktifkan email/password di Authentication, buat pengguna admin.
+3. Pasang `firebase/firestore.rules`.
+
+Panel admin tidak punya endpoint upload gambar — semua kolom gambar memakai
+URL. Nomor referensi lengkap ada di `frontend/.env.example`.
 

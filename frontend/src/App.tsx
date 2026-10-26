@@ -1,16 +1,16 @@
 import { lazy, Suspense, useEffect, useRef } from 'react';
-import { BrowserRouter, Route, Routes, useLocation, useNavigationType } from 'react-router-dom';
+import { BrowserRouter, Outlet, Route, Routes, useLocation, useNavigationType } from 'react-router-dom';
+import { ContentProvider } from './data';
 import { LanguageProvider } from './shared/context/LanguageProvider';
 import { ThemeProvider } from './shared/context/ThemeProvider';
 import { useLang } from './shared/context/language';
-import { LoadingScreen } from './shared/components/LoadingScreen';
+import { ScrollProgressBar } from './shared/components/ScrollProgressBar';
 import { recallScroll, rememberScroll } from './shared/lib/scroll';
 import Home from './pages/Home/Home';
-import NotFound from './pages/NotFound/NotFound';
 import { Footer } from './widgets/Footer/Footer';
 import { Nav } from './widgets/Nav/Nav';
 
-const ProjectDetail = lazy(() => import('./pages/ProjectDetail/ProjectDetail'));
+const AdminApp = lazy(() => import('./admin/AdminApp'));
 
 const T = {
   skip: { en: 'Skip to content', id: 'Lewati ke konten' },
@@ -26,7 +26,8 @@ function ScrollManager() {
   const { key, pathname, hash } = useLocation();
   const navigationType = useNavigationType();
   const previousKey = useRef(key);
-  const onHome = pathname === '/';
+  const previousPath = useRef(pathname);
+  const mounted = useRef(false);
 
   useEffect(() => {
     history.scrollRestoration = 'manual';
@@ -38,14 +39,26 @@ function ScrollManager() {
       previousKey.current = key;
     }
 
-    // On the deck a hash selects a panel; scrolling to an element that is not mounted yet (or
-    // that sits inside the panel's own scroll box) would fight the panel switch.
-    if (hash && !onHome) {
-      const target = document.getElementById(hash.slice(1));
-      if (target) {
-        target.scrollIntoView({ block: 'start' });
-        return;
-      }
+    // A hash always targets a section in the current document. Wait for this commit's DOM (two
+    // frames) so the sections exist; a click on the same page glides, a fresh arrival jumps.
+    const samePage = mounted.current && previousPath.current === pathname;
+    previousPath.current = pathname;
+    mounted.current = true;
+
+    if (hash) {
+      let inner = 0;
+      const outer = requestAnimationFrame(() => {
+        inner = requestAnimationFrame(() => {
+          document.getElementById(hash.slice(1))?.scrollIntoView({
+            block: 'start',
+            behavior: samePage ? 'smooth' : 'instant',
+          });
+        });
+      });
+      return () => {
+        cancelAnimationFrame(outer);
+        cancelAnimationFrame(inner);
+      };
     }
 
     if (navigationType === 'POP') {
@@ -56,7 +69,7 @@ function ScrollManager() {
     }
 
     window.scrollTo({ top: 0, behavior: 'instant' });
-  }, [key, pathname, hash, navigationType, onHome]);
+  }, [key, pathname, hash, navigationType]);
 
   return null;
 }
@@ -79,17 +92,12 @@ function Shell() {
 
       <Nav />
 
-      {/* On the deck the page is pinned to the viewport height: nothing outside a panel scrolls,
-          so the header never slides out of view while a panel is being read. The top padding is
-          the header's own height (h-16 / sm:72px) — the header is fixed, so it takes no space. */}
+      {/* The document scrolls under the floating nav pill. `pt-16` reserves its height plus the
+          12px it floats above the fold; the pill takes no space of its own. */}
       <main
         id="main"
         tabIndex={-1}
-        className={
-          onHome
-            ? 'h-[calc(100dvh-4rem)] overflow-hidden pt-16 sm:h-[calc(100dvh-4.5rem)] sm:pt-[72px]'
-            : undefined
-        }
+        className={onHome ? 'pt-16' : undefined}
       >
         <Suspense
           fallback={
@@ -98,32 +106,55 @@ function Shell() {
             </div>
           }
         >
-          <div key={pathname} className={onHome ? 'h-full' : 'animate-fade-in'}>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/project/:slug" element={<ProjectDetail />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+          <div key={pathname} className={onHome ? undefined : 'animate-fade-in'}>
+            <Outlet />
           </div>
         </Suspense>
       </main>
 
-      {/* The footer repeats the same destinations as the nav, so it would only add a second way
-          to do the same thing on the deck. Kept on the pages that are genuinely scrollable. */}
-      {!onHome && <Footer />}
+      <Footer />
     </>
+  );
+}
+
+/** Rute publik: chrome situs (Nav/Footer/ScrollProgressBar) + provider bahasa & tema. */
+function Site() {
+  return (
+    <LanguageProvider>
+      <ThemeProvider>
+        <ScrollProgressBar />
+        <Shell />
+      </ThemeProvider>
+    </LanguageProvider>
   );
 }
 
 export default function App() {
   return (
-    <LanguageProvider>
-      <ThemeProvider>
-        <LoadingScreen />
-        <BrowserRouter>
-          <Shell />
-        </BrowserRouter>
-      </ThemeProvider>
-    </LanguageProvider>
+    <ContentProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route
+            path="/admin/*"
+            element={
+              <Suspense
+                fallback={
+                  <div className="flex min-h-screen items-center justify-center bg-ink-950">
+                    <p className="font-mono text-small text-chalk-faint">{T.loading.id}</p>
+                  </div>
+                }
+              >
+                <AdminApp />
+              </Suspense>
+            }
+          />
+          <Route element={<Site />}>
+            <Route path="/" element={<Home />} />
+            {/* One page only: anything that is not /admin lands on the home page. */}
+            <Route path="*" element={<Home />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </ContentProvider>
   );
 }

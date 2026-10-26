@@ -11,6 +11,14 @@ dist/
 *.log
 build_output.txt
 
+# biner hasil `go build` — artefak, bukan sumber
+server.exe
+server
+*.exe
+
+# materi acuan desain lokal (video 30 MB) — bukan bagian dari situs
+design referensi/
+
 # cadangan git bundle — isinya seluruh riwayat, jangan pernah di-commit
 *.bundle
 

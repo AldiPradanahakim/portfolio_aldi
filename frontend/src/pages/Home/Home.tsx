@@ -1,80 +1,62 @@
-import { useRef } from 'react';
-import { useLocation } from 'react-router-dom';
+import { Fragment } from 'react';
 import type { ComponentType } from 'react';
-import { PROFILE } from '../../content';
+import { useContent } from '../../data';
+import type { L } from '../../content';
 import { useLang } from '../../shared/context/language';
+import { SECTION_IDS, type SectionId } from '../../shared/constants/sections';
 import { useDocumentTitle } from '../../shared/hooks/useDocumentTitle';
+import { TickerBand } from '../../shared/components/TickerBand';
 import { About } from '../../widgets/About/About';
 import { Contact } from '../../widgets/Contact/Contact';
 import { Hero } from '../../widgets/Hero/Hero';
 import { Journey } from '../../widgets/Journey/Journey';
-import { Services } from '../../widgets/Services/Services';
-import { Skills } from '../../widgets/Skills/Skills';
 import { TrustStrip } from '../../widgets/TrustStrip/TrustStrip';
 import { Work } from '../../widgets/Work/Work';
 
-interface Panel {
+interface SectionEntry {
   id: string;
   Component: ComponentType;
-  /** the opening panel sits in the middle of the viewport rather than at the top */
-  centered?: boolean;
-  /** pinned to the bottom of the panel, under centred content (the tech marquee) */
   trailing?: ComponentType;
+  /** oversized type band printed immediately before this section */
+  band?: L;
 }
 
-/**
- * Every section is a panel, not a scroll stop: the page itself never scrolls, and picking a
- * destination in the nav swaps the panel in place. Content taller than the viewport scrolls
- * inside its own panel, so the header and nav stay put.
- */
-const PANELS: Panel[] = [
-  { id: 'hero', Component: Hero, centered: true, trailing: TrustStrip },
-  { id: 'about', Component: About },
-  { id: 'work', Component: Work },
-  { id: 'services', Component: Services },
-  { id: 'skills', Component: Skills },
-  { id: 'journey', Component: Journey },
-  { id: 'contact', Component: Contact },
-];
+// No band before About: the tech marquee right after the hero already owns that role, and two
+// stacked marquees read as one thick striped block.
+const BAND: Record<string, L> = {
+  journey: { en: 'Experience', id: 'Pengalaman' },
+  work: { en: 'Selected work', id: 'Karya pilihan' },
+  contact: { en: 'Say hello', id: 'Sapa saya' },
+};
+
+/** Component wiring keyed by id; the order comes from SECTION_IDS so the section index labels
+ *  in Section.tsx and this list can never disagree. */
+const ENTRIES: Record<SectionId, Omit<SectionEntry, 'id'>> = {
+  hero: { Component: Hero, trailing: TrustStrip },
+  about: { Component: About },
+  journey: { Component: Journey, band: BAND.journey },
+  work: { Component: Work, band: BAND.work },
+  contact: { Component: Contact, band: BAND.contact },
+};
+
+const SECTIONS: SectionEntry[] = SECTION_IDS.map((id) => ({ id, ...ENTRIES[id] }));
 
 export default function Home() {
   const { t } = useLang();
-  const { hash } = useLocation();
+  const { content } = useContent();
 
-  useDocumentTitle(`${PROFILE.name} — ${t(PROFILE.role)}`);
-
-  const requested = hash.slice(1);
-  const index = PANELS.findIndex((panel) => panel.id === requested);
-  const activeIndex = index === -1 ? 0 : index;
-  const active = PANELS[activeIndex]!;
-
-  // Direction only decides which way the incoming panel slides; a ref because it must not
-  // re-render, and it is updated during render so the class matches the panel being mounted.
-  const previousIndex = useRef(activeIndex);
-  const reverse = activeIndex < previousIndex.current;
-  previousIndex.current = activeIndex;
-
-  const { Component, trailing: Trailing } = active;
+  useDocumentTitle(`${content.profile.name} — ${t(content.profile.role)}`);
 
   return (
-    <div className="h-full overflow-hidden">
-      <div
-        key={active.id}
-        data-scroll-root
-        className={[
-          'deck-panel h-full overflow-y-auto overscroll-contain',
-          reverse ? 'deck-panel-reverse' : '',
-        ]
-          .filter(Boolean)
-          .join(' ')}
-      >
-        <div className="flex min-h-full flex-col">
-          <div className={active.centered ? 'flex flex-1 flex-col justify-center' : undefined}>
-            <Component />
-          </div>
+    <>
+      {SECTIONS.map(({ id, Component, trailing: Trailing, band }, index) => (
+        <Fragment key={id}>
+          {/* every band alternates direction, so the page never reads as one long column */}
+          {band && <TickerBand reverse={index % 2 === 0}>{t(band)}</TickerBand>}
+          <Component />
           {Trailing && <Trailing />}
-        </div>
-      </div>
-    </div>
+        </Fragment>
+      ))}
+    </>
   );
 }

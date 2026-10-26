@@ -1,7 +1,7 @@
 import type { Profile } from './types';
 
 export const PROFILE: Profile = {
-  name: 'Aldi Pradan Hakim',
+  name: 'Aldi Pradana Hakim',
   initials: 'AP',
 
   role: {
@@ -55,6 +55,7 @@ export const PROFILE: Profile = {
       url: 'https://www.linkedin.com/in/aldi-pradana-hakim-029b98422',
       icon: 'linkedin',
     },
+    { label: 'GitHub', url: 'https://github.com/AldiPradanahakim', icon: 'github' },
     { label: 'Instagram', url: 'https://instagram.com/aldprdnhkm8', icon: 'instagram' },
     {
       label: 'Email',

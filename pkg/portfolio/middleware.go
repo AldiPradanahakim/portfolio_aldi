@@ -43,9 +43,10 @@ func handlePreflight(w http.ResponseWriter, r *http.Request) {
 }
 
 // clientIP mengembalikan alamat pengunjung. Di belakang Vercel (VERCEL diset)
-// tepat satu hop dipercaya, jadi alamat diambil dari entri paling kanan
-// X-Forwarded-For; di luar itu header yang bisa dipalsukan klien tidak
-// dipercaya.
+// Vercel menimpa X-Forwarded-For dengan IP publik klien dan tidak meneruskan
+// IP eksternal, sehingga header itu tidak bisa dipalsukan; entri paling kanan
+// tetap diambil sebagai cadangan defensif kalau bentuknya berbeda. Di luar
+// Vercel header tersebut diabaikan karena klien bisa memalsukannya.
 func clientIP(r *http.Request) string {
 	if os.Getenv("VERCEL") != "" {
 		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {

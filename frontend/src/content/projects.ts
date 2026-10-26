@@ -13,7 +13,7 @@ export const CATEGORIES: { id: CategoryId; label: L }[] = [
   { id: 'web-app', label: { id: 'Aplikasi Web', en: 'Web Application' } },
 ];
 
-export const PROJECTS: Project[] = [
+export const PROJECTS: Omit<Project, 'order'>[] = [
   {
     slug: 'af-gps-tracker',
     name: 'AF GPS Tracker',

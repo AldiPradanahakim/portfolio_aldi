@@ -1,27 +1,50 @@
+import { useEffect, useRef } from 'react';
 import { ArrowUp } from 'lucide-react';
-import { useScrollProgress } from '../hooks/useSpotlight';
+import { useScrolled } from '../hooks/useScrolled';
 import { cx } from '../lib/cn';
 
 const R = 9;
 const C = 2 * Math.PI * R;
 
 /**
- * Back-to-top with a progress ring around the arrow. The ring reads the nearest scroll root — the
- * deck panel (`data-scroll-root`) when one exists, otherwise the document — so it stays correct
- * on both the deck and the scrollable pages. Hidden (and inert) until there is something to
- * scroll back from.
+ * Back-to-top with a progress ring, hidden (and inert) until the page is scrolled. The ring
+ * reads `--btt` written by its own rAF-throttled listener; visibility is a plain boolean from
+ * `useScrolled` so no render happens per frame.
  */
 export function BackToTop({ label, className }: { label: string; className?: string }) {
-  const { ref, progress } = useScrollProgress<HTMLButtonElement>();
-  const visible = progress > 0.015;
+  const ref = useRef<HTMLButtonElement | null>(null);
+  const visible = useScrolled(48);
+
+  useEffect(() => {
+    const button = ref.current;
+    if (!button) return;
+
+    let frame = 0;
+    const read = () => {
+      frame = 0;
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+      button.style.setProperty('--btt', progress.toFixed(4));
+    };
+    const schedule = () => {
+      if (!frame) frame = requestAnimationFrame(read);
+    };
+
+    read();
+    window.addEventListener('scroll', schedule, { passive: true });
+    window.addEventListener('resize', schedule, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', schedule);
+      window.removeEventListener('resize', schedule);
+      if (frame) cancelAnimationFrame(frame);
+    };
+  }, []);
 
   const onClick = () => {
-    const root = ref.current?.closest<HTMLElement>('[data-scroll-root]');
     const behavior: ScrollBehavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches
       ? 'auto'
       : 'smooth';
-    if (root) root.scrollTo({ top: 0, behavior });
-    else window.scrollTo({ top: 0, behavior });
+    window.scrollTo({ top: 0, behavior });
   };
 
   return (
@@ -47,7 +70,7 @@ export function BackToTop({ label, className }: { label: string; className?: str
           strokeWidth="1.5"
           strokeLinecap="round"
           strokeDasharray={C}
-          strokeDashoffset={C * (1 - progress)}
+          style={{ strokeDashoffset: `calc(${C} * (1 - var(--btt, 0)))` }}
         />
       </svg>
       <ArrowUp className="h-4 w-4" aria-hidden="true" />
