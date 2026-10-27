@@ -1732,15 +1732,19 @@ html[data-theme-ripple]::view-transition-old(root) {
    dijalankan compositor dan tidak memicu layout — ini yang membuat enam kubus tetap murah
    bahkan di HP kelas bawah. */
 
+/* Fixed di viewport, bukan absolute di dalam hero. `z-index: 0` menaruhnya di atas latar halaman
+   tapi di bawah setiap section yang punya stacking context sendiri (hero memakai 1-2). */
 .cubes {
-  position: absolute;
+  position: fixed;
   inset: 0;
-  z-index: 0; /* di bawah konten; root hero memakai z-index 1-2 */
+  z-index: 0;
   pointer-events: none;
   overflow: hidden;
-  /* `contain` mengurung paint kubus di kotaknya sendiri, jadi rotasi tidak pernah memaksa
-     browser menghitung ulang bagian halaman lain */
-  contain: layout paint;
+  contain: strict;
+  /* Kubus sekarang melayang di belakang SELURUH halaman, termasuk di belakang paragraf. Pada
+     opasitas penuh, teks redup di atas sisi kubus cuma 2,87:1 — di bawah ambang 4,5:1. 0,55
+     menaikkannya ke 4,46:1, jadi bacaannya tetap jelas sementara bentuk kubus masih terbaca. */
+  opacity: 0.55;
 }
 
 .cube {
@@ -1754,12 +1758,15 @@ html[data-theme-ripple]::view-transition-old(root) {
      tetap sama di semua ukuran. */
   perspective: calc(var(--size) * 4.5);
   /* parallax: --px/--py ditulis dari JS; translate3d memaksa layer GPU terpisah */
+  /* --drift digerakkan scroll dan didaur ulang oleh JS. `-50%` menggeser kotak setengah ukurannya
+     supaya --x/--y menunjuk pusat, bukan sudut. Offset per-anak (--i) menyebar kubus di sepanjang
+     siklus, jadi saat satu keluar bawah, yang lain sudah masuk dari atas. */
   transform: translate3d(
     calc(-50% + var(--px, 0px)),
-    calc(-50% + var(--py, 0px)),
+    calc(-50% + var(--py, 0px) + var(--drift, 0px)),
     0
   );
-  transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  transition: transform 120ms linear;
   will-change: transform;
 }
 

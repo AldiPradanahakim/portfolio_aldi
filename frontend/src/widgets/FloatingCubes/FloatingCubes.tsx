@@ -3,7 +3,7 @@ import { usePrefersReducedMotion } from '../../shared/hooks/usePrefersReducedMot
 import { TECH_LOGOS, type TechLogo } from './techLogos';
 
 /**
- * FloatingCubes — satu kubus per teknologi, melayang di belakang hero.
+ * FloatingCubes — satu kubus per teknologi, melayang di belakang SELURUH halaman.
  *
  * Teknik: CSS 3D transforms murni (`transform-style: preserve-3d`), bukan Three.js. Untuk beberapa
  * kotak yang hanya berputar dan bergeser, WebGL berarti satu library ~600 KB, satu canvas, dan satu
@@ -12,6 +12,10 @@ import { TECH_LOGOS, type TechLogo } from './techLogos';
  *
  * Satu kubus = satu teknologi. Keenam sisinya memakai logo yang sama, jadi berapa pun kubusnya
  * berputar, yang terbaca tetap satu merek — bukan campuran beberapa logo yang saling menimpa.
+ *
+ * Ditempel `position: fixed` di shell aplikasi, bukan di dalam hero: kalau ikut hero, kubus
+ * hilang begitu hero digulir dan halaman setelahnya kosong. Referensinya menjaga kubus tetap
+ * melayang sepanjang halaman, jadi kubus ini juga.
  *
  * Tiga lapis gerak, dipisah ke tiga elemen supaya transform-nya tidak saling menimpa:
  *   1. `.cube`       — posisi + parallax mouse + dorongan scroll (CSS variable dari JS)
@@ -95,7 +99,14 @@ export function FloatingCubes({ className }: { className?: string }) {
         const element = items[i] as HTMLElement;
         const depth = Number(element.dataset.depth ?? 20);
         element.style.setProperty('--px', `${(mx * depth).toFixed(2)}px`);
-        element.style.setProperty('--py', `${(my * depth + sy * depth * 1.9).toFixed(2)}px`);
+        element.style.setProperty('--py', `${(my * depth).toFixed(2)}px`);
+        // Kubus bergerak sepanjang halaman, lalu DAUR ULANG: tanpa modulo, seluruh lapisan sudah
+        // keluar layar setelah ~4000px gulir dan sisa halaman kosong. Modulo tinggi jendela +
+        // kelonggaran membuat kubus yang lewat bawah muncul lagi dari atas.
+        const travel = sy * depth * 0.0055;
+        const span = window.innerHeight + 320;
+        const wrapped = ((travel % span) + span) % span;
+        element.style.setProperty('--drift', `${wrapped.toFixed(2)}px`);
       }
     };
 
@@ -111,8 +122,10 @@ export function FloatingCubes({ className }: { className?: string }) {
     };
 
     const onScroll = () => {
-      // jarak gulir dibatasi 600px: lewat dari itu kubus sudah keluar panggung hero
-      sy = Math.min(window.scrollY, 600) / 600;
+      // Kubus fixed, jadi harus bergerak sejauh halaman, bukan 600px. Nilainya dipakai dua arah:
+      // naik-turun mengikuti gulir, dan `--drift` menggeser tiap kubus dengan laju berbeda
+      // sehingga mereka melintas layar saat halaman turun.
+      sy = window.scrollY;
       schedule();
     };
 

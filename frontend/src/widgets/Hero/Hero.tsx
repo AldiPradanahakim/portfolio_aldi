@@ -5,7 +5,6 @@ import { useContent } from '../../data';
 import { useLang } from '../../shared/context/language';
 import { socialIcon } from '../../shared/lib/icons';
 import { Marquee } from '../../motion/Marquee';
-import { FloatingCubes } from '../FloatingCubes/FloatingCubes';
 
 const T = {
   seeWork: { en: 'See the work', id: 'Lihat karya' },
@@ -48,10 +47,6 @@ export function Hero() {
   return (
     <section ref={sectionRef} id="hero" aria-labelledby="hero-title" className="hero-stage">
       <div aria-hidden="true" className="hero-bloom" />
-
-      {/* kubus hiasan di belakang semuanya: root-nya aria-hidden dan pointer-events: none,
-          posisinya menempel ke panggung hero jadi tidak ikut menggulir ke bagian lain */}
-      <FloatingCubes />
 
       <motion.div
         aria-hidden="true"
