@@ -251,9 +251,23 @@
 
   .wordmark {
     @apply font-sans font-semibold uppercase leading-none;
-    font-size: clamp(2.75rem, 10.5vw, 11rem);
+    /* Sized so ONE full name is narrower than the viewport at every width (measured: the string is
+       9.8x its font size). At the old 10.5vw / 11rem cap the ribbon was wider than a phone screen,
+       so the fragment on screen read "ALDANA HAKIM" — a different name — instead of a repeat. */
+    font-size: clamp(2.25rem, 9.5vw, 10rem);
     letter-spacing: -0.06em;
     white-space: nowrap;
+  }
+  /* The band kills the marquee's own edge mask: the point of this line is that the name runs off
+     both sides, so fading it out at 6% and 94% would leave the wordmark looking vignetted.
+     `.marquee.wordmark-band` and not `.wordmark-band`: the shared `.marquee` rule is written later
+     in this file, so at equal specificity its mask won and the edges stayed feathered. */
+  .marquee.wordmark-band {
+    -webkit-mask-image: none;
+    mask-image: none;
+    /* trims the line box: the display face carries ~0.16em of air above the caps and below the
+       baseline, which at 11rem is 30px of padding the band does not need */
+    padding-block: 0.06em;
   }
 
   /* ---------- split text (line masks) ---------- */

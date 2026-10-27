@@ -76,10 +76,15 @@ export function Footer() {
         </div>
       </div>
 
-      {/* giant wordmark, edge to edge */}
-      <h2 aria-hidden="true" className="wordmark whitespace-nowrap px-[clamp(1.25rem,5vw,4rem)]">
-        {profile.name}
-      </h2>
+      {/* The name runs as a marquee instead of a static lockup: at 11rem it stopped ~250px short on
+          a wide screen and started too far from the left edge, so the type sat off to one side with
+          dead space beside it. As a loop the band fills any width. */}
+      <Marquee duration={34} repeat={2} className="wordmark-band">
+        <span aria-hidden="true" className="wordmark px-[clamp(0.75rem,2vw,2rem)]">
+          {profile.name}
+        </span>
+        <span aria-hidden="true" className="marquee-dot mx-[clamp(0.75rem,2vw,2rem)]" />
+      </Marquee>
 
       <div className="shell flex flex-col gap-3 border-t border-ink-800/60 py-6 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-small text-chalk-faint">
