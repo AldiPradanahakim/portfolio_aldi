@@ -728,7 +728,10 @@
     object-position: bottom;
     /* A halo in the page's own colour separates the cutout from the canvas; the long bottom fade
        dissolves the chest into the page instead of ending on a visible shelf. */
-    filter: drop-shadow(0 0 2.5px rgb(var(--bg))) drop-shadow(0 0 2.5px rgb(var(--bg)));
+    /* doubled and slightly wider than before: the new render was cut from a PURE WHITE background,
+       so its anti-aliased edge carries a cool cast that a 2.5px halo at the page colour could not
+       absorb on cream. */
+    filter: drop-shadow(0 0 3.5px rgb(var(--bg))) drop-shadow(0 0 3.5px rgb(var(--bg)));
     -webkit-mask-image: linear-gradient(to bottom, #000 66%, transparent 99%);
     mask-image: linear-gradient(to bottom, #000 66%, transparent 99%);
   }

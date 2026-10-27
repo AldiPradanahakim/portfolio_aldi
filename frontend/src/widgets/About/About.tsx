@@ -60,7 +60,7 @@ export function About() {
                 src={photo}
                 alt={profile.name}
                 width={520}
-                height={650}
+                height={772}
                 loading="lazy"
                 decoding="async"
                 onError={() => setPhotoFailed(true)}

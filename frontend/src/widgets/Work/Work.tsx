@@ -203,6 +203,10 @@ export function Work() {
     const snap = () => {
       if (travel <= 0 || snaps.length < 2 || settling) return;
       const at = -rail.getBoundingClientRect().top - hold;
+      // Outside the pin's own range there is nothing to snap to. Without this the snap kept firing
+      // after the rail had been scrolled past — `at` grows beyond `travel`, `near` clamps to the last
+      // card, and the page was yanked back into the work section so the footer could not be reached.
+      if (at < -2 || at > travel + 2) return;
       const near = snaps.reduce((best, s) => (Math.abs(s - at) < Math.abs(best - at) ? s : best), snaps[0]);
       if (Math.abs(near - at) < 2) return;
 
