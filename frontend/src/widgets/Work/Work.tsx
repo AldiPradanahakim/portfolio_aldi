@@ -159,8 +159,13 @@ export function Work() {
     const track = trackRef.current;
     if (!rail || !pin || !track) return;
 
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let travel = 0;
     let hold = 0;
+    let top = 0;
+    let snaps: number[] = [];
+    let idle = 0;
+    let settling = false;
 
     const update = () => {
       const scrolled = -rail.getBoundingClientRect().top;
@@ -170,24 +175,61 @@ export function Work() {
       track.style.setProperty('--p', p.toFixed(4));
     };
 
+    /**
+     * Snap to the nearest card once the gesture ends. The scroll POSITION is moved, not the track:
+     * overriding `--p` alone left the page's scroll offset and the track's translation disagreeing,
+     * so the next nudge in either direction jumped back to the unsnapped offset. Moving the scroll
+     * keeps the two in step, which also means the rail resumes from exactly where it settled.
+     */
+    const snap = () => {
+      if (travel <= 0 || snaps.length < 2 || settling) return;
+      const at = -rail.getBoundingClientRect().top - hold;
+      const near = snaps.reduce((best, s) => (Math.abs(s - at) < Math.abs(best - at) ? s : best), snaps[0]);
+      if (Math.abs(near - at) < 2) return;
+
+      settling = true;
+      window.scrollTo({ top: top + hold + near, behavior: reduced ? 'auto' : 'smooth' });
+      // the smooth scroll fires more scroll events; this window keeps them from re-snapping
+      window.setTimeout(() => { settling = false; }, reduced ? 60 : 620);
+    };
+
+    const schedule = () => {
+      window.clearTimeout(idle);
+      if (travel > 0 && snaps.length > 1) idle = window.setTimeout(snap, 140);
+    };
+
+    const onScroll = () => {
+      update();
+      if (!settling) schedule();
+    };
+
     const measure = () => {
       // clientWidth of the pin, not innerWidth: the rail bleeds right only, so the frame starts on
       // the shell gutter and a 100vw formula would overshoot by exactly that gutter.
       travel = Math.max(0, track.scrollWidth - pin.clientWidth);
       hold = Math.round(window.innerHeight * 0.3);
+      top = Math.round(rail.getBoundingClientRect().top + window.scrollY);
       track.style.setProperty('--travel', `${travel}px`);
       rail.style.height = `${Math.round(travel + hold + window.innerHeight)}px`;
+
+      // One snap point per card, at the offset that puts that card's left edge on the frame's left
+      // edge. The last point is capped at `travel`, which is where the final card comes fully into
+      // view — that cap is what stops the rail from parking with a card sliced down the middle.
+      const cards = Array.from(track.children) as HTMLElement[];
+      const step = cards.length > 1 ? cards[1].offsetLeft - cards[0].offsetLeft : 0;
+      snaps = cards.map((_, i) => Math.min(i * step, travel));
       update();
     };
 
     measure();
-    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', measure);
     const observer = new ResizeObserver(measure);
     observer.observe(track);
 
     return () => {
-      window.removeEventListener('scroll', update);
+      window.clearTimeout(idle);
+      window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', measure);
       observer.disconnect();
     };

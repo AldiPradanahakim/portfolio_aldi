@@ -1080,8 +1080,12 @@
     will-change: transform;
     /* --travel is the measured overflow, written by ResizeObserver in Work.tsx */
     transform: translate3d(calc(var(--p, 0) * var(--travel, 0px) * -1), 0, 0);
-    /* no transition: the value is per-frame from the scroll listener; a transition here would lag */
+    /* no transition: the value is per-frame from the scroll listener; a transition here would lag
+       behind the gesture. The class below opts in for the snap only. */
   }
+  /* No transform transition: the snap moves the page's scroll position with `behavior: smooth`,
+     so the browser animates the offset and the track follows it frame by frame. Adding a
+     transition here as well would double the easing and lag behind the scroll. */
   /* Laptop beside the copy: the machine is height-bound so the card always fits one pinned screen,
      and the text column takes the rest. */
   .rail-card {
