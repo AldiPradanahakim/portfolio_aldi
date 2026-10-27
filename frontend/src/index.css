@@ -1164,10 +1164,11 @@
     width: var(--panel, 60vw);
     /* 5:3, exactly like the reference panel, and INSET into the viewport on both sides so one card
        is centred with the next peeking at the right. */
-    /* No fixed ratio. The panel's height is what must fit a screen, so it is capped by the
-       viewport and its width follows from that — a ratio forced the card to 888px tall inside a
-       900px window with the ruler above it. */
-    height: min(calc(100svh - 11rem), 46rem);
+    /* Height follows the content, not vice versa. A viewport cap was standing in for "must fit a
+       screen", but it also forced 724px on a 392px card, leaving a 198px void under the machine.
+       The copy is the tallest column, so the card is exactly as tall as the copy — the rail's own
+       height is written by JS and is unaffected. */
+    height: auto;
     display: grid;
     grid-template-columns: minmax(0, 0.52fr) minmax(0, 0.48fr);
     align-items: stretch;
@@ -1182,7 +1183,10 @@
        the composition off its grid. `overflow: clip` still contains the base, which is 4.5% wider
        than the lid on each side. */
     display: grid;
-    place-items: center;
+    /* centred in the copy's height: the machine is shorter than the text column, and centring splits
+       the difference above and below instead of dumping all of it under the device */
+    align-items: center;
+    justify-items: center;
     overflow: clip;
   }
   .rail-card-media .laptop { width: 100%; }
@@ -1197,14 +1201,20 @@
     /* capped measure: at the full column width the copy ended ~100px left of centre and left the
        right third empty */
     padding: 0 0 0 clamp(1rem, 2.4vw, 2.5rem);
-    /* the copy column spans the panel's full height so its last row can sit on the panel's bottom
-       edge — otherwise the card carried a 360px void under the text */
-    justify-content: center;
+    /* anchored to the top, not centred: centring split the leftover height above and below the
+       copy, so the block floated in the middle of the panel with dead air on both sides. Anchored,
+       the emptiness collects on the right and below — the layout the reference relies on. */
+    justify-content: flex-start;
+    padding-top: clamp(0.5rem, 1.5vw, 1.25rem);
   }
-  .rail-card-body > * { max-width: 34ch; }
-  /* the meta row is the one element pinned to the bottom: it closes the column and turns the
-     leftover height into a deliberate base rather than an empty band */
-  .rail-card-body .case-links { margin-top: auto; }
+  /* One measure for the whole column, so the empty space to its right is a straight channel
+     instead of a ragged edge: the heading, the paragraph and the link all end on the same axis. */
+  .rail-card-body > * { max-width: 32ch; }
+  /* the link follows its paragraph. `margin-top: auto` pinned it to the panel's bottom edge, which
+     put 410px between the sentence and the link that continues it (lead ended at 370, links started
+     at 783). At 1rem it still measured 38px — 1.6 line-heights, which read as a separate element
+     parked in the whitespace — so it now sits inside a single line of the body copy. */
+  .rail-card-body .case-links { margin-top: 0.6rem; }
 
   /* One card means nothing to slide: without this the rail still reserves 90vh of empty scroll
      and the reader scrolls through blank space to reach nothing. */
