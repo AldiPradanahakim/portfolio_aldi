@@ -35,7 +35,15 @@ function Card({ project, index, category }: { project: Project; index: number; c
   const initials = project.name.split(' ').map((word) => word[0]).join('').slice(0, 2);
 
   return (
-    <article className="rail-card">
+    <article className={cx('rail-card', open && 'is-open')}>
+      <div className="rail-card-media">
+        <LaptopFrame
+          src={project.cover}
+          alt={`${project.name} — ${t(project.tagline)}`}
+          initials={initials}
+        />
+      </div>
+
       <div className="rail-card-body">
         <div className="case-head">
           <span aria-hidden="true" className="case-index">
@@ -59,66 +67,63 @@ function Card({ project, index, category }: { project: Project; index: number; c
           </button>
           <span className="case-meta">{category} · {project.year}</span>
         </div>
+      </div>
 
-        <AnimatePresence initial={false}>
-          {open && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
-              className="overflow-hidden"
-            >
-              <div key={lang} className="case-detail">
-                <div>
-                  <p className="eyebrow">{t(T.problem)}</p>
-                  <p className="mt-2 text-small text-chalk-muted">{t(project.problem)}</p>
-                  <p className="eyebrow mt-6">{t(T.solution)}</p>
-                  <p className="mt-2 text-small text-chalk-muted">{t(project.solution)}</p>
-                </div>
+      {/* The numbers and the stack live in their own column, always visible. They used to sit inside
+          the expanding detail, which left the card's right third empty and squeezed the detail
+          panel to 296px — that is the empty space the eye kept landing on. */}
+      <div className="rail-card-facts">
+        <dl className="case-metrics">
+          {project.metrics.slice(0, 2).map((metric) => (
+            <div key={t(metric.label)}>
+              <dd className="case-metric-value">{metric.value}</dd>
+              <dt className="case-metric-label">{t(metric.label)}</dt>
+            </div>
+          ))}
+        </dl>
+        <ul className="case-stack">
+          {project.stack.map((item) => (
+            <li key={item} className="chip">{item}</li>
+          ))}
+        </ul>
+      </div>
 
-                <div>
-                  <dl className="grid grid-cols-2 gap-x-6 gap-y-4">
-                    {project.metrics.slice(0, 4).map((metric) => (
-                      <div key={t(metric.label)}>
-                        <dd className="font-display text-giant leading-none text-chalk">{metric.value}</dd>
-                        <dt className="mt-1 font-mono text-micro uppercase tracking-[0.14em] text-chalk-faint">
-                          {t(metric.label)}
-                        </dt>
-                      </div>
-                    ))}
-                  </dl>
-                  <ul className="mt-5 flex flex-wrap gap-2">
-                    {project.stack.map((item) => (
-                      <li key={item} className="chip">{item}</li>
-                    ))}
-                  </ul>
-                  <div className="mt-5 flex flex-wrap gap-4">
-                    {project.links.demo && (
-                      <a href={project.links.demo} target="_blank" rel="noopener noreferrer" className="work-link">
-                        {t(T.demo)} <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
-                      </a>
-                    )}
-                    {project.links.repo && (
-                      <a href={project.links.repo} target="_blank" rel="noopener noreferrer" className="work-link">
-                        {t(T.repo)} <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
-                      </a>
-                    )}
-                  </div>
-                </div>
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.42, ease: [0.16, 1, 0.3, 1] }}
+            className="case-detail-wrap"
+          >
+            <div key={lang} className="case-detail">
+              <div>
+                <p className="eyebrow">{t(T.problem)}</p>
+                <p className="mt-2 text-small text-chalk-muted">{t(project.problem)}</p>
               </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-      <div className="rail-card-media">
-        <LaptopFrame
-          src={project.cover}
-          alt={`${project.name} — ${t(project.tagline)}`}
-          initials={initials}
-        />
-      </div>
 
+              <div>
+                <p className="eyebrow">{t(T.solution)}</p>
+                <p className="mt-2 text-small text-chalk-muted">{t(project.solution)}</p>
+              </div>
+
+              <div className="case-detail-actions">
+                {project.links.demo && (
+                  <a href={project.links.demo} target="_blank" rel="noopener noreferrer" className="work-link">
+                    {t(T.demo)} <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  </a>
+                )}
+                {project.links.repo && (
+                  <a href={project.links.repo} target="_blank" rel="noopener noreferrer" className="work-link">
+                    {t(T.repo)} <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
+                  </a>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </article>
   );
 }

@@ -1162,29 +1162,25 @@
   .rail-card {
     flex: 0 0 auto;
     width: var(--panel, 60vw);
-    /* 5:3, exactly like the reference panel, and INSET into the viewport on both sides so one card
-       is centred with the next peeking at the right. */
-    /* Height follows the content, not vice versa. A viewport cap was standing in for "must fit a
-       screen", but it also forced 724px on a 392px card, leaving a 198px void under the machine.
-       The copy is the tallest column, so the card is exactly as tall as the copy — the rail's own
-       height is written by JS and is unaffected. */
+    /* Three columns, always: machine, copy, numbers. Height follows the content, so the card is
+       exactly as tall as its tallest column — a viewport cap forced 724px on a 392px card. */
     height: auto;
     display: grid;
-    grid-template-columns: minmax(0, 0.52fr) minmax(0, 0.48fr);
-    align-items: stretch;
+    grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.72fr) minmax(0, 0.62fr);
+    column-gap: clamp(1.25rem, 2.6vw, 2.75rem);
+    align-items: center;
     /* No surface: the device and the copy sit straight on the page, separated only by the machine's
        own contact shadow. A bordered, tinted card behind them read as a container the content was
        dropped into rather than as a composition. */
   }
   .rail-card-media {
     grid-column: 1;
+    grid-row: 1;
     min-width: 0;
-    /* no padding: with no card edge to inset from, padding only pushed the machine inwards and left
-       the composition off its grid. `overflow: clip` still contains the base, which is 4.5% wider
-       than the lid on each side. */
-    display: grid;
     /* centred in the copy's height: the machine is shorter than the text column, and centring splits
-       the difference above and below instead of dumping all of it under the device */
+       the difference instead of dumping all of it under the device. `overflow: clip` contains the
+       base, which is 4.5% wider than the lid on each side. */
+    display: grid;
     align-items: center;
     justify-items: center;
     overflow: clip;
@@ -1198,23 +1194,81 @@
     flex-direction: column;
     gap: clamp(0.55rem, 1.1vw, 0.9rem);
     min-width: 0;
-    /* capped measure: at the full column width the copy ended ~100px left of centre and left the
-       right third empty */
-    padding: 0 0 0 clamp(1rem, 2.4vw, 2.5rem);
-    /* anchored to the top, not centred: centring split the leftover height above and below the
-       copy, so the block floated in the middle of the panel with dead air on both sides. Anchored,
-       the emptiness collects on the right and below — the layout the reference relies on. */
-    justify-content: flex-start;
-    padding-top: clamp(0.5rem, 1.5vw, 1.25rem);
+    justify-content: center;
   }
   /* One measure for the whole column, so the empty space to its right is a straight channel
      instead of a ragged edge: the heading, the paragraph and the link all end on the same axis. */
-  .rail-card-body > * { max-width: 32ch; }
+  .rail-card-body > * { max-width: 30ch; }
   /* the link follows its paragraph. `margin-top: auto` pinned it to the panel's bottom edge, which
      put 410px between the sentence and the link that continues it (lead ended at 370, links started
      at 783). At 1rem it still measured 38px — 1.6 line-heights, which read as a separate element
      parked in the whitespace — so it now sits inside a single line of the body copy. */
   .rail-card-body .case-links { margin-top: 0.6rem; }
+
+  /* The numbers column. It is what fills the right third of the card: the reference puts two
+     oversized figures above a stack of chips there, and without them the layout collapsed to a
+     narrow text column floating in cream. */
+  .rail-card-facts {
+    grid-column: 3;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: clamp(1rem, 2vw, 1.75rem);
+    min-width: 0;
+  }
+  .case-metrics {
+    display: grid;
+    gap: clamp(0.75rem, 1.6vw, 1.4rem);
+  }
+  .case-metric-value {
+    font-family: 'Instrument Serif', ui-serif, Georgia, serif;
+    font-size: clamp(2.6rem, 5.2vw, 4.6rem);
+    font-weight: 400;
+    line-height: 0.86;
+    letter-spacing: -0.03em;
+    color: rgb(var(--text));
+  }
+  .case-metric-label {
+    margin-top: 0.4rem;
+    /* No max-width and no wrap: a `ch` cap wrapped "notification types" onto a second line, which
+       put the two labels on different baselines and broke the pairing under the numerals. */
+    white-space: nowrap;
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 9px;
+    line-height: 1.5;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: rgb(var(--text-faint));
+  }
+  .case-stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+  .case-stack .chip { font-size: 10px; padding: 0.2rem 0.5rem; }
+
+  /* The detail spans all three columns beneath them: inside one column it was 296px wide and 1194px
+     tall, which is what made the open state read as a crumpled sheet. */
+  .case-detail-wrap {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    overflow: hidden;
+  }
+  .case-detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    gap: clamp(1.5rem, 3vw, 3rem);
+    align-items: start;
+    margin-top: clamp(1.75rem, 3vw, 2.75rem);
+    padding-top: clamp(1.5rem, 2.5vw, 2rem);
+    border-top: 1px solid rgb(var(--border));
+  }
+  .case-detail-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
 
   /* One card means nothing to slide: without this the rail still reserves 90vh of empty scroll
      and the reader scrolls through blank space to reach nothing. */
@@ -1229,8 +1283,20 @@
     .work-rail-pin { position: static; height: auto; overflow: visible; }
     .work-rail-track { display: block; transform: none; }
     .rail-card { width: 100%; height: auto; display: block; }
-    .rail-card-media { max-width: 100%; }
-    .rail-card-body { margin-top: clamp(1.5rem, 4vw, 2.5rem); }
+    .rail-card-media { max-width: 100%; display: block; }
+    .rail-card-body { margin-top: clamp(1.5rem, 4vw, 2.5rem); justify-content: flex-start; }
+    /* the three columns stack: the machine, then the copy, then the numbers + stack */
+    .rail-card-facts {
+      /* block, not flex: as a flex row it inherited the grid's inline start and pushed the column
+         58px outside the card at 390px. */
+      display: block;
+      margin-top: clamp(1.5rem, 4vw, 2.5rem);
+    }
+    .case-stack { margin-top: 1.25rem; }
+    .case-metrics { display: flex; gap: 2rem; }
+    .case-metric-value { font-size: clamp(2.2rem, 9vw, 3rem); }
+    /* the detail's three columns cannot survive a 254px card; the copy becomes the only column */
+    .case-detail { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; }
     /* the rail still bleeds to the viewport while the card is capped by the shell, so a width on
        the ruler would measure the pin, not the card. Hidden instead: with the cards stacked there
        is no rail to indicate. */
