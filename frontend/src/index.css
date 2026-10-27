@@ -1056,86 +1056,156 @@
 
   /* ---------- work rail ---------- */
 
-  /* Pinned horizontal rail. The outer element reserves scroll length, the pin sticks to the top,
-     and the track slides by exactly its own overflow: `100%` in the calc is the track width, so
-     no measurement is needed and a filter change cannot leave a stale offset. */
-  /* The rail bleeds to the RIGHT edge only, so the first card's left edge sits exactly on the
-     shell gutter. Bleeding both ways started the card in the margin — that is what read as
-     "shifted left". The height is written by JS (travel + hold + viewport); the CSS estimate this
-     replaced was n * 90vh, which for four cards reserved 360vh of mostly empty scroll. */
+  /* Modelled on rauno.me: a 5:3 panel centred in the viewport with the next one peeking at the
+     right, and a tick ruler above it. The rail bleeds half a viewport on both sides so the first
+     and last card can sit centred; travel runs centre to centre, so every snap lands in the
+     middle of the screen rather than against an edge. Height is written by JS. */
   .work-rail {
     position: relative;
     height: 100svh;
-    margin-top: 1rem;
-    margin-right: calc(50% - 50vw);
+    margin-top: 1.25rem;
+    margin-inline: calc(50% - 50vw);
   }
   .work-rail-pin {
     position: sticky;
     top: 0;
     display: flex;
+    flex-direction: column;
     align-items: center;
+    justify-content: center;
+    /* the ruler needs its own seam: at 0.85rem it sat 15px under the nav pill and read as part of
+       the header rather than as the panel's indicator */
+    gap: clamp(1.6rem, 3vw, 2.75rem);
     height: 100svh;
     overflow: hidden;
   }
   .work-rail-track {
+    /* `align-self: flex-start` is load-bearing: the pin centres its children, and centring a track
+       that is WIDER than the pin shifts it left by half the overflow, which started the first card
+       outside the viewport (left −1557 at p=0). Start-aligned, the padding alone positions it. */
+    align-self: flex-start;
     display: flex;
-    gap: clamp(1.5rem, 3vw, 3rem);
+    gap: clamp(1rem, 2vw, 2rem);
+    /* half a viewport of air on both sides, so card N can be centred: the track is shifted by
+       (100vw - panel)/2 and then by the progress across the centre-to-centre travel */
+    padding-inline: calc((100vw - var(--panel, 60vw)) / 2);
     will-change: transform;
-    /* --travel is the measured overflow, written by ResizeObserver in Work.tsx */
     transform: translate3d(calc(var(--p, 0) * var(--travel, 0px) * -1), 0, 0);
-    /* no transition: the value is per-frame from the scroll listener; a transition here would lag
-       behind the gesture. The class below opts in for the snap only. */
+    /* no transition by default: the value is per-frame from the scroll listener, and a transition
+       would lag the gesture. The snap opts in below. */
   }
-  /* No transform transition: the snap moves the page's scroll position with `behavior: smooth`,
-     so the browser animates the offset and the track follows it frame by frame. Adding a
-     transition here as well would double the easing and lag behind the scroll. */
-  /* Copy on the LEFT, machine on the RIGHT and running off the viewport edge — the arrangement the
-     reference uses. Two consequences matter:
-       · the card is exactly the frame width, so every snap puts the copy back on the container
-         gutter. A narrower, centred card is what read as "too centred"; a card that ends before the
-         edge is what read as the machine "sticking to the left".
-       · the media column is wider than its grid track, so the laptop is genuinely cropped by the
-         viewport rather than shrunk to fit — that crop is the reference's signature. */
+  /* the snap moves the scroll position instantly and lets this carry the motion, so the two never
+     disagree about where the rail is */
+  .work-rail-track.is-snapping {
+    transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* The ruler: a hairline scale with one tick per project and a hollow box on the current one.
+     The connecting hairline is what makes it read as a measuring scale rather than four stray
+     marks — without it the ticks float and look like leftover UI. */
+  .rail-ruler {
+    position: relative;
+    /* spans the panel exactly: the ticks are a ruler for the rail, so its ends must land on the
+       panel's edges instead of floating in the middle of the viewport. --panel lives on the track
+       (a sibling), so it is set on the pin by Work.tsx and inherited here. */
+    width: var(--panel, 60vw);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    /* no horizontal padding and no inset line: the ruler's first and last tick must land ON the
+       panel's edges, otherwise it reads as a page scrollbar rather than as a frame for the panel */
+    justify-content: space-between;
+    padding: 0;
+    color: rgb(var(--text-muted));
+  }
+  .rail-ruler::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+    background: currentColor;
+    opacity: 0.45;
+  }
+  .rail-ruler-tick {
+    position: relative;
+    width: 1px;
+    height: 10px;
+    background: currentColor;
+    /* 0.5 of --text-faint measured below the visible floor at 1px on cream; 0.85 reads as a tick
+       without competing with the panel edge */
+    opacity: 0.85;
+  }
+  .rail-ruler-mark {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    z-index: 1;
+    width: 22px;
+    height: 12px;
+    margin-top: -6px;
+    border: 1px solid currentColor;
+    border-radius: 3px;
+    /* filled, not hollow: an empty box on the first card reads as "nothing selected" while the
+       panel says 01 */
+    background: rgb(var(--text));
+    box-shadow: 0 0 0 2px rgb(var(--bg));
+    /* travels the width of the tick row */
+    transform: translateX(var(--mark-x, 0px));
+    will-change: transform;
+  }
+
+  /* One panel per project: the screenshot on top, the copy beneath it. 5:3 with the height bound
+     to the viewport, so it keeps the reference's proportions instead of stretching. */
   .rail-card {
     flex: 0 0 auto;
-    /* One frame wide, measured by Work.tsx — see the note there on why 100% cannot work. The card
-       clips its own overflow: the media column is wider than its track so the machine runs off the
-       right edge, and clipping here (not on the track) stops that overflow from landing on the NEXT
-       card's copy, which is what an unclipped bleed does. */
-    width: var(--frame, 100vw);
-    /* `overflow-x: clip` and NOT `overflow: hidden`: hiding both axes made the card a scroll
-       container, so the laptop — taller than its row — was clipped vertically into a sliver.
-       Clipping only the inline axis still stops a card's bleed from landing on its neighbour. */
-    overflow-x: clip;
-    overflow-y: visible;
+    width: var(--panel, 60vw);
+    /* 5:3, exactly like the reference panel, and INSET into the viewport on both sides so one card
+       is centred with the next peeking at the right. */
+    /* No fixed ratio. The panel's height is what must fit a screen, so it is capped by the
+       viewport and its width follows from that — a ratio forced the card to 888px tall inside a
+       900px window with the ruler above it. */
+    height: min(calc(100svh - 11rem), 46rem);
     display: grid;
-    gap: clamp(1.5rem, 3vw, 3rem);
-    align-items: center;
-    padding-block: 2rem;
+    grid-template-columns: minmax(0, 0.52fr) minmax(0, 0.48fr);
+    align-items: stretch;
+    overflow: hidden;
+    border-radius: clamp(10px, 1vw, 16px);
+    /* a surface, not a bare image: hairline edge and one soft shadow */
+    border: 1px solid rgb(var(--border));
+    background: rgb(var(--surface));
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.04), 0 18px 50px -24px rgb(0 0 0 / 0.28);
   }
-  @media (min-width: 900px) {
-    .rail-card { grid-template-columns: minmax(0, 0.36fr) minmax(0, 0.64fr); }
-  }
-  /* Copy left, machine right. Placement is explicit rather than implied by source order so the
-     layout cannot silently mirror if the markup is ever reordered. */
-  .rail-card-body { grid-column: 1; grid-row: 1; }
   .rail-card-media {
+    grid-column: 1;
+    min-width: 0;
+    /* `overflow: clip` is required, not cosmetic: the laptop's base is 4.5% wider than its lid on
+       each side, so without a clip the machine sat flush against the panel border and read as a
+       missing padding value. */
+    overflow: clip;
+    padding: clamp(1.1rem, 2.2vw, 2.25rem);
+  }
+  .rail-card-media .laptop { width: 100%; }
+
+  .rail-card-body {
     grid-column: 2;
     grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.55rem, 1.1vw, 0.9rem);
     min-width: 0;
-    /* wider than its own column: the extra is the part the card's overflow clip cuts off at the
-       viewport edge */
-    width: calc(100% + clamp(2rem, 9vw, 11rem));
+    /* capped measure: at the panel's full column width the copy ended ~100px left of the card's
+       centre and left the right third empty */
+    padding: clamp(1.25rem, 2.6vw, 2.75rem) clamp(1.4rem, 3vw, 3rem) clamp(1.25rem, 2.6vw, 2.75rem) 0;
+    /* the copy column spans the panel's full height so its last row can sit on the panel's bottom
+       edge — otherwise the card carried a 360px void under the text */
+    justify-content: center;
   }
-  .rail-card-body { min-width: 0; }
-
-  .rail-hint {
-    font-family: 'JetBrains Mono', ui-monospace, monospace;
-    font-size: 10px;
-    text-transform: uppercase;
-    letter-spacing: 0.2em;
-    color: rgb(var(--text-faint));
-  }
+  .rail-card-body > * { max-width: 34ch; }
+  /* the meta row is the one element pinned to the bottom: it closes the column and turns the
+     leftover height into a deliberate base rather than an empty band */
+  .rail-card-body .case-links { margin-top: auto; }
 
   /* One card means nothing to slide: without this the rail still reserves 90vh of empty scroll
      and the reader scrolls through blank space to reach nothing. */
@@ -1149,10 +1219,17 @@
     .work-rail { height: auto; margin-right: 0; }
     .work-rail-pin { position: static; height: auto; overflow: visible; }
     .work-rail-track { display: block; transform: none; }
-    .rail-card { width: 100%; display: block; }
+    .rail-card { width: 100%; height: auto; display: block; }
     .rail-card-media { max-width: 100%; }
     .rail-card-body { margin-top: clamp(1.5rem, 4vw, 2.5rem); }
+    /* the rail still bleeds to the viewport while the card is capped by the shell, so a width on
+       the ruler would measure the pin, not the card. Hidden instead: with the cards stacked there
+       is no rail to indicate. */
+    .rail-ruler { display: none; }
     .rail-card + .rail-card { margin-top: clamp(2.5rem, 7vw, 4rem); }
+    /* the nav pill floats over the content, so the first card needs to clear it */
+    .rail-card:first-child { scroll-margin-top: 6rem; }
+    .work-rail { padding-top: 1.5rem; }
     .rail-hint { display: none; }
   }
 

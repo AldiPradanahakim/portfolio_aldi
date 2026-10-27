@@ -131,6 +131,7 @@ export function Work() {
 
   const railRef = useRef<HTMLDivElement | null>(null);
   const pinRef = useRef<HTMLDivElement | null>(null);
+  const rulerRef = useRef<HTMLSpanElement | null>(null);
   const trackRef = useRef<HTMLDivElement | null>(null);
 
   const projects = useMemo(
@@ -172,6 +173,20 @@ export function Work() {
       // exactly the gesture and cannot run ahead of or lag behind it
       const p = travel > 0 ? Math.min(1, Math.max(0, (scrolled - hold) / travel)) : 0;
       track.style.setProperty('--p', p.toFixed(4));
+      // The hollow box slides along the scale by the same progress the track uses. It is positioned
+      // in pixels rather than by a percentage: the ticks are a flex row of fixed widths, so a
+      // percentage of the row would drift from them.
+      const mark = rulerRef.current;
+      const ruler = mark?.parentElement;
+      if (mark && ruler) {
+        const ticks = Array.from(ruler.querySelectorAll<HTMLElement>('.rail-ruler-tick'));
+        if (ticks.length > 1) {
+          // read the real tick offsets: the row is space-between, so equal gaps are not guaranteed
+          const first = ticks[0].offsetLeft;
+          const last = ticks[ticks.length - 1].offsetLeft;
+          mark.style.setProperty('--mark-x', `${first + p * (last - first)}px`);
+        }
+      }
     };
 
     /**
@@ -186,21 +201,22 @@ export function Work() {
       const near = snaps.reduce((best, s) => (Math.abs(s - at) < Math.abs(best - at) ? s : best), snaps[0]);
       if (Math.abs(near - at) < 2) return;
 
-      settling = true;
-      // `top` is re-read here instead of trusting the cached value: the rail's height changes when
-      // images and fonts land, and a cached offset left every snap 5px short of the card edge.
+      // Scroll position moves INSTANTLY to the exact target; the track animates there with a
+      // transition. Doing it the other way round — `behavior: smooth` on the scroll — left the
+      // position 128px short (the animation gets cut by the next gesture or by the rail's own
+      // height changing), and every later nudge resumed from the wrong offset.
       const origin = rail.getBoundingClientRect().top + window.scrollY;
-      window.scrollTo({ top: origin + hold + near, behavior: reduced ? 'auto' : 'smooth' });
+      settling = true;
+      window.scrollTo({ top: origin + hold + near, behavior: 'auto' });
 
-      // The smooth scroll fires more scroll events; this window keeps them from re-snapping. The
-      // last step is an exact correction, because sub-pixel scroll positions land a few px off.
+      if (!reduced) {
+        track.classList.add('is-snapping');
+        track.style.setProperty('--p', (near / travel).toFixed(4));
+      }
       window.setTimeout(() => {
-        const still = -rail.getBoundingClientRect().top - hold;
-        if (Math.abs(near - still) > 1) {
-          window.scrollTo({ top: origin + hold + near, behavior: 'auto' });
-        }
+        track.classList.remove('is-snapping');
         settling = false;
-      }, reduced ? 60 : 620);
+      }, reduced ? 0 : 380);
     };
 
     const schedule = () => {
@@ -209,33 +225,36 @@ export function Work() {
     };
 
     const onScroll = () => {
+      // while the snap is animating, the scroll events come from our own scrollTo and would fight
+      // the transition, so the track is left alone until it lands
+      if (settling) return;
       update();
-      if (!settling) schedule();
+      schedule();
     };
 
     const measure = () => {
-      // The frame is the pin, not the window: the rail bleeds only to the right, so its width is
-      // the viewport minus the container gutter, and a 100vw formula overshoots by that gutter.
-      // `--frame` is published so each card can be exactly one frame wide: `width: 100%` cannot do
-      // it, because a percentage inside a shrink-to-fit flex track is circular and falls back to
-      // auto.
-      const frame = pin.clientWidth;
-      track.style.setProperty('--frame', `${frame}px`);
+      // Panel width: 5:3 like the reference, capped so the panel always fits one screen. The copy
+      // sits in its own column INSIDE the panel (see the CSS), which is what keeps the device large
+      // enough to read — stacked, the screenshot and the copy together overflowed a 5:3 box.
+      const panel = Math.round(
+        Math.min(pin.clientWidth * 0.74, (window.innerHeight - 170) * (5 / 3)),
+      );
+      track.style.setProperty('--panel', `${panel}px`);
+      // the ruler is a sibling of the track, so the width has to be published on the pin too
+      pin.style.setProperty('--panel', `${panel}px`);
 
-      // Travel is derived from the cards' own spacing, not from scrollWidth: the media column
-      // deliberately hangs past the frame, so scrollWidth counts pixels that are clipped anyway.
+      // Travel runs centre to centre, not edge to edge: the rail is inset by half a viewport on
+      // both sides so the first and last card can sit centred, which is what makes a snap land in
+      // the middle of the screen instead of jammed against the left edge.
       const cards = Array.from(track.children) as HTMLElement[];
       const step = cards.length > 1 ? cards[1].offsetLeft - cards[0].offsetLeft : 0;
       travel = Math.max(0, step * (cards.length - 1));
 
-      hold = Math.round(window.innerHeight * 0.3);
+      hold = Math.round(window.innerHeight * 0.25);
       track.style.setProperty('--travel', `${travel}px`);
       rail.style.height = `${Math.round(travel + hold + window.innerHeight)}px`;
+      snaps = cards.map((_, i) => i * step);
 
-      // One snap point per card, at the offset that puts that card's left edge on the frame's left
-      // edge. The last point is exactly the travel, which is where the final card comes fully into
-      // view — that is what stops the rail from parking with a card sliced down the middle.
-      snaps = cards.map((_, i) => Math.min(i * step, travel));
       update();
     };
 
@@ -290,6 +309,17 @@ export function Work() {
           style={{ '--n': shown.length } as React.CSSProperties}
         >
           <div ref={pinRef} className="work-rail-pin">
+            {/* The ruler from the reference: one tick per project with a hollow box on the current
+                one. It is the only scroll affordance on the panel — a progress bar would read as
+                loading, and arrows would fight the snap. */}
+            {shown.length > 1 && (
+              <div aria-hidden="true" className="rail-ruler">
+                <span ref={rulerRef} className="rail-ruler-mark" />
+                {shown.map((project) => (
+                  <span key={project.slug} className="rail-ruler-tick" />
+                ))}
+              </div>
+            )}
             <div ref={trackRef} className="work-rail-track">
               {shown.map((project) => (
                 <Card
