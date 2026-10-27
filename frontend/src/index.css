@@ -1699,3 +1699,165 @@ html[data-theme-ripple]::view-transition-old(root) {
     animation: none !important;
   }
 }
+
+/* ---------- floating cubes ---------- */
+
+/* Permukaan kubus harus OPAK. Dengan alpha, logo sisi belakang menembus sisi depan dan hasilnya
+   terbaca sebagai dua logo bertumpuk — bukan benda padat. Ramp tiga nilai ini yang memberi kesan
+   cahaya dari atas; satu tema punya ramp sendiri karena arah kontrasnya terbalik. */
+:root {
+  --cube-top: 78 76 86;
+  --cube-left: 60 58 67;
+  --cube-front: 50 48 57;
+  --cube-right: 42 40 48;
+  --cube-back: 35 33 41;
+  --cube-bottom: 28 26 33;
+  --cube-ink: 214 209 198;
+  --cube-edge: 255 255 255;
+}
+:root.light {
+  /* Tema terang: krem halaman 244 241 235. Kubus harus jelas lebih gelap supaya sisi atasnya
+     punya tepi (sebelumnya 1.0:1, jadi sisi atas menyatu dengan latar dan kubus terbaca gepeng). */
+  --cube-top: 191 185 176;
+  --cube-left: 173 167 157;
+  --cube-front: 160 154 144;
+  --cube-right: 147 141 131;
+  --cube-back: 136 130 120;
+  --cube-bottom: 124 118 109;
+  --cube-ink: 34 31 27;
+  --cube-edge: 255 255 255;
+}
+
+/* Kubus 3D dengan CSS transform murni. Semua animasi memakai transform/opacity saja, jadi
+   dijalankan compositor dan tidak memicu layout — ini yang membuat enam kubus tetap murah
+   bahkan di HP kelas bawah. */
+
+.cubes {
+  position: absolute;
+  inset: 0;
+  z-index: 0; /* di bawah konten; root hero memakai z-index 1-2 */
+  pointer-events: none;
+  overflow: hidden;
+  /* `contain` mengurung paint kubus di kotaknya sendiri, jadi rotasi tidak pernah memaksa
+     browser menghitung ulang bagian halaman lain */
+  contain: layout paint;
+}
+
+.cube {
+  position: absolute;
+  top: var(--y);
+  left: var(--x);
+  width: var(--size);
+  height: var(--size);
+  /* Tanpa perspective, translateZ tidak menghasilkan kedalaman sama sekali dan keenam sisi
+     jatuh rata — kubusnya jadi kartu gepeng. Nilainya sebanding ukuran kubus supaya distorsinya
+     tetap sama di semua ukuran. */
+  perspective: calc(var(--size) * 4.5);
+  /* parallax: --px/--py ditulis dari JS; translate3d memaksa layer GPU terpisah */
+  transform: translate3d(
+    calc(-50% + var(--px, 0px)),
+    calc(-50% + var(--py, 0px)),
+    0
+  );
+  transition: transform 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+/* Lapisan kedua: mengambang naik-turun. Dipisah dari rotasi supaya keduanya bisa punya
+   durasi berbeda tanpa saling menimpa nilai transform. */
+.cube-float {
+  width: 100%;
+  height: 100%;
+  animation: cube-float var(--float) ease-in-out var(--float-delay) infinite;
+  will-change: transform;
+}
+@keyframes cube-float {
+  0%, 100% { transform: translateY(-9%); }
+  50% { transform: translateY(9%); }
+}
+
+/* Lapisan ketiga: rotasi dua sumbu, terus-menerus. preserve-3d wajib di sini, kalau tidak
+   keenam sisi akan diratakan jadi satu bidang. */
+.cube-spin {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  animation: cube-spin var(--spin) linear infinite;
+}
+@keyframes cube-spin {
+  from { transform: rotateX(var(--tilt)) rotateY(var(--seed)) rotateZ(0deg); }
+  to { transform: rotateX(calc(var(--tilt) + 360deg)) rotateY(calc(var(--seed) + 360deg)) rotateZ(360deg); }
+}
+
+/* Enam sisi. Tiap sisi digeser setengah ukuran kubus ke arahnya sendiri. */
+.cube-face {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  /* 17% -> 24%: dengan 17% logo yang paling lebar (Laravel, wordmark PHP) menyentuh tepi sisi
+     dan terlihat terpotong saat kubus berputar */
+  padding: 24%;
+  background: rgb(var(--cube-front));
+  border: 1px solid rgb(var(--cube-edge) / 0.16);
+  outline: 1px solid rgb(var(--cube-edge) / 0.06);
+  outline-offset: -1px;
+  border-radius: 6%;
+  /* opacity must stay 1 here: a translucent face shows the logo of the face behind it */
+  opacity: 1;
+}
+.cube-face svg {
+  width: 100%;
+  height: 100%;
+  fill: rgb(var(--cube-ink));
+}
+
+/* Satu arah cahaya: atas paling terang, bawah paling gelap, kiri lebih terang dari kanan. */
+.cube-face--front { transform: translateZ(calc(var(--size) / 2)); background: rgb(var(--cube-front)); }
+.cube-face--back {
+  transform: rotateY(180deg) translateZ(calc(var(--size) / 2));
+  background: rgb(var(--cube-back));
+}
+.cube-face--right {
+  transform: rotateY(90deg) translateZ(calc(var(--size) / 2));
+  background: rgb(var(--cube-right));
+}
+.cube-face--left {
+  transform: rotateY(-90deg) translateZ(calc(var(--size) / 2));
+  background: rgb(var(--cube-left));
+}
+.cube-face--top {
+  transform: rotateX(90deg) translateZ(calc(var(--size) / 2));
+  background: rgb(var(--cube-top));
+}
+.cube-face--bottom {
+  transform: rotateX(-90deg) translateZ(calc(var(--size) / 2));
+  background: rgb(var(--cube-bottom));
+}
+
+/* Layar kecil: kubus kecil dibuang lebih dulu lewat `display: none` supaya animasinya benar-benar
+   berhenti. Yang tersisa hanya kubus besar, karena merekalah yang masih terbaca saat diperkecil. */
+@media (max-width: 1100px) {
+  .cube { scale: 0.85; }
+}
+@media (max-width: 900px) {
+  /* 8 -> 5 kubus */
+  .cube:nth-child(5),
+  .cube:nth-child(7),
+  .cube:nth-child(8) { display: none; }
+  .cube { scale: 0.78; }
+}
+@media (max-width: 640px) {
+  /* 5 -> 3 kubus */
+  .cube:nth-child(3),
+  .cube:nth-child(6) { display: none; }
+  .cube { scale: 0.66; }
+  .cube-face { box-shadow: none; }
+}
+
+/* Hormati permintaan pengguna. Komponennya sendiri juga tidak merender apa pun saat reduce,
+   jadi aturan ini hanya jaring pengaman kalau preferensi berubah di tengah sesi. */
+@media (prefers-reduced-motion: reduce) {
+  .cubes { display: none; }
+}
