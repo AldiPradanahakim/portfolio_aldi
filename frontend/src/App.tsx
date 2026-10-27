@@ -5,7 +5,6 @@ import { LanguageProvider } from './shared/context/LanguageProvider';
 import { ThemeProvider } from './shared/context/ThemeProvider';
 import { useLang } from './shared/context/language';
 import { ScrollProgressBar } from './shared/components/ScrollProgressBar';
-import { FloatingCubes } from './widgets/FloatingCubes/FloatingCubes';
 import { recallScroll, rememberScroll } from './shared/lib/scroll';
 import Home from './pages/Home/Home';
 import { Footer } from './widgets/Footer/Footer';
@@ -91,21 +90,14 @@ function Shell() {
         {t(T.skip)}
       </a>
 
-      {/* Kubus hiasan: `position: fixed` di viewport supaya tetap melayang sepanjang halaman,
-          bukan hilang saat hero digulir. Ditaruh sebelum <main> agar berada di lapisan paling
-          bawah; komponennya sendiri aria-hidden dan pointer-events: none. */}
-      <FloatingCubes />
-
       <Nav />
 
       {/* The document scrolls under the floating nav pill. `pt-16` reserves its height plus the
           12px it floats above the fold; the pill takes no space of its own. */}
-      {/* `relative z-[1]`: konten harus berada di atas lapisan kubus. Tanpa ini kubus yang
-          `position: fixed` menang melawan section yang tidak punya stacking context sendiri. */}
       <main
         id="main"
         tabIndex={-1}
-        className={onHome ? 'relative z-[1] pt-16' : 'relative z-[1]'}
+        className={onHome ? 'pt-16' : undefined}
       >
         <Suspense
           fallback={
