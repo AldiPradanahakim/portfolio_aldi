@@ -1165,6 +1165,11 @@
 
   .journey-card {
     position: relative;
+    /* column + a bottom-pinned footer: body copy of different lengths otherwise leaves the date
+       sitting at a different height on every card, and the zig-zag starts to look hand-placed */
+    display: flex;
+    flex-direction: column;
+    min-height: 15.5rem;
     padding: clamp(1.25rem, 2vw, 1.65rem);
     border: 1px solid rgb(var(--border));
     border-radius: 1rem;
@@ -1221,6 +1226,25 @@
     .journey-entry.is-right .journey-card { transform: none; opacity: 1; transition: none; }
   }
 
+  /* the closing marker: a filled dot instead of an icon, with the label on the opposite side so
+     the route visibly ends rather than stopping */
+  .journey-node-inner--now {
+    background: rgb(var(--accent));
+    border-color: rgb(var(--accent));
+    box-shadow: 0 0 0 4px rgb(var(--accent) / 0.15);
+  }
+  .journey-now {
+    grid-column: 3;
+    grid-row: 1;
+    align-self: start;
+    padding-top: calc(var(--node-y) + 0.35rem);
+    font-family: 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.24em;
+    color: rgb(var(--accent));
+  }
+
   @media (max-width: 900px) {
     /* one rail: spine at the left edge, every card to its right — a centre spine at this width
        leaves 40px columns that cannot hold a sentence */
@@ -1233,6 +1257,7 @@
     .journey-entry.is-right .journey-card { grid-column: 2; }
     .journey-node { grid-column: 1; margin-left: -0.2rem; }
     .journey-card::after { display: none; }
+    .journey-now { grid-column: 2; }
   }
 
   /* ---------- misc primitives ---------- */

@@ -23,9 +23,10 @@ const T = {
   eyebrow: { en: 'Journey', id: 'Perjalanan' },
   title: { en: 'Where I have been', id: 'Tempat saya pernah berkarya' },
   lead: {
-    en: 'The roles I have held, in the order they happened — from a practicum front end to a thesis built end to end.',
-    id: 'Peran yang pernah saya pegang, sesuai urutan kejadiannya — dari front end praktikum sampai tugas akhir yang dibangun ujung ke ujung.',
+    en: 'The roles I have held, in the order they happened — from a first web programming course to a thesis built end to end.',
+    id: 'Peran yang pernah saya pegang, sesuai urutan kejadiannya — dari mata kuliah pemrograman web sampai tugas akhir yang dibangun ujung ke ujung.',
   },
+  now: { en: 'Now', id: 'Sekarang' },
 };
 
 /**
@@ -116,7 +117,7 @@ export function Journey() {
                   {t(milestone.detail)}
                 </p>
 
-                <footer className="mt-5 flex items-center gap-3">
+                <footer className="mt-auto flex items-center gap-3 pt-5">
                   <span aria-hidden="true" className="h-px flex-1 bg-ink-800" />
                   <span className="font-mono text-[11px] uppercase tracking-[0.16em] text-chalk-faint">
                     {milestone.period}
@@ -126,6 +127,15 @@ export function Journey() {
             </li>
           );
         })}
+
+        {/* Seven entries end on the same side they started, which leaves the last row lopsided.
+            A closing marker on the opposite side turns the odd count into a bracket. */}
+        <li className="journey-entry is-right" aria-hidden="true">
+          <span className="journey-node">
+            <span className="journey-node-inner journey-node-inner--now" />
+          </span>
+          <p className="journey-now">{t(T.now)}</p>
+        </li>
       </ol>
     </Section>
   );
