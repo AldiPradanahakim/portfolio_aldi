@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { AnimatePresence, motion, useScroll, useReducedMotion } from 'motion/react';
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
 import { ArrowUpRight } from 'lucide-react';
 import { useContent } from '../../data';
 import type { CategoryId, Project } from '../../content';
@@ -144,45 +144,60 @@ export function Work() {
   const shown = filter === 'all' ? projects : projects.filter((p) => p.category === filter);
 
   /**
-   * Horizontal scroll: the rail is pinned while the page scrolls through it, and the track slides
-   * left by exactly its own overflow. The travel is CSS `calc(var(--p) * (100vw - 100%))`, where
-   * 100% is the track width — so nothing has to be measured, and a filter that changes the card
-   * count cannot leave a stale pixel value behind. `--p` is written straight to the node, so
-   * scrolling never re-renders the cards.
+   * Pinned horizontal scroll, driven by a plain scroll listener rather than a Motion scroll
+   * tracker: the mapping needs a hold phase and a measured pixel travel, and both are cheaper to
+   * express directly than to bend a 0..1 progress value into.
+   *
+   * Three numbers decide the whole geometry, and all three are measured:
+   *   travel — how far the track must slide (its overflow past the frame)
+   *   hold   — a beat *before* the slide starts, so the first card is read while standing still
+   *   height — travel + hold + viewport, written back to the rail so the page reserves exactly the
+   *            scroll the rail actually uses
+   *
+   * The card count is deliberately not part of any formula. `n * 90vh` was the previous estimate
+   * and, for four cards, reserved 360vh — a screen of dead scroll between every card.
    */
-  const { scrollYProgress } = useScroll({
-    target: railRef,
-    offset: ['start start', 'end end'],
-  });
-
   useEffect(() => {
-    const track = trackRef.current;
+    const rail = railRef.current;
     const pin = pinRef.current;
-    if (!track || !pin) return;
+    const track = trackRef.current;
+    if (!rail || !pin || !track) return;
 
-    track.style.setProperty('--p', '0');
+    let travel = 0;
+    let hold = 0;
 
-    // The travel is measured, not derived from `100vw - 100%`: that formula ignores the rail's
-    // own padding and the scrollbar, and left the last card 75px past the edge. A ResizeObserver
-    // keeps it exact when a filter changes the card count or the window is resized.
     const measure = () => {
-      const over = Math.max(0, track.scrollWidth - pin.clientWidth);
-      track.style.setProperty('--travel', `${over}px`);
+      // clientWidth of the pin, not innerWidth: the rail bleeds right only, so the frame starts on
+      // the shell gutter and a 100vw formula would overshoot by exactly that gutter.
+      travel = Math.max(0, track.scrollWidth - pin.clientWidth);
+      hold = Math.round(window.innerHeight * 0.3);
+
+      track.style.setProperty('--travel', `${travel}px`);
+      rail.style.height = `${Math.round(travel + hold + window.innerHeight)}px`;
+      update();
     };
+
+    const update = () => {
+      const scrolled = -rail.getBoundingClientRect().top;
+      // hold first, then one pixel of slide per pixel of scroll — no easing, so the movement is
+      // exactly the gesture and cannot run ahead of or lag behind the finger
+      const p = travel > 0 ? Math.min(1, Math.max(0, (scrolled - hold) / travel)) : 0;
+      track.style.setProperty('--p', p.toFixed(4));
+    };
+
     measure();
+    window.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('resize', measure);
+
     const observer = new ResizeObserver(measure);
     observer.observe(track);
-    observer.observe(pin);
-
-    const unsubscribe = scrollYProgress.on('change', (value) => {
-      track.style.setProperty('--p', value.toFixed(4));
-    });
 
     return () => {
+      window.removeEventListener('scroll', update);
+      window.removeEventListener('resize', measure);
       observer.disconnect();
-      unsubscribe();
     };
-  }, [scrollYProgress, filter]);
+  }, [filter]);
 
   const categoryLabel = (project: Project) => {
     const label = content.categories.find((c) => c.id === project.category)?.label;
