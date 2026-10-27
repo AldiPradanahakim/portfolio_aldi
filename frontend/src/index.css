@@ -296,10 +296,13 @@
 
   /* ---------- case study panels ---------- */
 
+  /* The index sits ABOVE the title, not beside it: beside, it indented the heading relative to the
+     paragraph below and left the column with two different left edges. */
   .case-head {
     display: flex;
-    align-items: center;
-    gap: 1rem;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
   }
   /* the number lives in a hairline box, not as a floating label: it marks the panel as one of
      a numbered set without adding another type size */
@@ -1086,24 +1089,43 @@
   /* No transform transition: the snap moves the page's scroll position with `behavior: smooth`,
      so the browser animates the offset and the track follows it frame by frame. Adding a
      transition here as well would double the easing and lag behind the scroll. */
-  /* Laptop beside the copy: the machine is height-bound so the card always fits one pinned screen,
-     and the text column takes the rest. */
+  /* Copy on the LEFT, machine on the RIGHT and running off the viewport edge — the arrangement the
+     reference uses. Two consequences matter:
+       · the card is exactly the frame width, so every snap puts the copy back on the container
+         gutter. A narrower, centred card is what read as "too centred"; a card that ends before the
+         edge is what read as the machine "sticking to the left".
+       · the media column is wider than its grid track, so the laptop is genuinely cropped by the
+         viewport rather than shrunk to fit — that crop is the reference's signature. */
   .rail-card {
     flex: 0 0 auto;
-    width: min(88vw, 76rem);
+    /* One frame wide, measured by Work.tsx — see the note there on why 100% cannot work. The card
+       clips its own overflow: the media column is wider than its track so the machine runs off the
+       right edge, and clipping here (not on the track) stops that overflow from landing on the NEXT
+       card's copy, which is what an unclipped bleed does. */
+    width: var(--frame, 100vw);
+    /* `overflow-x: clip` and NOT `overflow: hidden`: hiding both axes made the card a scroll
+       container, so the laptop — taller than its row — was clipped vertically into a sliver.
+       Clipping only the inline axis still stops a card's bleed from landing on its neighbour. */
+    overflow-x: clip;
+    overflow-y: visible;
     display: grid;
-    gap: clamp(1.5rem, 3.5vw, 3.5rem);
+    gap: clamp(1.5rem, 3vw, 3rem);
     align-items: center;
+    padding-block: 2rem;
   }
   @media (min-width: 900px) {
-    .rail-card { grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr); }
+    .rail-card { grid-template-columns: minmax(0, 0.36fr) minmax(0, 0.64fr); }
   }
+  /* Copy left, machine right. Placement is explicit rather than implied by source order so the
+     layout cannot silently mirror if the markup is ever reordered. */
+  .rail-card-body { grid-column: 1; grid-row: 1; }
   .rail-card-media {
+    grid-column: 2;
+    grid-row: 1;
     min-width: 0;
-    /* A closed laptop reads wider than tall by roughly 1.75 (a 2.06:1 screen plus lid padding and
-       base), so capping the width from the viewport height keeps the lid plus the copy inside one
-       screen instead of pushing the copy below the fold. */
-    max-width: calc(52svh * 1.75);
+    /* wider than its own column: the extra is the part the card's overflow clip cuts off at the
+       viewport edge */
+    width: calc(100% + clamp(2rem, 9vw, 11rem));
   }
   .rail-card-body { min-width: 0; }
 

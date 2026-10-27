@@ -36,14 +36,6 @@ function Card({ project, index, category }: { project: Project; index: number; c
 
   return (
     <article className="rail-card">
-      <div className="rail-card-media">
-        <LaptopFrame
-          src={project.cover}
-          alt={`${project.name} — ${t(project.tagline)}`}
-          initials={initials}
-        />
-      </div>
-
       <div className="rail-card-body">
         <div className="case-head">
           <span aria-hidden="true" className="case-index">
@@ -119,6 +111,14 @@ function Card({ project, index, category }: { project: Project; index: number; c
           )}
         </AnimatePresence>
       </div>
+      <div className="rail-card-media">
+        <LaptopFrame
+          src={project.cover}
+          alt={`${project.name} — ${t(project.tagline)}`}
+          initials={initials}
+        />
+      </div>
+
     </article>
   );
 }
@@ -162,7 +162,6 @@ export function Work() {
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let travel = 0;
     let hold = 0;
-    let top = 0;
     let snaps: number[] = [];
     let idle = 0;
     let settling = false;
@@ -188,9 +187,20 @@ export function Work() {
       if (Math.abs(near - at) < 2) return;
 
       settling = true;
-      window.scrollTo({ top: top + hold + near, behavior: reduced ? 'auto' : 'smooth' });
-      // the smooth scroll fires more scroll events; this window keeps them from re-snapping
-      window.setTimeout(() => { settling = false; }, reduced ? 60 : 620);
+      // `top` is re-read here instead of trusting the cached value: the rail's height changes when
+      // images and fonts land, and a cached offset left every snap 5px short of the card edge.
+      const origin = rail.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo({ top: origin + hold + near, behavior: reduced ? 'auto' : 'smooth' });
+
+      // The smooth scroll fires more scroll events; this window keeps them from re-snapping. The
+      // last step is an exact correction, because sub-pixel scroll positions land a few px off.
+      window.setTimeout(() => {
+        const still = -rail.getBoundingClientRect().top - hold;
+        if (Math.abs(near - still) > 1) {
+          window.scrollTo({ top: origin + hold + near, behavior: 'auto' });
+        }
+        settling = false;
+      }, reduced ? 60 : 620);
     };
 
     const schedule = () => {
@@ -204,19 +214,27 @@ export function Work() {
     };
 
     const measure = () => {
-      // clientWidth of the pin, not innerWidth: the rail bleeds right only, so the frame starts on
-      // the shell gutter and a 100vw formula would overshoot by exactly that gutter.
-      travel = Math.max(0, track.scrollWidth - pin.clientWidth);
+      // The frame is the pin, not the window: the rail bleeds only to the right, so its width is
+      // the viewport minus the container gutter, and a 100vw formula overshoots by that gutter.
+      // `--frame` is published so each card can be exactly one frame wide: `width: 100%` cannot do
+      // it, because a percentage inside a shrink-to-fit flex track is circular and falls back to
+      // auto.
+      const frame = pin.clientWidth;
+      track.style.setProperty('--frame', `${frame}px`);
+
+      // Travel is derived from the cards' own spacing, not from scrollWidth: the media column
+      // deliberately hangs past the frame, so scrollWidth counts pixels that are clipped anyway.
+      const cards = Array.from(track.children) as HTMLElement[];
+      const step = cards.length > 1 ? cards[1].offsetLeft - cards[0].offsetLeft : 0;
+      travel = Math.max(0, step * (cards.length - 1));
+
       hold = Math.round(window.innerHeight * 0.3);
-      top = Math.round(rail.getBoundingClientRect().top + window.scrollY);
       track.style.setProperty('--travel', `${travel}px`);
       rail.style.height = `${Math.round(travel + hold + window.innerHeight)}px`;
 
       // One snap point per card, at the offset that puts that card's left edge on the frame's left
-      // edge. The last point is capped at `travel`, which is where the final card comes fully into
-      // view — that cap is what stops the rail from parking with a card sliced down the middle.
-      const cards = Array.from(track.children) as HTMLElement[];
-      const step = cards.length > 1 ? cards[1].offsetLeft - cards[0].offsetLeft : 0;
+      // edge. The last point is exactly the travel, which is where the final card comes fully into
+      // view — that is what stops the rail from parking with a card sliced down the middle.
       snaps = cards.map((_, i) => Math.min(i * step, travel));
       update();
     };
