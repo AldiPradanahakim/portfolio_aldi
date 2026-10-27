@@ -9,7 +9,7 @@ const T = {
   },
 };
 
-/** Real stack names from the CMS, one marquee row with ember separators and edge fades. */
+/** Real stack names from the CMS, one marquee row with ember separators and hard-clipped edges. */
 export function TrustStrip() {
   const { t } = useLang();
   const { content } = useContent();
@@ -20,13 +20,15 @@ export function TrustStrip() {
 
   return (
     <section aria-label={t(T.label)} className="overflow-hidden border-y border-ink-800 py-6">
-      <Marquee duration={36}>
+      {/* `stack-band` drops the marquee's edge fade: the reference band is sliced hard at both
+          viewport edges, and a 6% fade made the end labels look dimmed rather than continuing. */}
+      <Marquee duration={36} className="stack-band">
         {items.map((item) => (
           <span key={item.en} className="flex items-center">
-            <span className="px-6 font-mono text-small uppercase tracking-[0.24em] text-chalk-faint">
+            <span className="stack-item font-mono text-small uppercase text-chalk-faint">
               {t(item)}
             </span>
-            <span aria-hidden="true" className="marquee-dot" />
+            <span aria-hidden="true" className="stack-star">✳</span>
           </span>
         ))}
       </Marquee>

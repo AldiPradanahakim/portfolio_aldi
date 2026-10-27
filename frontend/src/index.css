@@ -590,6 +590,28 @@
   /* A drawn circle, not the `●` glyph: a glyph sits on the text baseline, so the separator hung
      low and read as a stray period. The flex parent centres it; the text's own `px-6` supplies
      the gap on both sides, so no margin is needed. */
+  /* The stack band: hard-clipped at both viewport edges, and the labels sit far apart with a star
+     between them — the reference reads as a ticker that runs off the screen, not as a faded list.
+     `.marquee.stack-band` for specificity: `.marquee` is written later in this file and would win
+     at equal weight. */
+  .marquee.stack-band {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .stack-item {
+    /* 1.4rem of tracking, not 0.24em: the reference spaces the labels so each one reads as its own
+       station on the band */
+    letter-spacing: 0.34em;
+    padding-inline: clamp(1.5rem, 3.2vw, 3.25rem);
+  }
+  .stack-star {
+    flex-shrink: 0;
+    margin-right: clamp(1.5rem, 3.2vw, 3.25rem);
+    font-size: 0.7rem;
+    line-height: 1;
+    color: rgb(var(--accent));
+  }
+
   .marquee-dot {
     flex-shrink: 0;
     height: 5px;
@@ -902,13 +924,16 @@
 
   /* Stack as a moving rhythm strip instead of a row of tagged pills under the headline.
      The edge mask makes a clipped word read as motion; without it a marquee looks broken. */
-  .hero-marquee {
+  /* `.marquee.hero-marquee` and not `.hero-marquee`: the shared `.marquee` rule comes later in this
+     file, so at equal specificity its edge fade won and the band stayed washed out at both ends.
+     Hard-clipped is the point — the reference is sliced at the viewport edges. */
+  .marquee.hero-marquee {
     position: relative;
     z-index: 2;
     border-block: 1px solid rgb(var(--border));
     padding-block: 0.85rem;
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
-    mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
+    -webkit-mask-image: none;
+    mask-image: none;
   }
   .hero-stack { display: inline-flex; align-items: center; }
   .hero-stack-item {
