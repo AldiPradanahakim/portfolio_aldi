@@ -23,7 +23,7 @@ export function Section({ id, eyebrow, title, lead, children, className }: Secti
   const { ref } = useScrollProgress<HTMLDivElement>();
 
   return (
-    <section id={id} aria-labelledby={`${id}-title`} className={cx('py-20 sm:py-28', className)}>
+    <section id={id} aria-labelledby={`${id}-title`} className={cx('py-14 sm:py-20', className)}>
       <div className="shell">
         <div ref={ref} className="section-head">
           <div className="flex items-end justify-between gap-8">
@@ -34,7 +34,7 @@ export function Section({ id, eyebrow, title, lead, children, className }: Secti
                 id={`${id}-title`}
                 text={title}
                 stagger={38}
-                className="section-title mt-5 max-w-5xl text-balance"
+                className="section-title mt-3 max-w-5xl text-balance"
               />
             </div>
             {index > 0 && (
@@ -43,10 +43,10 @@ export function Section({ id, eyebrow, title, lead, children, className }: Secti
               </span>
             )}
           </div>
-          {lead && <p className="mt-6 max-w-2xl text-body text-chalk-muted">{lead}</p>}
-          <span aria-hidden="true" className="rule mt-8" />
+          {lead && <p className="mt-4 max-w-2xl text-body text-chalk-muted">{lead}</p>}
+          <span aria-hidden="true" className="rule mt-6" />
         </div>
-        <div className="mt-10 sm:mt-14">{children}</div>
+        <div className="mt-8 sm:mt-10">{children}</div>
       </div>
     </section>
   );

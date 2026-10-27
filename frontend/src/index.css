@@ -15,8 +15,8 @@
     /* near-black with a violet-neutral cast; the ramp stays monotonic */
     --bg: 7 7 10;
     --surface: 12 12 16;
-    --surface-raised: 18 18 24;
-    --border: 30 29 34;
+    --surface-raised: 24 23 30;
+    --border: 44 42 50;
     --border-strong: 46 44 50;
     --border-hover: 70 67 74;
     /* the nav pill's own edge: a container boundary needs 3:1 against the page, which the shared
@@ -25,7 +25,7 @@
     /* warm off-white ink over the cool canvas */
     --text: 243 239 231;
     --text-muted: 176 170 158;
-    --text-faint: 138 132 121;
+    --text-faint: 158 152 141;
     /* the one hot colour */
     --accent: 255 74 36;
     --accent-hover: 255 138 76;
@@ -532,24 +532,6 @@
   }
   .contact-copy:hover { border-color: rgb(var(--border-hover)); color: rgb(var(--text)); }
   .contact-copy svg { width: 0.9rem; height: 0.9rem; }
-
-  /* ---------- journey depth field ---------- */
-
-  /* `--near` is written by the journey scroll loop: 1 at the centre line, 0 a screen away.
-     Unset (mobile, reduced motion) falls back to fully lit. */
-  /* Stays legible at the edges: depth is a hint, not a fade-out. */
-  .journey-item {
-    opacity: calc(0.72 + var(--near, 1) * 0.28);
-    transform: scale(calc(0.975 + var(--near, 1) * 0.025));
-    filter: blur(calc((1 - var(--near, 1)) * 0.9px));
-  }
-  @media (max-width: 767px) {
-    .journey-item {
-      opacity: 1;
-      transform: none;
-      filter: none;
-    }
-  }
 
   /* ---------- ticker band ---------- */
 
@@ -1095,53 +1077,162 @@
     box-shadow: inset 0 -1px 0 rgb(var(--border-strong));
   }
 
-  /* ---------- journey ---------- */
+/* ---------- journey route ---------- */
 
-  .journey-track {
+  /* A zig-zag route instead of a horizontal card strip. The entries alternate across a centre
+     spine and the spine's lit half is clipped to the scroll progress, so the path appears to draw
+     itself as you read. On a phone the spine moves to the left rail and every card sits to its
+     right, which is the same idea collapsed to one column. */
+
+  .journey-route {
+    --node-y: 1.55rem;
+    --node-size: 2.25rem;
+    position: relative;
     display: flex;
-    gap: clamp(1.5rem, 4vw, 4rem);
-    will-change: transform;
-    transform: translate3d(
-      calc(var(--p, 0) * -1 * max(0px, var(--track, 0px) - 100vw)),
-      0,
-      0
+    flex-direction: column;
+    gap: clamp(2rem, 4vw, 3.25rem);
+  }
+
+  /* the spine: one faint full-height rule, one lit copy scaled by the scroll progress */
+  .journey-spine {
+    position: absolute;
+    left: 50%;
+    /* anchored to the first node's centre, not to the top of the list: a line that starts above
+       node 01 reads as an uncapped divider rather than as the path the entries sit on */
+    top: calc(var(--node-y) + var(--node-size) / 2);
+    bottom: 0;
+    width: 1px;
+    transform: translateX(-0.5px);
+    background: rgb(var(--border));
+    pointer-events: none;
+    /* faded at both ends: a flat rule that starts above the first node and runs off the bottom
+       of the section reads as a divider someone forgot to cap */
+    -webkit-mask-image: linear-gradient(to bottom, transparent, #000 7%, #000 93%, transparent);
+    mask-image: linear-gradient(to bottom, transparent, #000 7%, #000 93%, transparent);
+  }
+  .journey-spine--lit {
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgb(var(--accent)) 6%,
+      rgb(var(--accent)) 94%,
+      transparent
+    );
+    transform-origin: top;
+    box-shadow: 0 0 12px rgb(var(--accent) / 0.45);
+    /* the lit head is where the drawing edge sits, so it gets the glow */
+    background: linear-gradient(
+      to bottom,
+      rgb(var(--accent) / 0.15),
+      rgb(var(--accent)) 55%,
+      rgb(var(--accent))
     );
   }
-  .journey-rail {
-    height: 1px;
-    background: rgb(var(--border));
+
+  .journey-entry {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: start;
+    column-gap: clamp(1.25rem, 3vw, 2.5rem);
   }
-  .journey-fill {
-    height: 1px;
-    background: rgb(var(--accent));
-    box-shadow: 0 0 10px rgb(var(--accent) / 0.7);
-    transform-origin: left;
-    transform: scaleX(0);
+  /* odd entries sit left of the spine, even entries right of it; the empty half is left open so
+     the eye travels down the zig-zag instead of reading two parallel columns */
+  /* grid-row 1 on both: without it the auto-placer puts the node in row 1 and then the card in
+     row 2, so the card sat 61px below its own node on one side only */
+  .journey-entry.is-left .journey-card { grid-column: 1; grid-row: 1; }
+  .journey-entry.is-right .journey-card { grid-column: 3; grid-row: 1; }
+
+  .journey-node {
+    grid-column: 2;
+    grid-row: 1;
+    display: grid;
+    place-items: center;
+    /* 1.55rem + half of the 2.25rem node = the y the connector stub is pinned to. Both sides use
+       the same number so a left card and a right card can never drift apart again. */
+    padding-top: var(--node-y);
   }
-  .journey-dot {
-    @apply relative grid h-4 w-4 place-items-center;
+  .journey-node-inner {
+    display: grid;
+    place-items: center;
+    width: var(--node-size);
+    height: var(--node-size);
+    border-radius: 999px;
+    border: 1px solid rgb(var(--border-strong));
+    background: rgb(var(--bg));
+    color: rgb(var(--text-muted));
   }
-  .journey-dot::before {
-    content: '';
-    width: 7px;
-    height: 7px;
-    border-radius: 9999px;
-    background: rgb(var(--border-strong));
+
+  .journey-card {
+    position: relative;
+    padding: clamp(1.25rem, 2vw, 1.65rem);
+    border: 1px solid rgb(var(--border));
+    border-radius: 1rem;
+    background: rgb(var(--surface-raised));
     transition:
-      transform 300ms var(--ease),
-      background-color 300ms var(--ease);
+      border-color 240ms var(--ease),
+      transform 240ms var(--ease),
+      box-shadow 240ms var(--ease);
   }
-  .journey-dot[data-active='true']::before {
-    background: rgb(var(--accent));
-    transform: scale(1.5);
-  }
-  .journey-dot[data-active='true']::after {
+  /* the hairline that ties the card back to its node */
+  .journey-card::after {
     content: '';
     position: absolute;
-    inset: 0;
-    border-radius: 9999px;
-    border: 1px solid rgb(var(--accent) / 0.6);
-    animation: ping 2.2s var(--ease) infinite;
+    top: calc(var(--node-y) + var(--node-size) / 2);
+    width: clamp(1.25rem, 3vw, 2.5rem);
+    height: 1px;
+    background: rgb(var(--accent) / 0.55);
+  }
+  .journey-entry.is-left .journey-card::after { right: calc(-1 * clamp(1.25rem, 3vw, 2.5rem)); }
+  .journey-entry.is-right .journey-card::after { left: calc(-1 * clamp(1.25rem, 3vw, 2.5rem)); }
+
+  .journey-card:hover {
+    border-color: rgb(var(--border-hover));
+    box-shadow: 0 18px 40px -28px rgb(var(--text) / 0.5);
+  }
+
+  /* Each entry rises into place the first time it is seen, snapping in from its own side of the
+     spine so the zig-zag reads as a route being walked rather than a list appearing at once.
+     CSS-only via `data-show`, same contract as SplitText: worst case it is simply visible. */
+  .journey-entry .journey-card {
+    transform: translateY(22px);
+    opacity: 0;
+    transition:
+      transform 780ms var(--ease-out-expo),
+      opacity 620ms var(--ease-out-expo),
+      border-color 240ms var(--ease),
+      box-shadow 240ms var(--ease);
+  }
+  .journey-entry.is-left .journey-card { transform: translate(-18px, 22px); }
+  .journey-entry.is-right .journey-card { transform: translate(18px, 22px); }
+  .journey-entry[data-show='true'] .journey-card { transform: none; opacity: 1; }
+  .journey-entry[data-show='true'] .journey-node-inner {
+    border-color: rgb(var(--accent) / 0.7);
+    color: rgb(var(--accent));
+  }
+  .journey-node-inner {
+    transition:
+      border-color 500ms var(--ease),
+      color 500ms var(--ease);
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .journey-entry .journey-card,
+    .journey-entry.is-left .journey-card,
+    .journey-entry.is-right .journey-card { transform: none; opacity: 1; transition: none; }
+  }
+
+  @media (max-width: 900px) {
+    /* one rail: spine at the left edge, every card to its right — a centre spine at this width
+       leaves 40px columns that cannot hold a sentence */
+    .journey-spine { left: 0.65rem; }
+    .journey-entry {
+      grid-template-columns: auto 1fr;
+      column-gap: 0.55rem;
+    }
+    .journey-entry.is-left .journey-card,
+    .journey-entry.is-right .journey-card { grid-column: 2; }
+    .journey-node { grid-column: 1; margin-left: -0.2rem; }
+    .journey-card::after { display: none; }
   }
 
   /* ---------- misc primitives ---------- */
@@ -1563,11 +1654,8 @@ html[data-theme-ripple]::view-transition-old(root) {
     transform: none !important;
   }
 
-  .journey-track {
+  .journey-spine--lit {
     transform: none !important;
-  }
-  .journey-dot::after {
-    animation: none !important;
   }
   .section-head {
     transform: none !important;
