@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { ArrowUpRight, Briefcase, FolderGit2, GraduationCap, type LucideIcon } from 'lucide-react';
+import { Briefcase, FolderGit2, GraduationCap, type LucideIcon } from 'lucide-react';
 import { motion, useScroll, useTransform } from 'motion/react';
 import { useContent } from '../../data';
 import type { L, Milestone } from '../../content';
@@ -23,8 +23,8 @@ const T = {
   eyebrow: { en: 'Journey', id: 'Perjalanan' },
   title: { en: 'Where I have been', id: 'Tempat saya pernah berkarya' },
   lead: {
-    en: 'Coursework, capstone and thesis, in the order they happened — each traceable to a repository.',
-    id: 'Perkuliahan, capstone, dan tugas akhir, sesuai urutan kejadiannya — masing-masing bisa ditelusuri ke repositori.',
+    en: 'The roles I have held, in the order they happened — from a practicum front end to a thesis built end to end.',
+    id: 'Peran yang pernah saya pegang, sesuai urutan kejadiannya — dari front end praktikum sampai tugas akhir yang dibangun ujung ke ujung.',
   },
 };
 
@@ -110,12 +110,6 @@ export function Journey() {
                     </h3>
                     <p className="mt-1.5 text-small text-chalk-muted">{t(milestone.org)}</p>
                   </div>
-                  <span
-                    aria-hidden="true"
-                    className="mt-0.5 shrink-0 text-chalk-faint opacity-60"
-                  >
-                    <ArrowUpRight className="h-4 w-4" />
-                  </span>
                 </header>
 
                 <p className="mt-4 text-small leading-relaxed text-chalk-muted">
