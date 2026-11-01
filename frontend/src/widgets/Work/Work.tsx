@@ -242,11 +242,13 @@ export function Work() {
     };
 
     const measure = () => {
-      // Below 900px the CSS drops the pin and stacks the cards (see the max-width: 899px block in
-      // index.css). The inline height written here would override that `height: auto` and leave the
-      // rail reserving one screen while its stacked cards are twice as tall — they then spill over
-      // the Contact band and the footer. So on mobile the rail is handed back to CSS untouched.
-      if (window.matchMedia('(max-width: 899px)').matches) {
+      // Below 900px, and on any viewport too short to hold a card (a phone held sideways is 932px
+      // wide but only 430px tall), the CSS drops the pin and stacks the cards — see the
+      // `(max-width: 899px), (max-height: 559px)` block in index.css. The inline height written
+      // here would override that `height: auto` and leave the rail reserving one screen while its
+      // stacked cards are taller — they then spill over the Contact band and the footer. So there
+      // the rail is handed back to CSS untouched.
+      if (window.matchMedia('(max-width: 899px), (max-height: 559px)').matches) {
         rail.style.removeProperty('height');
         track.style.removeProperty('--travel');
         track.classList.remove('is-snapping');

@@ -1320,14 +1320,21 @@
 
   /* Below 900px the rail is dropped: pinning a card on a phone leaves no room to read, and a
      swipe-driven horizontal strip hides content behind a gesture nobody expects. Cards stack. */
-  @media (max-width: 899px) {
+  /* Height is part of the condition, not just width: a phone held sideways is 932px wide, so the
+     width query alone kept the pin, and a 519px card inside a 430px pin had its top and bottom
+     clipped — the copies piled onto each other. 560px is the shortest viewport measured where the
+     tallest card still fits (at 480px it already overflows). Mirrored in Work.tsx's measure(). */
+  @media (max-width: 899px), (max-height: 559px) {
     /* The rail's own bleed and the track's half-viewport padding exist to centre a card inside a
        pinned viewport. Stacked, both only inset the cards: the track kept 20vw of padding on each
        side, shrinking a 350px card to 285px and starting it 78px in from the shell edge. */
     .work-rail { height: auto; margin-inline: 0; }
     .work-rail-pin { position: static; height: auto; overflow: visible; }
     .work-rail-track { display: block; transform: none; padding-inline: 0; }
-    .rail-card { width: 100%; height: auto; display: block; }
+    /* a wide-but-short window (a laptop in landscape, a phone on its side) would otherwise stretch
+       one stacked card across the whole shell, so the device mockup alone becomes a screen tall;
+       the cap only bites there, since a phone's shell is already narrower than 40rem */
+    .rail-card { width: 100%; height: auto; display: block; max-width: 40rem; margin-inline: auto; }
     .rail-card-media { max-width: 100%; display: block; }
     .rail-card-body { margin-top: clamp(1.5rem, 4vw, 2.5rem); justify-content: flex-start; }
     /* the three columns stack: the machine, then the copy, then the numbers + stack */
@@ -1619,7 +1626,9 @@
     align-items: center;
     gap: 0.75rem;
     width: 100%;
-    max-width: 860px;
+    /* 860px was sized for one CTA; the CV pill beside it needs ~40px more before the name starts
+       truncating ("Aldi Pradana Hakim" needs 116px and was getting 110 at 1280 in Indonesian) */
+    max-width: 920px;
     /* `--nav-edge`, not `--border-strong`: a container boundary needs 3:1 against the page, and
        the shared border tokens are tuned for dividers — the pill read as a glow without it */
     border: 1px solid rgb(var(--nav-edge));
@@ -1728,6 +1737,17 @@
   .nav-cta:hover {
     background: rgb(var(--accent));
     color: rgb(var(--bg));
+  }
+  /* the CV sits beside the hire CTA without competing with it: an outline, not a second filled pill */
+  .nav-cta--ghost {
+    background: transparent;
+    border: 1px solid rgb(var(--border));
+    color: rgb(var(--text-muted));
+  }
+  .nav-cta--ghost:hover {
+    background: transparent;
+    border-color: rgb(var(--border-hover));
+    color: rgb(var(--text));
   }
   /* the drawer is the only nav below `md`, so the burger stays visible there */
   .nav-burger {

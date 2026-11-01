@@ -4,10 +4,12 @@ import { motion, useScroll, useTransform } from 'motion/react';
 import { useContent } from '../../data';
 import { useLang } from '../../shared/context/language';
 import { socialIcon } from '../../shared/lib/icons';
+import { CV_FILENAME, CV_HREF } from '../../shared/constants/cv';
 import { Marquee } from '../../motion/Marquee';
 
 const T = {
   seeWork: { en: 'See the work', id: 'Lihat karya' },
+  cv: { en: 'Download CV', id: 'Unduh CV' },
   socials: { en: 'Social profiles', id: 'Media sosial' },
   portfolio: { en: 'Portfolio', id: 'Portofolio' },
   greeting: { en: 'hi, i\u2019m', id: 'hai, saya' },
@@ -19,7 +21,7 @@ const T = {
  * eye reads "Aldi Pradana Hakim" in a single sweep instead of climbing between two blocks.
  */
 export function Hero() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { content } = useContent();
   const profile = content.profile;
 
@@ -107,6 +109,15 @@ export function Hero() {
           <a href="#work" data-cursor="link" className="hero-link">
             {t(T.seeWork)}
             <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+          </a>
+          <a
+            href={CV_HREF[lang]}
+            download={CV_FILENAME[lang]}
+            data-cursor="link"
+            className="hero-link"
+          >
+            {t(T.cv)}
+            <ArrowRight className="h-3.5 w-3.5 rotate-90" aria-hidden="true" />
           </a>
           <a href={`mailto:${profile.email}`} data-cursor="link" className="hero-link hero-link--mail">
             {profile.email}

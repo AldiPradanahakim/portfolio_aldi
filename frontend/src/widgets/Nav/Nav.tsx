@@ -8,6 +8,7 @@ import { NAV_SECTIONS } from '../../shared/constants/sections';
 import { useFocusTrap } from '../../shared/hooks/useFocusTrap';
 import { cx } from '../../shared/lib/cn';
 import { socialIcon } from '../../shared/lib/icons';
+import { CV_FILENAME, CV_HREF } from '../../shared/constants/cv';
 import { Cursor } from '../../motion/Cursor';
 
 const T = {
@@ -16,6 +17,7 @@ const T = {
   openMenu: { en: 'Open menu', id: 'Buka menu' },
   closeMenu: { en: 'Close menu', id: 'Tutup menu' },
   hire: { en: 'Hire me', id: 'Hubungi saya' },
+  cv: { en: 'Download CV', id: 'Unduh CV' },
   home: { en: 'Back to top', id: 'Kembali ke atas' },
 };
 
@@ -74,7 +76,7 @@ function useActiveSection(ids: string[]): string {
 }
 
 export function Nav() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const { content } = useContent();
   const profile = content.profile;
 
@@ -133,6 +135,14 @@ export function Nav() {
           <div className="nav-actions">
             <ThemeToggle />
             <LanguageToggle className="hidden sm:flex" />
+            <a
+              href={CV_HREF[lang]}
+              download={CV_FILENAME[lang]}
+              data-cursor="link"
+              className="nav-cta nav-cta--ghost hidden lg:inline-flex"
+            >
+              {t(T.cv)}
+            </a>
             <a href="#contact" data-cursor="link" className="nav-cta hidden md:inline-flex">
               {t(T.hire)}
             </a>
@@ -217,6 +227,14 @@ export function Nav() {
               </ul>
 
               <div className="mt-6 flex flex-col gap-4 border-t border-ink-800 pt-6">
+                <a
+                  href={CV_HREF[lang]}
+                  download={CV_FILENAME[lang]}
+                  onClick={() => setOpen(false)}
+                  className="press rounded-full border border-ink-800 px-5 py-3 text-center text-small font-medium text-chalk-muted"
+                >
+                  {t(T.cv)}
+                </a>
                 <a
                   href="#contact"
                   onClick={() => setOpen(false)}
