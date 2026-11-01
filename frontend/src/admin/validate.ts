@@ -1,7 +1,14 @@
 import type { Project, SiteContent } from '../content/types';
 
 export function isUrl(value: string): boolean {
-  return !value || value.startsWith('/') || value.startsWith('http') || value.startsWith('mailto:');
+  return (
+    !value ||
+    value.startsWith('/') ||
+    value.startsWith('http') ||
+    value.startsWith('mailto:') ||
+    // gambar hasil unggahan panel disimpan sebagai data URL di dalam dokumen konten
+    value.startsWith('data:image/')
+  );
 }
 
 export function emailError(email: string): string | undefined {

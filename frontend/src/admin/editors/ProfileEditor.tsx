@@ -1,5 +1,6 @@
 import type { L, Profile } from '../../content/types';
 import { EditorProps, Field, LField, ListEditor, Select, TextInput, Toggle } from '../ui';
+import { ImageField } from '../ImageField';
 import { emailError } from '../validate';
 
 const ICONS = ['mail', 'github', 'linkedin', 'instagram', 'whatsapp'] as const;
@@ -55,19 +56,18 @@ export function ProfileEditor({ draft, update }: EditorProps) {
             onChange={(on) => set({ photo: on ? profile.photo ?? '' : null })}
             label="Tampilkan foto"
           />
-          <span className="text-small text-chalk-muted">Tampilkan foto (URL)</span>
         </div>
         {profile.photo !== null ? (
-          <div className="mt-2 space-y-2">
-            <TextInput
+          <div className="mt-2">
+            <ImageField
+              label="Foto"
               value={profile.photo}
               onChange={(value) => set({ photo: value })}
-              mono
+              maxEdge={800}
+              previewClassName="h-24 w-24"
               placeholder="/images/aldi-pixar.webp"
+              hint="Diunggah langsung dari perangkat; diperkecil ke maksimal 800 px."
             />
-            {profile.photo ? (
-              <img src={profile.photo} alt="" className="h-20 w-20 rounded-xl border border-ink-800 object-cover" />
-            ) : null}
           </div>
         ) : null}
       </Field>

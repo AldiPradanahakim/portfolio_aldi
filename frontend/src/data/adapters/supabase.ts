@@ -159,5 +159,35 @@ export function supabaseAdapter(rawUrl?: string, anonKey?: string): DataAdapter 
       const session = await currentSession(authUrl, anonKey!);
       return session ? { email: session.email } : null;
     },
+
+    async changePassword(current, next) {
+      if (!configured) {
+        throw new Error('Supabase belum dikonfigurasi: isi VITE_SUPABASE_URL dan VITE_SUPABASE_ANON_KEY.');
+      }
+      const session = readSession();
+      if (!session) throw new Error('Masuk dulu sebelum mengganti kata sandi.');
+      // Supabase menolak PUT /user tanpa bukti sandi lama pada sesi yang lebih tua dari 24 jam,
+      // jadi masuk ulang dulu: sekaligus memvalidasi sandi lama.
+      const reauth = await fetch(`${authUrl}/token?grant_type=password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', apikey: anonKey! },
+        body: JSON.stringify({ email: session.email, password: current }),
+      });
+      if (!reauth.ok) throw new Error('Kata sandi lama tidak cocok.');
+
+      const res = await fetch(`${authUrl}/user`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          apikey: anonKey!,
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ password: next }),
+      });
+      if (!res.ok) {
+        const json = (await res.json().catch(() => null)) as { msg?: string; message?: string } | null;
+        throw new Error(json?.msg ?? json?.message ?? 'Gagal mengganti kata sandi.');
+      }
+    },
   };
 }

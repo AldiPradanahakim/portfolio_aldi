@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Category, Feature, Metric, Project } from '../../content/types';
 import { Badge, Btn, EditorProps, Field, LField, ListEditor, Select, TextInput, Toggle } from '../ui';
+import { ImageField } from '../ImageField';
 import { slugError, slugify } from '../validate';
 
 const STATUS: { value: Project['status']; label: string }[] = [
@@ -237,7 +238,7 @@ function ProjectForm({ project, index, projects, categories, isNew, onPatch, onC
       <LField label="Masalah" value={project.problem} onChange={(value) => onPatch({ problem: value })} multiline />
       <LField label="Solusi" value={project.solution} onChange={(value) => onPatch({ solution: value })} multiline />
 
-      <Field label="Cover">
+      <div>
         <div className="flex items-center gap-3">
           <Toggle
             checked={project.cover !== null}
@@ -247,21 +248,21 @@ function ProjectForm({ project, index, projects, categories, isNew, onPatch, onC
           <span className="text-small text-chalk-muted">{project.cover !== null ? 'Tanpa gambar' : 'Dengan gambar'}</span>
         </div>
         {project.cover !== null ? (
-          <div className="mt-2 space-y-2">
-            <TextInput
+          <div className="mt-2">
+            <ImageField
+              label="Cover"
               value={project.cover}
               onChange={(value) => onPatch({ cover: value })}
-              mono
+              maxEdge={1400}
+              previewClassName="h-28 w-44"
               placeholder="/images/projects/af-gps-tracker.webp"
+              hint="Rasio 16:10 paling pas untuk mockup laptop."
             />
-            {project.cover ? (
-              <img src={project.cover} alt="" className="h-28 w-44 rounded-xl border border-ink-800 object-cover" />
-            ) : null}
           </div>
         ) : null}
-      </Field>
+      </div>
 
-      <Field label="Galeri" hint="URL gambar; kosongkan jika tidak ada.">
+      <Field label="Galeri" hint="Satu gambar per baris; kosongkan jika tidak ada.">
         <ListEditor<string>
           items={project.gallery}
           onChange={(items) => onPatch({ gallery: items })}
@@ -269,10 +270,14 @@ function ProjectForm({ project, index, projects, categories, isNew, onPatch, onC
           addLabel="Tambah gambar galeri"
           emptyLabel="Belum ada galeri."
           render={(url, idx) => (
-            <TextInput
+            <ImageField
+              label={`Gambar ${idx + 1}`}
               value={url}
-              onChange={(value) => onPatch({ gallery: project.gallery.map((g, i) => (i === idx ? value : g)) })}
-              mono
+              onChange={(value) =>
+                onPatch({ gallery: project.gallery.map((g, i) => (i === idx ? value : g)) })
+              }
+              maxEdge={1200}
+              previewClassName="h-20 w-32"
             />
           )}
         />

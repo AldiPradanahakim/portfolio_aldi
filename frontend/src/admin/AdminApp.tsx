@@ -27,5 +27,11 @@ export default function AdminApp() {
     );
   }
 
-  return <Dashboard email={admin.session.email} source={admin.source} signOut={admin.signOut} />;
+  return (
+    <Dashboard
+      email={admin.session.email}
+      adapter={admin.adapter}
+      signOut={admin.signOut}
+    />
+  );
 }

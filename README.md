@@ -448,9 +448,22 @@ npm run dev
 # buka http://localhost:5180/admin
 ```
 
-Mode lokal (default): sandi `admin` (ubah lewat `VITE_ADMIN_PASSWORD`). Mode ini
-**hanya untuk pratinjau** — kata sandinya dibandingkan di peramban, bukan
-keamanan sungguhan; data disimpan di `localStorage`.
+Mode lokal (default): sandi `admin` (ubah lewat `VITE_ADMIN_PASSWORD`, atau dari
+panel di bagian **Kata sandi**). Mode ini **hanya untuk pratinjau** — kata
+sandinya dibandingkan di peramban, bukan keamanan sungguhan; data disimpan di
+`localStorage` dan sandi yang diganti dari panel disimpan sebagai hash PBKDF2.
+
+### Gambar
+
+Kolom gambar (foto profil, cover proyek, galeri) punya tombol **Unggah gambar**:
+berkas dipilih dari perangkat, diperkecil di peramban (foto profil maks 800 px,
+cover 1400 px, galeri 1200 px), lalu disimpan sebagai data URL di dalam dokumen
+konten. Tombol **Pakai URL** tetap ada untuk gambar yang sudah berada di
+`frontend/public/images/`.
+
+Konsekuensinya: gambar unggahan ikut masuk ke JSON ekspor dan ke `localStorage`
+(batas ±5 MB per origin). Untuk banyak gambar besar, simpan berkasnya di
+`frontend/public/images/` dan pakai jalur URL-nya.
 
 ### Menghubungkan Supabase
 
@@ -466,6 +479,7 @@ keamanan sungguhan; data disimpan di `localStorage`.
 2. Aktifkan email/password di Authentication, buat pengguna admin.
 3. Pasang `firebase/firestore.rules`.
 
-Panel admin tidak punya endpoint upload gambar — semua kolom gambar memakai
-URL. Nomor referensi lengkap ada di `frontend/.env.example`.
+Gambar diunggah di peramban (tanpa endpoint server), jadi tidak ada penyimpanan
+berkas terpisah: isinya masuk ke dokumen konten. Nomor referensi lengkap ada di
+`frontend/.env.example`.
 

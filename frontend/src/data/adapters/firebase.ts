@@ -9,6 +9,7 @@ const SESSION_KEY = 'aldi-admin-firebase';
 const DOC_PATH = 'site/content';
 
 const IDP_SIGN_IN = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword';
+const IDP_UPDATE = 'https://identitytoolkit.googleapis.com/v1/accounts:update';
 const TOKEN_REFRESH = 'https://securetoken.googleapis.com/v1/token';
 const FIRESTORE_BASE = 'https://firestore.googleapis.com/v1/projects';
 
@@ -150,6 +151,39 @@ export function firebaseAdapter(apiKey?: string, projectId?: string): DataAdapte
       if (!configured) return null;
       const session = await currentSession(apiKey!);
       return session ? { email: session.email } : null;
+    },
+
+    async changePassword(current, next) {
+      if (!configured) {
+        throw new Error('Firebase belum dikonfigurasi: isi VITE_FIREBASE_API_KEY dan VITE_FIREBASE_PROJECT_ID.');
+      }
+      const session = readSession();
+      if (!session) throw new Error('Masuk dulu sebelum mengganti kata sandi.');
+
+      // accounts:update menuntut idToken yang masih segar; masuk ulang sekaligus memeriksa sandi lama.
+      const reauth = await fetch(`${IDP_SIGN_IN}?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: session.email, password: current, returnSecureToken: true }),
+      });
+      if (!reauth.ok) throw new Error('Kata sandi lama tidak cocok.');
+      const fresh = (await reauth.json()) as { idToken: string; refreshToken: string; expiresIn: string };
+
+      const res = await fetch(`${IDP_UPDATE}?key=${apiKey}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken: fresh.idToken, password: next, returnSecureToken: true }),
+      });
+      if (!res.ok) {
+        const json = (await res.json().catch(() => null)) as { error?: { message?: string } } | null;
+        throw new Error(json?.error?.message ?? 'Gagal mengganti kata sandi.');
+      }
+      writeSession({
+        email: session.email,
+        id_token: fresh.idToken,
+        refresh_token: fresh.refreshToken,
+        expires_at: Date.now() + Number(fresh.expiresIn) * 1000,
+      });
     },
   };
 }

@@ -62,6 +62,7 @@ export function useAdminSession() {
     ready,
     signIn,
     signOut,
+    adapter,
     source: adapter.source,
     authMode: adapter.authMode,
     configured: adapter.configured,

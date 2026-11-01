@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
-import type { DataSource } from '../data/adapters/types';
+import type { DataAdapter } from '../data/adapters/types';
 import { exportJson, parseImport, useContentDraft } from '../data/store';
 import { validateContent } from './validate';
 import { Badge, Btn } from './ui';
+import { PasswordPanel } from './PasswordPanel';
 import { ProfileEditor } from './editors/ProfileEditor';
 import { ProjectsEditor } from './editors/ProjectsEditor';
 import { SkillsEditor } from './editors/SkillsEditor';
@@ -15,17 +16,18 @@ const SECTIONS = [
   { id: 'skills', label: 'Keahlian' },
   { id: 'journey', label: 'Perjalanan' },
   { id: 'settings', label: 'Kategori & SEO' },
+  { id: 'security', label: 'Kata sandi' },
 ] as const;
 
 type SectionId = (typeof SECTIONS)[number]['id'];
 
 interface DashboardProps {
   email: string;
-  source: DataSource;
+  adapter: DataAdapter;
   signOut: () => Promise<void>;
 }
 
-export function Dashboard({ email, source, signOut }: DashboardProps) {
+export function Dashboard({ email, adapter, signOut }: DashboardProps) {
   const { draft, update, dirty, saving, save, discard } = useContentDraft();
   const [section, setSection] = useState<SectionId>('profile');
   const [toast, setToast] = useState<{ tone: 'ok' | 'error'; text: string } | null>(null);
@@ -86,7 +88,7 @@ export function Dashboard({ email, source, signOut }: DashboardProps) {
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-4 py-3">
           <div className="flex items-center gap-3">
             <span className="text-h3 font-medium text-chalk">Panel CMS</span>
-            <Badge>{source}</Badge>
+            <Badge>{adapter.source}</Badge>
             {dirty ? <Badge tone="accent">belum disimpan</Badge> : null}
           </div>
           <div className="flex flex-wrap items-center gap-2">
@@ -135,6 +137,7 @@ export function Dashboard({ email, source, signOut }: DashboardProps) {
           {section === 'skills' ? <SkillsEditor draft={draft} update={update} /> : null}
           {section === 'journey' ? <JourneyEditor draft={draft} update={update} /> : null}
           {section === 'settings' ? <SettingsEditor draft={draft} update={update} /> : null}
+          {section === 'security' ? <PasswordPanel adapter={adapter} notify={notify} /> : null}
         </main>
       </div>
 

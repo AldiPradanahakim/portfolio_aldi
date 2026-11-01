@@ -15,4 +15,6 @@ export interface DataAdapter {
   signIn(email: string, password: string): Promise<void>;
   signOut(): Promise<void>;
   getSession(): Promise<AdminSession | null>;
+  /** Ubah kata sandi akun yang sedang masuk. Absen = sumber tidak mendukung. */
+  changePassword?(current: string, next: string): Promise<void>;
 }
