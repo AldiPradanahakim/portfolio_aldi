@@ -242,6 +242,20 @@ export function Work() {
     };
 
     const measure = () => {
+      // Below 900px the CSS drops the pin and stacks the cards (see the max-width: 899px block in
+      // index.css). The inline height written here would override that `height: auto` and leave the
+      // rail reserving one screen while its stacked cards are twice as tall — they then spill over
+      // the Contact band and the footer. So on mobile the rail is handed back to CSS untouched.
+      if (window.matchMedia('(max-width: 899px)').matches) {
+        rail.style.removeProperty('height');
+        track.style.removeProperty('--travel');
+        track.classList.remove('is-snapping');
+        travel = 0;
+        snaps = [];
+        update();
+        return;
+      }
+
       // Panel width: 5:3 like the reference, capped so the panel always fits one screen. The copy
       // sits in its own column INSIDE the panel (see the CSS), which is what keeps the device large
       // enough to read — stacked, the screenshot and the copy together overflowed a 5:3 box.

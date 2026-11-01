@@ -1321,9 +1321,12 @@
   /* Below 900px the rail is dropped: pinning a card on a phone leaves no room to read, and a
      swipe-driven horizontal strip hides content behind a gesture nobody expects. Cards stack. */
   @media (max-width: 899px) {
-    .work-rail { height: auto; margin-right: 0; }
+    /* The rail's own bleed and the track's half-viewport padding exist to centre a card inside a
+       pinned viewport. Stacked, both only inset the cards: the track kept 20vw of padding on each
+       side, shrinking a 350px card to 285px and starting it 78px in from the shell edge. */
+    .work-rail { height: auto; margin-inline: 0; }
     .work-rail-pin { position: static; height: auto; overflow: visible; }
-    .work-rail-track { display: block; transform: none; }
+    .work-rail-track { display: block; transform: none; padding-inline: 0; }
     .rail-card { width: 100%; height: auto; display: block; }
     .rail-card-media { max-width: 100%; display: block; }
     .rail-card-body { margin-top: clamp(1.5rem, 4vw, 2.5rem); justify-content: flex-start; }
